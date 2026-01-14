@@ -26,10 +26,14 @@ First, make sure Node.js is downloaded (You can download it from the following w
 
 Here you can find important information about all pages:
 
-- In the components folder, you will find information about ChatGPT's API, the text editor, and the updated data. You can only change the model of ChatGPT, number of tokens, etc. See information about ChatGPT.js for relevant information.
+## Components Folder
+
+Here, you will find information about ChatGPT's API, the text editor, and the updated data. You can only change the model of ChatGPT, number of tokens, etc. See information about ChatGPT.js for relevant information.
+
 - LogTable.js: Transforms the data into a table with a timestamp, and the text written in the text editor.
 - Modal.js: XXXX
 - QuillTextEditor.js: The text editor part. Here, we update the toolbar (showAI = include an AI button to open ChatGPT in the toolbar). The text editor saves a timestamp and the updated text after each space insert or deletion.
+- ChatGPT Folder.
 
 ### ChatGPT Folder:
 
