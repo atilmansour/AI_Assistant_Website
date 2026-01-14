@@ -1,0 +1,558 @@
+/* ========= Base ========= */
+:root {
+  --panel-h: 80vh; /* ONE source of truth for both panels */
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background-color: #f4f4f4;
+  display: block; /* keep layout controlled by containers */
+}
+
+.thank-you {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+/* ========= Page layout ========= */
+#content-container {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+  gap: 1%;
+}
+
+/* ========= Editor area wrapper ========= */
+/* ✅ UPDATED: flex-grow when chat is closed, fixed 60vw when chat is open */
+#editor-area {
+  flex: 1 1 auto; /* grow */
+  min-width: 0;
+  margin-top: 0.7%;
+  margin-left: 1%;
+  margin-right: 1%;
+  margin-bottom: 0.5%;
+  transition: flex-basis 260ms ease, max-width 260ms ease;
+}
+
+#editor-area.with-chat {
+  flex: 0 0 60vw; /* fixed when chat open */
+  max-width: 60vw;
+}
+
+#editor-area.full {
+  flex: 1 1 auto; /* fill when chat closed */
+  max-width: none;
+}
+
+/* Open AI button placement (top-right above editor box) */
+#open-ai-above-editor a,
+#open-ai-above-editor a:visited,
+#open-ai-above-editor a:hover,
+#open-ai-above-editor a:active {
+  text-decoration: none !important;
+  color: inherit;
+}
+
+/* center the Open AI button between the two titles */
+#open-ai-above-editor {
+  margin-left: auto;
+  margin-right: auto;
+}
+
+#open-ai-above-editor button {
+  font-weight: normal;
+  text-decoration: none;
+  display: flex;
+  width: 12vw;
+  height: 1.8vw;
+  justify-content: space-around;
+  align-items: center;
+  font-size: 1.12vw;
+  padding: 0.5%;
+  border-radius: 6px;
+}
+
+/* ========= Text editor container ========= */
+#text-editor-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  width: 100%; /*  UPDATED (was 60vw) */
+  height: var(--panel-h);
+
+  margin: 0;
+  padding: 2.08%;
+
+  box-sizing: border-box; /* IMPORTANT: height includes padding */
+
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  overflow-y: hidden;
+  position: relative;
+}
+
+/* ========= Quill editor ========= */
+
+/* Toolbar: keep ONE row, scroll horizontally on small screens (so AI stays “next to Tx”) */
+.ql-toolbar {
+  display: flex;
+  flex-wrap: nowrap; /* no wrapping */
+  overflow-x: auto;  /* horizontal scroll */
+  overflow-y: hidden;
+  align-items: center;
+  gap: 6px;
+
+  font-size: 1.4vw;
+}
+
+/* Make groups not force line breaks */
+.ql-toolbar .ql-formats {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-right: 8px; /* keep a small gap between groups */
+}
+
+/* AI button inside toolbar (now a real Quill toolbar button) */
+.ql-toolbar .ql-ai{
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+
+  height: 28px !important;
+  padding: 0 12px !important;
+
+  line-height: 1 !important;
+  vertical-align: middle !important;
+
+  margin: 0 !important;
+}
+
+.ql-toolbar .ql-formats{
+  display: inline-flex;
+  align-items: center;
+}
+
+.ql-toolbar .ql-ai:hover {
+  filter: brightness(0.95);
+}
+
+.ql-container {
+  height: 53vh;
+  font-size: 1.4vw;
+}
+
+.text-editor-wrapper .ql-container {
+  height: 70vh;
+}
+
+.bold-text {
+  font-weight: bold;
+}
+
+/* ========= Chat slot (keeps editor stable) ========= */
+#assistant-slot {
+  flex: 0 0 auto; 
+  width: 0;      
+  height: var(--panel-h);
+
+  margin-top: 0.7%;
+  margin-bottom: 0.5%;
+
+  transition: width 260ms ease;
+  position: relative;
+  box-sizing: border-box;
+}
+
+#assistant-slot.open {
+  width: 30vw;
+  margin-left: 2%;
+  margin-right: 1%;
+}
+
+/* Collapsed state (keeps only the handle visible) */
+#assistant-slot.open.collapsed {
+  width: 44px; /* just enough for the handle */
+  margin-left: 2%;
+  margin-right: 1%;
+}
+
+/* Chat card look + fade/slide */
+.assistant-inner {
+  width: 100%;
+  height: 100%;
+  padding: 2.08%;
+
+  box-sizing: border-box;
+
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  overflow: hidden;
+
+  transform: translateY(10px);
+  opacity: 0;
+  transition: transform 220ms ease, opacity 220ms ease;
+  will-change: transform, opacity;
+}
+
+#assistant-slot.open .assistant-inner {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* Hide the inner card when collapsed (handle stays) */
+#assistant-slot.open.collapsed .assistant-inner {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ========= Collapse handle ========= */
+.chat-handle {
+  position: absolute;
+  left: -18px;
+  top: 50%;
+  transform: translateY(-50%);
+
+  width: 42px;
+  height: 84px;
+
+  border: none;
+  border-radius: 999px;
+  background: #0094ff;
+  color: #fff;
+
+  cursor: pointer;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.18);
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: 22px;
+  line-height: 1;
+  z-index: 10;
+}
+
+.chat-handle:hover {
+  background-color: #79bdf5;
+}
+
+/* ========= Chat container inside ChatGPT component ========= */
+#chat-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  width: 100%;
+  height: 100%;
+
+  padding: 5.08%;
+  padding-left: 2%;
+  box-sizing: border-box;
+
+  background-color: #fff;
+  overflow: hidden; /* scroll happens in #chat-output */
+}
+
+/* Header inside the chat card */
+.chat-shell-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  padding-bottom: 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.chat-close {
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  padding: 6px 8px;
+  border-radius: 8px;
+  color: #333;
+}
+
+.chat-close:hover {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+/* ========= Chat bubbles / messages area ========= */
+#chat-output {
+  flex: 1;
+  overflow-y: auto;
+  background: #ffffff;
+  border-radius: 18px;
+  padding: 0.5%;
+  box-sizing: border-box;
+  margin: 0;
+  scrollbar-gutter: stable;
+}
+
+/* Message bubbles */
+.user,
+.chatbot {
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 8px;
+  white-space: pre-line;
+}
+
+.user {
+  background-color: #0094ff;
+  color: #fff;
+  align-self: flex-end;
+}
+
+.chatbot {
+  background-color: #eee;
+  color: #333;
+  align-self: flex-start;
+}
+
+/* Input row at the bottom */
+.user-send {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  box-sizing: border-box;
+}
+
+/* ========= Global Inputs / Buttons ========= */
+input {
+  width: 100%;
+  padding: 10px;
+  margin-right: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+input[type="text"] {
+  font-size: 1.4vw;
+}
+
+button {
+  font-size: 1.2vw;
+  font-weight: bold;
+  padding: 6px;
+  border: none;
+  border-radius: 2.5px;
+  background-color: #0094ff;
+  color: #fff;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #79bdf5;
+}
+
+.ql-toolbar button:not(.ql-ai) {
+  background: transparent !important;
+  color: inherit !important;
+  border: 1px solid transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  font-size: inherit !important;
+  font-weight: normal !important;
+  cursor: pointer;
+}
+
+/* 2) Make the AI button look like the OLD style */
+.ql-toolbar .ql-ai {
+  background: #0094ff !important;
+  color: #fff !important;
+  border: none !important;
+
+  /* old "pill" vibe */
+  border-radius: 6px !important;
+
+  /* size like a normal toolbar button (recommended) */
+  height: 28px;
+  line-height: 28px;
+  padding: 0 12px !important;
+
+  font-weight: normal !important;
+  font-size: 1.12vw;  
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  margin-left: 6px; /* keeps it right next to Tx */
+}
+
+.ql-toolbar .ql-ai:hover {
+  background: #79bdf5 !important;
+}
+
+/* ========= OVERRIDES: input/button inside chat only ========= */
+#chat-container .user-send input {
+  flex: 1;
+  width: auto;
+  min-width: 0;
+  margin-right: 0;
+  box-sizing: border-box;
+
+  padding: 16px 18px;
+  border-radius: 10px;
+  font-size: 18px;
+}
+
+#chat-container .user-send button {
+  flex: 0 0 auto;
+  width: auto;
+  padding: 16px 22px;
+  border-radius: 10px;
+  font-size: 20px;
+}
+
+/* ========= Submit button ========= */
+#submit-button {
+  display: flex;
+  height: 1.6vw;
+  justify-content: center;
+  font-size: 1.4vw;
+  font-weight: bold;
+}
+
+#submit-button-exp {
+  display: flex;
+  justify-content: flex-start;
+  margin-left: 5vw;
+  margin-bottom: 0.2vw;
+}
+
+/* ========= Messages history ========= */
+#messages-history {
+  font-size: 1.4vw;
+  max-width: 100vw;
+  max-height: 75vh;
+}
+
+/* ========= Modal ========= */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal {
+  background: #fff;
+  padding: 2.08%;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  z-index: 10000;
+}
+
+.buttons-on-modal {
+  display: flex;
+  justify-content: space-around;
+}
+
+.container-wrapper {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* ========= Titles ========= */
+#title-container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+#title-text {
+  display: flex;
+  margin-left: 2%;
+  justify-content: space-around;
+  width: 12vw;
+  height: 1.7vw;
+  padding: 0.1%;
+  border-radius: 6px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  align-items: center;
+  background-color: #0094ff;
+  color: #fff;
+  font-size: 1.12vw;
+}
+
+/* assistant title aligns to far right */
+#title-assistant {
+  display: flex;
+  margin-left: auto;
+  margin-right: 13.5%;
+  justify-content: center;
+  width: 12vw;
+  height: 1.7vw;
+  padding: 0.1%;
+  border-radius: 6px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  background-color: #0094ff;
+  color: #fff;
+  font-size: 1.12vw;
+  align-items: center;
+}
+
+.title-fade-in {
+  opacity: 0;
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 1200ms ease, opacity 800ms ease;
+  pointer-events: none;
+}
+
+.title-fade-in.show {
+  opacity: 1;
+  max-height: 120px;
+  pointer-events: auto;
+  text-align: center;
+}
+
+#title-text-control {
+  display: flex;
+  margin: auto;
+  justify-content: space-around;
+  width: 12vw;
+  height: 1.7vw;
+  padding: 0.1%;
+  border-radius: 6px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  align-items: center;
+  background-color: #0094ff;
+  color: #fff;
+  font-size: 1.12vw;
+}
+
+/* ========= Instructions ========= */
+#instructions {
+  margin-bottom: 4px;
+  margin-top: 2px;
+  display: flex;
+  justify-content: space-around;
+  border-radius: 4px;
+  text-align: center;
+  font-size: 1.1vw;
+}
