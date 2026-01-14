@@ -3,6 +3,10 @@ import ReactQuill from "react-quill";
 import "react-quill/dist/quill.snow.css";
 import "../App.css";
 
+//Having a custom toolbar - relevant if you want to have "ButtonPress.js" as one of the conditions in your expirment
+//This part adds a button named "AI Assistant" as the first time opening ChatGPT window.
+// The data includes after how many milliseconds the user pressed the button.
+//In case you do not want the button, you may use other conditions (there, showAI = false).
 const CustomToolbar = ({ showAI, onOpenChat }) => (
   <div id="toolbar" className="ql-toolbar ql-snow">
     <span className="ql-formats">
@@ -14,6 +18,8 @@ const CustomToolbar = ({ showAI, onOpenChat }) => (
     </span>
 
     <span className="ql-formats">
+      {" "}
+      {/* Toolbar includes other functions as bold, italic, underline, etc. */}
       <button type="button" className="ql-bold" />
       <button type="button" className="ql-italic" />
       <button type="button" className="ql-underline" />
@@ -32,8 +38,8 @@ const CustomToolbar = ({ showAI, onOpenChat }) => (
           onMouseDown={(e) => e.preventDefault()}
           onClick={onOpenChat}
         >
-          AI
-        </button>
+          AI Assistant
+        </button> /*Here, is the AI button, if you want to change it's name, change here */
       )}
     </span>
   </div>
@@ -41,11 +47,11 @@ const CustomToolbar = ({ showAI, onOpenChat }) => (
 
 const TextEditor = ({
   submit,
-  onEditorSubmit,
-  pasteFlag,
-  onLastEditedTextChange,
-  onOpenChat,
-  showAI = false,
+  onEditorSubmit, //handling submitting the text.
+  pasteFlag, //pasteFlag checks if pasting to the text editor are allowed.
+  onLastEditedTextChange, //saving last updated text.
+  onOpenChat, //Opening chat.
+  showAI = false, //the default is that there is no AI button.
 }) => {
   const [log, setLog] = useState([]);
   const [text, setText] = useState("");
@@ -59,7 +65,7 @@ const TextEditor = ({
       const timestamp = new Date().toLocaleTimeString();
       onEditorSubmit([...log, { timestamp, text }]);
     }
-  }, [submit]); // keep like your original behavior
+  }, [submit]); // the log saves the exact timestamp and text.
 
   useEffect(() => {
     const root = getQuill()?.root;
@@ -71,11 +77,11 @@ const TextEditor = ({
 
     root.addEventListener("paste", handlePaste);
     return () => root.removeEventListener("paste", handlePaste);
-  }, [pasteFlag]);
+  }, [pasteFlag]); //We remove paste if the flage is false
 
   useEffect(() => {
     const root = getQuill()?.root;
-    if (root) root.setAttribute("autocomplete", "off");
+    if (root) root.setAttribute("autocomplete", "off"); //turning off autocomplete - we want our AI to be the only AI used.
   }, []);
 
   const modules = useMemo(
@@ -89,7 +95,7 @@ const TextEditor = ({
     // Always keep editor controlled
     setText(content);
 
-    // Only log after space insert/delete, like before
+    // Only log after space insert/delete
     if (source === "user") {
       const ops = delta?.ops || [];
       const spaceInserted = ops.some((op) => op.insert === " ");

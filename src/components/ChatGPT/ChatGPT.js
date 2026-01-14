@@ -52,14 +52,14 @@ const ChatGPT = ({
       const response = await axios.post(
         "https://api.openai.com/v1/chat/completions",
         {
-          max_tokens: 1000,
-          model: "gpt-4o",
-          messages: chatHistory,
+          max_tokens: 1000, //max tokens
+          model: "gpt-4o", //GPT version, change to the model you would like
+          messages: chatHistory, //Sending the entire history so that GPT would have a "memory" of the entire conversation
         },
         {
           headers: {
             "Content-Type": "application/json",
-            Authorization: process.env.REACT_APP_GPT_KEY,
+            Authorization: process.env.REACT_APP_GPT_KEY, //this is the environment variable - your gpt private key
           },
         }
       );
@@ -68,9 +68,10 @@ const ChatGPT = ({
 
       setMessages((prevMessages) => [
         ...prevMessages,
-        { timestamp, text: chatbotResponse, sender: "chatbot" },
+        { timestamp, text: chatbotResponse, sender: "chatbot" }, //Updating new messages - marking the sender as chatbot.
       ]);
     } catch (error) {
+      //in case of an error, the chatbot sends: "sorry, an error occurred."
       console.error("Error:", error);
       setMessages((prevMessages) => [
         ...prevMessages,
