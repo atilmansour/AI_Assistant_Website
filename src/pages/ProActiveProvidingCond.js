@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import TextEditor from "../components/QuillTextEditor";
-import ChatGPT from "../components/ChatGPT/ChatGPT";
+import AI_API from "../components/AI_Options/AI_API";
 import Button from "../components/Button";
 import Modal from "../components/Modal";
 import "../App.css";
@@ -14,13 +14,19 @@ const ProActiveProvidingCond = () => {
   const [isEarlyModalOpen, setEarlyModalOpen] = useState(false);
   const [submit, setSubmit] = useState(false);
   const pasteFlagI = false;
+  const [submitAttempts, setSubmitAttempts] = useState(0);
+  const [submitAttemptTimesMs, setSubmitAttemptTimesMs] = useState([]); // [t1, t2, ...]
+
   const [canSubmit, setCanSubmit] = useState(false);
   const [currentLength, setcurrentLength] = useState(0);
   const [canSubmitWord, setCanSubmitWord] = useState(false);
+  const startTimeRef = useRef(Date.now());
   const [canSubmitTime, setCanSubmitTime] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [isChatCollapsed, setIsChatCollapsed] = useState(false);
-
+  const [messageEarlyModal, setMessageEarlyModal] = useState(
+    "Most participants spend more time developing their ideas before submitting. Please review your work and add any additional thoughts before continuing.",
+  );
   // Chat open/close/collapse events (ms since page start)
   const startMsRef = useRef(performance.now());
   const [chatEvents, setChatEvents] = useState([]);
@@ -35,10 +41,8 @@ const ProActiveProvidingCond = () => {
 
   // memoize initial messages so ChatGPT doesn't reset on re-render
   const initialAssistantMessages = useMemo(
-    () => [
-      "Hello, I am your AI assistant. Feel free to ask me for help when brainstorming ideas! ",
-    ],
-    []
+    () => ["Hey, let me help you with this. I can work on some ideas for you."],
+    [],
   );
 
   const openChat = useCallback(() => {
@@ -81,29 +85,38 @@ const ProActiveProvidingCond = () => {
     };
   }, []);
 
+  //useEffect(() => {
+  //  const timer = setTimeout(() => {
+  //    setCanSubmitTime(true);
+  //  }, 180000); // 3 minutes
+  //  return () => clearTimeout(timer);
+  //}, []);
+
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setCanSubmitTime(true);
-    }, 180000); // 3 minutes
-    return () => clearTimeout(timer);
+    const interval = setInterval(() => {
+      setCanSubmitTime(Date.now() - startTimeRef.current >= 180000); // 3 min
+    }, 500); // update twice/sec
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Update immediately when they return to the tab
+  useEffect(() => {
+    const onVis = () => {
+      setCanSubmitTime(Date.now() - startTimeRef.current >= 180000);
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => document.removeEventListener("visibilitychange", onVis);
   }, []);
 
   useEffect(() => {
-    if (currentLastEditedText.length > 0) {
-      setcurrentLength(
-        currentLastEditedText.trim().split(/\s+/).filter(Boolean).length
-      );
-      if (currentLength >= 50) {
-        setCanSubmitWord(true);
-      } else {
-        setCanSubmitWord(false);
-      }
-    } else {
-      setCanSubmitWord(false);
-    }
-  }, [currentLastEditedText, currentLength]);
+    const wc = currentLastEditedText.trim().split(/\s+/).filter(Boolean).length;
 
-  // Auto open chat after 60 seconds
+    setcurrentLength(wc);
+    setCanSubmitWord(wc >= 50);
+  }, [currentLastEditedText]);
+
+  // Auto open chat after 20 seconds
   useEffect(() => {
     const t = setTimeout(() => {
       if (!hasAutoOpenedRef.current) {
@@ -111,16 +124,33 @@ const ProActiveProvidingCond = () => {
         logChatEvent("chat_auto_open");
         openChat();
       }
-    }, 60000);
+    }, 20000);
 
     return () => clearTimeout(t);
   }, [openChat, logChatEvent]);
 
   useEffect(() => {
     setCanSubmit(canSubmitWord && canSubmitTime);
+    if (!canSubmitWord && !canSubmitTime)
+      setMessageEarlyModal(
+        "Most participants spend more time developing their ideas before submitting. Please review your work and add any additional thoughts before continuing.",
+      );
+    else if (!canSubmitWord)
+      setMessageEarlyModal(
+        "Most participants suggest more developed ideas before submitting. Please review your work and add any additional thoughts before continuing.",
+      );
+    else if (!canSubmitTime)
+      setMessageEarlyModal(
+        "Most participants spend more time developing their ideas before submitting. Please review your work and add any additional thoughts before continuing.",
+      );
   }, [canSubmitWord, canSubmitTime]);
 
   const handleOpenModal = () => {
+    const t_ms = Math.round(performance.now() - startMsRef.current);
+
+    setSubmitAttempts((n) => n + 1);
+    setSubmitAttemptTimesMs((prev) => [...prev, t_ms]);
+
     if (canSubmit) setModalOpen(true);
     else setEarlyModalOpen(true);
   };
@@ -132,9 +162,9 @@ const ProActiveProvidingCond = () => {
     const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     const middlePart = Array.from(
       { length },
-      () => characters[Math.floor(Math.random() * characters.length)]
+      () => characters[Math.floor(Math.random() * characters.length)],
     ).join("");
-    return `PP${middlePart}1`;
+    return `PP${middlePart}45`;
   }
 
   const handleConfirmSubmit = async () => {
@@ -142,6 +172,8 @@ const ProActiveProvidingCond = () => {
     const logs = {
       id: getRandomString(5),
       chatEvents: chatEvents,
+      NumOfSubmitClicks: submitAttempts,
+      TimeStampOfSubmitClicks: submitAttemptTimesMs,
       messages: messagesLog,
       editor: editorLog,
     };
@@ -184,7 +216,7 @@ const ProActiveProvidingCond = () => {
       .putObject(params)
       .on("httpUploadProgress", (evt) => {
         console.log(
-          "Uploading " + parseInt((evt.loaded * 100) / evt.total) + "%"
+          "Uploading " + parseInt((evt.loaded * 100) / evt.total) + "%",
         );
       })
       .promise();
@@ -203,10 +235,16 @@ const ProActiveProvidingCond = () => {
     <div>
       <p id="instructions" style={{ display: "block" }}>
         Instructions: Please write 4-5 concrete and actionable ideas for
-        improving the Prolific platform. For each idea, please: Assign a number
-        (e.g., Idea 1, Idea 2, Idea 3), Provide a short title, Include a brief
-        description explaining the idea.
+        improving the Prolific platform.{" "}
+        <strong>
+          For each idea, please: Assign a number (e.g., Idea 1, Idea 2, Idea 3).
+        </strong>{" "}
+        Provide a short title, Include a brief description explaining the idea.
         {"\n"}
+        Please work on this task as you would in a real work setting. We expect
+        most participants to spend several minutes developing multiple concrete
+        ideas. Submissions that appear extremely brief or incomplete may not be
+        eligible for bonus payment.
       </p>
 
       <div id="title-container">
@@ -264,10 +302,11 @@ const ProActiveProvidingCond = () => {
               </button>
             </div>
 
-            <ChatGPT
+            <AI_API
               onMessagesSubmit={handleMessages}
-              initialMessages={initialAssistantMessages}
+              initialMessages={[initialAssistantMessages]}
               lastEditedText={currentLastEditedText}
+              aiProvider={"chatgpt"} // "chatgpt" | "claude" | "gemini
             />
           </div>
         </div>
@@ -290,7 +329,7 @@ const ProActiveProvidingCond = () => {
       <Modal
         isOpen={isEarlyModalOpen}
         onClose={handleCloseEarlyModal}
-        message="Please continue working on the task."
+        message={messageEarlyModal}
         showConfirm={false}
       />
     </div>

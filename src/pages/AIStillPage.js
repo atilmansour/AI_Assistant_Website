@@ -6,7 +6,7 @@ import Modal from "../components/Modal";
 import "../App.css";
 import AWS from "aws-sdk";
 
-const ProActiveOfferingCond = () => {
+const AIStillPage = () => {
   const [editorLog, setEditorLog] = useState([]);
   const [currentLastEditedText, setCurrentLastEditedText] = useState("");
   const [messagesLog, setMessagesLog] = useState([]);
@@ -23,19 +23,12 @@ const ProActiveOfferingCond = () => {
   const [canSubmitWord, setCanSubmitWord] = useState(false);
   const [canSubmitTime, setCanSubmitTime] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
-  const [isChatCollapsed, setIsChatCollapsed] = useState(false);
   const [messageEarlyModal, setMessageEarlyModal] = useState(
     "Most participants spend more time developing their ideas before submitting. Please review your work and add any additional thoughts before continuing.",
   );
 
   // Chat open/close/collapse events (ms since page start)
   const startMsRef = useRef(performance.now());
-  const [chatEvents, setChatEvents] = useState([]);
-
-  const logChatEvent = useCallback((type, extra = {}) => {
-    const t = Math.round(performance.now() - startMsRef.current);
-    setChatEvents((prev) => [...prev, { t_ms: t, type, ...extra }]);
-  }, []);
 
   // optional: prevent auto-open from firing multiple times
   const hasAutoOpenedRef = useRef(false);
@@ -43,30 +36,14 @@ const ProActiveOfferingCond = () => {
   // memoize initial messages so ChatGPT doesn't reset on re-render
   const initialAssistantMessages = useMemo(
     () => [
-      "Hey, I took the liberty of helping you with this. Here are a couple of ideas for you:\n\nIdea 1: More Transparency in Study Eligibility - Provide clearer explanations when participants are not eligible or are screened out of a study, so users better understand eligibility decisions.\n\n Idea 2: Customizable Study Notifications - Allow participants to set preferences for study length, pay rate, or topic and receive notifications only for studies that match those criteria.",
+      "Hello, this is a present message that you can edit in your code in AIStillPage.js (theInitialMsg).",
     ],
     [],
   );
 
   const openChat = useCallback(() => {
-    setIsChatOpen(true);
-    setIsChatCollapsed(false); // always open fully
-    logChatEvent("chat_open");
-  }, [logChatEvent]);
-
-  const closeChat = useCallback(() => {
-    setIsChatOpen(false);
-    setIsChatCollapsed(false);
-    logChatEvent("chat_close");
-  }, [logChatEvent]);
-
-  const toggleCollapseChat = useCallback(() => {
-    setIsChatCollapsed((v) => {
-      const next = !v;
-      logChatEvent(next ? "chat_collapse" : "chat_expand");
-      return next;
-    });
-  }, [logChatEvent]);
+    setIsChatOpen(true); // always open fully
+  }, []);
 
   useEffect(() => {
     setSubmit(isModalOpen);
@@ -124,13 +101,12 @@ const ProActiveOfferingCond = () => {
     const t = setTimeout(() => {
       if (!hasAutoOpenedRef.current) {
         hasAutoOpenedRef.current = true;
-        logChatEvent("chat_auto_open");
         openChat();
       }
-    }, 20000);
+    }, 100);
 
     return () => clearTimeout(t);
-  }, [openChat, logChatEvent]);
+  }, [openChat]);
 
   useEffect(() => {
     setCanSubmit(canSubmitWord && canSubmitTime);
@@ -167,14 +143,13 @@ const ProActiveOfferingCond = () => {
       { length },
       () => characters[Math.floor(Math.random() * characters.length)],
     ).join("");
-    return `PO${middlePart}45`;
+    return `PO${middlePart}45`; //You can add prefix/suffix to the random string each .txt receives, so it would be easier to differeniate between conditions
   }
 
   const handleConfirmSubmit = async () => {
     setModalOpen(false);
     const logs = {
       id: getRandomString(5),
-      chatEvents: chatEvents,
       NumOfSubmitClicks: submitAttempts,
       TimeStampOfSubmitClicks: submitAttemptTimesMs,
       messages: messagesLog,
@@ -230,9 +205,7 @@ const ProActiveOfferingCond = () => {
     });
   };
 
-  const assistantSlotClass = `${isChatOpen ? "open" : ""} ${
-    isChatCollapsed ? "collapsed" : ""
-  }`.trim();
+  const assistantSlotClass = `${isChatOpen ? "open" : ""}`.trim();
 
   return (
     <div>
@@ -255,9 +228,7 @@ const ProActiveOfferingCond = () => {
 
         <div
           id="title-assistant"
-          className={`title-fade-in ${
-            isChatOpen && !isChatCollapsed ? "show" : ""
-          }`}
+          className={`title-fade-in ${isChatOpen ? "show" : ""}`}
         >
           AI Assistant
         </div>
@@ -279,30 +250,11 @@ const ProActiveOfferingCond = () => {
         {/* RIGHT: Chat slot (open + collapsible handle) */}
         <div id="assistant-slot" className={assistantSlotClass}>
           {/* handle shows only after chat is opened */}
-          {isChatOpen && (
-            <button
-              className="chat-handle"
-              onClick={toggleCollapseChat}
-              aria-label={isChatCollapsed ? "Show chat" : "Hide chat"}
-              title={isChatCollapsed ? "Show chat" : "Hide chat"}
-              type="button"
-            >
-              {isChatCollapsed ? "❮" : "❯"}
-            </button>
-          )}
+          {isChatOpen}
 
           <div className="assistant-inner">
             <div className="chat-shell-header">
               <div>AI Assistant</div>
-
-              <button
-                className="chat-close"
-                onClick={closeChat}
-                aria-label="Close chat"
-                type="button"
-              >
-                ✕
-              </button>
             </div>
 
             <AI_API
@@ -339,4 +291,4 @@ const ProActiveOfferingCond = () => {
   );
 };
 
-export default ProActiveOfferingCond;
+export default AIStillPage;
