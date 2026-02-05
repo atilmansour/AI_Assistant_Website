@@ -1,11 +1,35 @@
 # AI_Assistant_Website
 
+## Download GitHub
+
+To set up your computer, you need to download git on your laptop.
+Please use this link to download git: https://git-scm.com/install/
+
 ## Download This Repository
 
-To download this repository locally, follow these few steps:
+To get save this code and get it ready to edit, follow these few steps:
 
-1. Open the folder you want your code in.
-2.
+1. Click **Fork** (top-right on GitHub) to create your own copy of this repository.
+2. Open your CMD
+3. Go to the folder where you want to save the project using the following command: cd PATH/TO/FOLDER
+4. Clone **your fork** to your computer:
+   git clone https://github.com/<YOUR_USERNAME>/<REPO_NAME>.git
+5. Move into project folder using cd AI_Assistant_Website
+6. Add the original repository as upstream (so you can pull updates later), using the following commands:
+   git remote add upstream https://github.com/atilmansour/AI_Assistant_Website
+   git remote -v
+7. Create a new branch for your changes:
+   git checkout -b my-change
+
+Now you are free to start editing and saving your changes locally and in github:
+
+1. After you make changes
+2. Save your changes:
+   git add .
+   git commit -m "Describe your change"
+3. Push your changes to your fork:
+   For the first time edits: git push -u origin my-change
+   Afterwards, you can simply run: git push
 
 ## Download Node JS
 
@@ -17,10 +41,17 @@ First, make sure Node.js is downloaded (You can download it from the following w
 - In this file you will need to write 4 rows, just like this:
   "REACT_APP_SECRET_ACCESS_KEY=AWS_SECRET_KEY
   REACT_APP_ACCESS_KEY_ID=AWS_KEY
-  REACT_APP_BucketS3 = Name_of_S3_bucket
-  REACT_APP_GPT_KEY = Bearer XXXX"
-- To get a GPT_KEY, go to OpenAI API's official website. You will need to create an account, and get a personal key. It is important to keep this key private, as this is what allows you to connect to ChatGPT.
-- For the other environment keys, please CHECK HON EDA ESA YRO7O TO AWS WALA LATER
+  REACT_APP_BucketS3 = Name_of_S3_bucket"
+
+- Depending on which AI you will use, you will need to generate a key:
+  1. For ChatGPT: REACT_APP_GPT_KEY = Bearer XXXX
+     To get a GPT_KEY, go to OpenAI API's official website. You will need to create an account, and get a personal key. It is important to keep this key private, as this is what allows you to connect to ChatGPT.
+
+  2. For Claude: REACT_APP_CLAUDE_KEY =
+
+  3. For Gemini: REACT_APP_GEMINI_KEY =
+
+- For the other environment keys, please CHECK HON EDA ESA YRO7O TO AWS WALA LATERXXXXXXXXXXXXXXXXXXXX
 
 ## Code overview:
 

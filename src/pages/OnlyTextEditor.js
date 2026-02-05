@@ -170,33 +170,22 @@ const OnlyTextEditor = () => {
   return (
     <div>
       <p id="instructions" style={{ display: "block" }}>
-        Instructions:
-        <span style={{ fontWeight: "bold" }}>
-          {" "}
-          Imagine you have learned that your dream job is becoming available,
-          and you want to apply. You decide to write an email to the hiring
-          manager.
-        </span>{" "}
-        In your email, mention the job you're applying for, and explain why you
-        are interested in and qualified for the job. Don't forget to introduce
-        yourself: describe your background, previous positions, aspirations,
-        etc. Make sure that the letter accurately describes who you are and why
-        you will be a good fit for this position. Add anything else that will
-        grab the hiring manager's attention.
-        <span style={{ fontWeight: "bold" }}> </span>At times, you might feel
-        “stuck” with no more words. That’s natural. Take a moment and continue
-        when you can.
+        Instructions: You can write here your instructions.{" "}
+        <strong>The important instructions can be in bold .</strong> While less
+        important parts can be in regular fond. Adjust to your liking.
       </p>
       <div id="title-text-control">Text Editor</div>
       <div id="content-container">
-        <div id="text-editor-container">
-          <TextEditor
-            submit={submit}
-            onEditorSubmit={handleEditorLog}
-            pasteFlag={pasteFlagC}
-            onLastEditedTextChange={setCurrentLastEditedText}
-            showAI={false}
-          />
+        <div id="editor-area">
+          <div id="text-editor-container">
+            <TextEditor
+              submit={submit}
+              onEditorSubmit={handleEditorLog}
+              pasteFlag={pasteFlagC}
+              onLastEditedTextChange={setCurrentLastEditedText}
+              showAI={false}
+            />
+          </div>
         </div>
       </div>
       <Modal
@@ -205,7 +194,7 @@ const OnlyTextEditor = () => {
         message="I see that you are still thinking about your application. Try writing. It may flow."
         showConfirm={false}
       />
-      <div id="submit-button">
+      <div id="submit-button-exp">
         <Button title="Submit" onClick={handleOpenModal} disabled={submit} />
       </div>
       <Modal

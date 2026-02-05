@@ -4,9 +4,8 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 //You may add or duplicate .js files into the pages folder to edit or add additional conditions
 import ThankYou from "./ThankYou";
 import ButtonPress from "./ButtonPress";
-import ProActiveProvidingCond from "./ProActiveProvidingCond";
 import ProActiveOfferingCond from "./ProActiveOfferingCond";
-import OnlyTextEditor from "./OnlyTextEditor";
+import OnlyTextEditor from "./onlyTextEditor";
 import AIStillPage from "./AIStillPage";
 
 const Routes = () => {
@@ -15,8 +14,6 @@ const Routes = () => {
       <Switch>
         <Route path="/b" component={ButtonPress} />{" "}
         {/*Here is the addition to your web address https//XXXX/b, you may change to your liking*/}
-        <Route path="/pp" component={ProActiveProvidingCond} />{" "}
-        {/*Here is the addition to your web address https//XXXX/pp, you may change to your liking*/}
         <Route path="/po" component={ProActiveOfferingCond} />
         {/*Here is the addition to your web address https//XXXX/po, you may change to your liking*/}
         <Route path="/u" component={AIStillPage} />

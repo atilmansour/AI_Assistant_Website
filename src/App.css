@@ -128,7 +128,7 @@ body {
 
   height: 28px !important;
   padding: 0 12px !important;
-
+  width: 100% !important;
   line-height: 1 !important;
   vertical-align: middle !important;
 
@@ -487,6 +487,7 @@ button:hover {
   justify-content: space-around;
   width: 12vw;
   height: 1.7vw;
+  margin-bottom: auto;
   padding: 0.1%;
   border-radius: 6px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
@@ -534,6 +535,7 @@ button:hover {
   display: flex;
   margin: auto;
   justify-content: space-around;
+  margin-bottom: 0.5%;
   width: 12vw;
   height: 1.7vw;
   padding: 0.1%;
@@ -548,7 +550,6 @@ button:hover {
 
 /* ========= Instructions ========= */
 #instructions {
-  margin-bottom: 4px;
   margin-top: 2px;
   display: flex;
   justify-content: space-around;

@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import TextEditor from "../components/QuillTextEditor";
-import ChatGPT from "../components/AI_Options/AI_API";
+import AI_API from "../components/AI_Options/AI_API";
 import Button from "../components/Button";
 import Modal from "../components/Modal";
 import "../App.css";
@@ -223,17 +223,9 @@ const ButtonPress = () => {
   return (
     <div>
       <p id="instructions" style={{ display: "block" }}>
-        Instructions: Please write 4-5 concrete and actionable ideas for
-        improving the Prolific platform.{" "}
-        <strong>
-          For each idea, please: Assign a number (e.g., Idea 1, Idea 2, Idea 3).
-        </strong>{" "}
-        Provide a short title, Include a brief description explaining the idea.
-        {"\n"}
-        Please work on this task as you would in a real work setting. We expect
-        most participants to spend several minutes developing multiple concrete
-        ideas. Submissions that appear extremely brief or incomplete may not be
-        eligible for bonus payment.
+        Instructions: You can write here your instructions.{" "}
+        <strong>The important instructions can be in bold .</strong> While less
+        important parts can be in regular fond. Adjust to your liking.
       </p>
 
       <div id="title-container">
@@ -290,10 +282,11 @@ const ButtonPress = () => {
               </button>
             </div>
 
-            <ChatGPT
+            <AI_API
               onMessagesSubmit={handleMessages}
               initialMessages={[
-                "Hey, feel free to ask me for help. I would be happy to assist.",
+                "Hello, this is a present message that you can edit in your code in AIStillPage.js (theInitialMsg).",
+                "This is the second message, you can edit, add more, or delete me.",
               ]}
               lastEditedText={currentLastEditedText}
             />
