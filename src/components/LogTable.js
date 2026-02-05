@@ -1,7 +1,9 @@
 import React from "react";
 
-//transform log into a table that includes two columns: timestamp and the data itself
-//we take data in text editor with every space
+//Transform log into a table that includes two columns: timestamp and the data itself
+// [{ timestamp: "2026-02-05 10:30", text: "some message" }, ...]
+//We take data in text editor with every space.
+
 const LogTable = ({ allLogs }) => {
   console.log(allLogs);
   return (

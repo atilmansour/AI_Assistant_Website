@@ -1,36 +1,46 @@
-import React, { useState } from 'react';
-import Button from '../../Button';
+import React, { useState } from "react";
+import Button from "../../Button";
+
+/**
+ * MessageInput
+ * A text input + Send button for a chat UI.
+ *
+ * Props:
+ * - onSendMessage - called with the message text when the user sends
+ */
 
 const MessageInput = ({ onSendMessage }) => {
-  //setUserMessage is a function that updates current state with userMessage
-  const [userMessage, setUserMessage] = useState('');
+  // Stores what the user is currently typing
+  const [userMessage, setUserMessage] = useState("");
 
+  // Update state as the user types
   const handleInputChange = (event) => {
     setUserMessage(event.target.value);
   };
 
+  // Send the message to the parent component and clear the input
   const handleSendMessage = () => {
     onSendMessage(userMessage);
-    setUserMessage(''); //reset message box to empty
+    setUserMessage(""); // Reset input to empty after sending
   };
 
+  // Allow sending by pressing Enter
   const handleKeyPress = (event) => {
-    if (event.key === 'Enter') {
-      // Call the sendMessage function when Enter is pressed
+    if (event.key === "Enter") {
       handleSendMessage();
     }
   };
 
   return (
-    <div className='user-send'>
+    <div className="user-send">
       <input
-        type='text'
-        value={userMessage} //value is updated to the current message
+        type="text"
+        value={userMessage} // Controlled input: value comes from React state
         onChange={handleInputChange}
         onKeyDown={handleKeyPress}
-        placeholder='Type your message...'
+        placeholder="Type your message..."
       />
-      <Button title='Send' onClick={handleSendMessage} />
+      <Button title="Send" onClick={handleSendMessage} />
     </div>
   );
 };
