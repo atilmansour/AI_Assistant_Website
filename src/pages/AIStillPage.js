@@ -248,7 +248,7 @@ const AIStillPage = () => {
                 "This is the second message, you can edit, add more, or delete me.",
               ]}
               lastEditedText={currentLastEditedText}
-              aiProvider={"claude"} // "chatgpt" | "claude" | "gemini
+              aiProvider={"chatgpt"} // "chatgpt" | "claude" | "gemini
             />
           </div>
         </div>

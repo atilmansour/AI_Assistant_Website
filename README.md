@@ -39,7 +39,7 @@ To get save this code and get it ready to edit, follow these few steps:
 
 7. Create a new branch for your changes:
    `     git checkout -b my-change
-    `
+ `
    Now you are free to start editing and saving your changes locally and in github:
 
 8. After you make changes
@@ -67,35 +67,64 @@ You can download it from the following website: https://nodejs.org/en/download
 
 To get ready AWS >>>>>>>>
 
-# Enviroment Variables
+# Backend Folder (API and Environment Variables)
 
-After you finished all the above steps, create a new file called: ".env.local"
+This project includes a `backend/` folder that runs a small server (proxy) for:
+
+1. Calling AI providers (OpenAI / Claude / Gemini) securely
+2. Handling AWS actions (e.g., S3) securely
+
+**Why do we need a backend?**
+
+- API keys and AWS secret keys must NOT be stored in the React frontend (they become public after deployment).
+- Some providers also block browser requests due to CORS.
+- The backend keeps secrets server-side and returns only the needed data to the frontend.
+
+### What is inside `backend/`?
+
+- **server.js**: The backend server. It exposes an endpoint like:
+  - `POST /api/ai` (the frontend sends `{ provider, chatHistory }` and receives `{ text }`)
+- **package.json**: Backend dependencies (express, axios, cors, dotenv, etc.)
+- **.env**: Backend secrets (API keys + AWS keys). This file must NOT be uploaded to GitHub.
+
+### Backend environment variables
+
+Create `backend/.env` and add your secrets there (see the Environment Variables section).
+
+After you finished all the above steps, create a new file called: ".env"
 
 - In this file you will need to write 6 rows, just like this:
   ```
   REACT_APP_SECRET_ACCESS_KEY=Your secret key
   REACT_APP_ACCESS_KEY_ID= Your key
   REACT_APP_BucketS3=Your s3 bucket name
-  REACT_APP_GPT_KEY=Your GPT key
-  REACT_APP_CLAUDE_KEY=Your claude key
-  REACT_APP_GEMINI_KEY=Your gemini key
+  OPENAI_KEY=Your GPT key
+  CLAUDE_KEY=Your claude key
+  GEMINI_KEY=Your gemini key
   ```
 - Depending on which AI you will use, you will need to generate a key.
 
   Note that if you want to use only some of the following AI's you can leave the key empty.
-  For example, if you only want to use ChatGPT as your AI, you can write `REACT_APP_GEMINI_KEY=''` and `REACT_APP_CLAUDE_KEY=''`:
-  1. To generate ChatGPT key: `REACT_APP_GPT_KEY=Bearer XXXX`
+  For example, if you only want to use ChatGPT as your AI, you can write `GEMINI_KEY=''` and `CLAUDE_KEY=''`:
+  1. To generate ChatGPT key: `OPENAI_KEY=Bearer XXXX`
 
      To get a GPT key, go to [OpenAI API's official website](https://openai.com/api/). You will need to create an account, and get a personal key. It is important to keep this key private, as this is what allows you to connect to ChatGPT.
 
-  2. To generate Claude key: `REACT_APP_CLAUDE_KEY=sk-ant-api03-...`
+  2. To generate Claude key: `CLAUDE_KEY=sk-ant-api03-...`
 
      To generate a claude key, go to [Claude API's official website](https://claude.com/platform/api). You will need to create an account, and get a personal key. It is important to keep this key private, as this is what allows you to connect to Claude.
 
-  3. To generate Gemini key: `REACT_APP_GEMINI_KEY=AIzaSy...`
+  3. To generate Gemini key: `GEMINI_KEY=AIzaSy...`
      To generate a claude key, go to [Gemini API's official website](https://ai.google.dev/gemini-api/docs/api-key). You will need to create an account, and get a personal key. It is important to keep this key private, as this is what allows you to connect to Gemini.
 
 - For the other environment keys, please go to the [Amazon Web Services (AWS) section](<#Amazon_Web_Services_(AWS)>)
+- **Make sure `backend/.env` is in `.gitignore`**.
+
+- **_backend/server.js_**: Calls OpenAI/Claude/Gemini securely (API keys stay server-side). You can change model names and max tokens here.
+
+  > You may change the components of each AI's API: The default is max_tokens = 1000, and the following models: gpt-4o (ChatGPT), 2.5-flash (Gemini), 4 sonnet (Clause). You may adjust these to your liking.
+
+  > You can find more information about each AI's models on their official API website, and choose the model that best fits your needs.
 
 # Code Overview:
 
@@ -128,11 +157,9 @@ This folder contains:
 
   > **_MessageInput.js_**: A message box that lets the user type a chat message and send it by clicking Send or pressing Enter.
 
-- **_AI_API.js_**: A chat component that sends your messages (plus your current writing) to ChatGPT/Claude/Gemini and shows the AI’s replies on the screen.
+- **_AI_API.js_**: A chat component that sends your messages (plus your current writing) to the backend proxy (`/api/ai`) and shows the AI’s replies on the screen.
 
-  > You may change the components of each AI's API: The default is max_tokens = 1000, and the following models: gpt-4o (ChatGPT), 2.5-flash (Gemini), 3.5 sonnet (Clause). You may adjust these to your liking.
-
-  > You can find more information about each AI's models on their official API website, and choose the model that best fits your needs.
+  > AI settings such as model names and max tokens are configured in the backend (`backend/server.js`) because the backend is the part that communicates with OpenAI/Claude/Gemini securely.
 
 ## Pages Folder
 
@@ -155,12 +182,32 @@ Then click the **Elements** tab, select an element on the page, and you’ll see
 
 ## Test your code locally
 
-- Make sure your `.env.local` is in `.gitignore` so your environment variables are not uploaded to your repository in github.
-- Start the app (local testing only):
-  ```
-  npm start
-  ```
-  The app should open in your browser (usually at http://localhost:3000). To access your conditions, you add to your website line `/x` depending on the wording you chose in [Routes.js](#Pages_Folder)
-- To stop the local code from running, press `Ctrl+C`.
+- Make sure your `backend/.env` is in `.gitignore` so your environment variables are not uploaded to your repository in github.
+
+- Open **two terminals** (one for the backend, one for the frontend).
+
+### Terminal 1 (Backend)
+
+````
+```bash
+cd backend
+npm install   # first time only
+npm start
+````
+
+### Terminal 2 (frontend)
+
+```
+cd ..
+npm install   # first time only
+npm start
+```
+
+The app should open in your browser (usually at http://localhost:3000). To access your conditions, you add to your website line `/x` depending on the wording you chose in [Routes.js](#Pages_Folder)
+
+To stop the local code from running, press `Ctrl+C`.
+
+> `npm install` is needed the first time you set up the project (or any time `package.json` changes).  
+> After that, you can usually run only `npm start`.
 
 ## Upload your code (ready-to-run):

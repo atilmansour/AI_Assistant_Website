@@ -107,103 +107,87 @@ const AI_API = ({
 
       // ---- Provider 1: Claude (Anthropic) ----
       if (aiProvider === "claude") {
-        const response = await axios.post(
-          //Here you can change the components of the model
-          "https://api.anthropic.com/v1/messages",
-          {
-            model: "claude-3-5-sonnet-20241022", //claude version
-            max_tokens: 1000,
-            // Claude: messages are simple strings
-            messages: chatHistory.map((m) => ({
-              role: m.role === "assistant" ? "assistant" : "user",
-              content: toText(m.content),
-            })),
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              "x-api-key": process.env.REACT_APP_CLAUDE_KEY,
-              "anthropic-version": "2023-06-01",
-            },
-          },
-        );
+        /**
+         * IMPORTANT CHANGE:
+         * We do NOT call Anthropic directly from the browser anymore (CORS + API key leak).
+         * Instead, we call OUR backend proxy endpoint: /api/ai
+         *
+         * Your backend will read the real keys (OPENAI_KEY / CLAUDE_KEY / GEMINI_KEY)
+         * from server-side environment variables.
+         */
+        const API_BASE =
+          process.env.REACT_APP_API_BASE || "http://localhost:5050";
 
-        // Claude returns content blocks; join text blocks into one string
-        chatbotResponseText = (response.data.content || [])
-          .filter((b) => b.type === "text")
-          .map((b) => b.text)
-          .join("\n")
-          .trim();
+        const response = await axios.post(`${API_BASE}/api/ai`, {
+          provider: "claude",
+          // Send role + plain string content to backend (backend will call Claude)
+          chatHistory: chatHistory.map((m) => ({
+            role: m.role === "assistant" ? "assistant" : "user",
+            content: toText(m.content),
+          })),
+        });
+
+        // Backend returns { text: "..." }
+        chatbotResponseText = toText(response.data?.text).trim();
 
         // ---- Provider 2: Gemini (Google) ----
       } else if (aiProvider === "gemini") {
-        // Gemini expects a "contents" format with parts
-        const contents = chatHistory
-          .filter((m) => toText(m.content).trim().length > 0)
-          .map((m) => ({
-            role: m.role === "assistant" ? "model" : "user",
-            parts: [{ text: toText(m.content) }],
-          }));
+        /**
+         * IMPORTANT CHANGE:
+         * We do NOT call Gemini directly from the browser anymore (API key leak).
+         * Instead, we call OUR backend proxy endpoint: /api/ai
+         */
+        const API_BASE =
+          process.env.REACT_APP_API_BASE || "http://localhost:5050";
 
-        const response = await axios.post(
-          //Here you can change the model and components of the model, the current model is 2.5-flash
-          "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
-          {
-            contents,
-            generationConfig: {
-              maxOutputTokens: 1000, //max tokens
-            },
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              "x-goog-api-key": process.env.REACT_APP_GEMINI_KEY,
-            },
-          },
-        );
+        const response = await axios.post(`${API_BASE}/api/ai`, {
+          provider: "gemini",
+          // Send role + plain string content to backend (backend will call Gemini)
+          chatHistory: chatHistory.map((m) => ({
+            role: m.role === "assistant" ? "assistant" : "user",
+            content: toText(m.content),
+          })),
+        });
 
-        // Extract Gemini text parts
-        chatbotResponseText = (
-          response.data?.candidates?.[0]?.content?.parts || []
-        )
-          .map((p) => p.text || "")
-          .join("\n")
-          .trim();
+        // Backend returns { text: "..." }
+        chatbotResponseText = toText(response.data?.text).trim();
 
         // ---- Provider 3: OpenAI (ChatGPT) ----
       } else {
+        /**
+         * IMPORTANT CHANGE:
+         * We do NOT call OpenAI directly from the browser anymore (API key leak).
+         * Instead, we call OUR backend proxy endpoint: /api/ai
+         *
+         * We keep your OpenAI "parts" converter here (to avoid changing your structure),
+         * but we send plain strings to the backend to keep it simple.
+         */
+        const API_BASE =
+          process.env.REACT_APP_API_BASE || "http://localhost:5050";
+
         // Convert internal strings -> OpenAI "parts" format at the boundary
+        // (We keep this code, but we won't send parts to backend; we send plain strings.)
         const openAiMessages = chatHistory.map((m) => ({
           role: m.role,
           content: toOpenAIContent(m.content),
         }));
 
-        const response = await axios.post(
-          //Here you can change the model and components of the model
-          "https://api.openai.com/v1/chat/completions",
-          {
-            max_tokens: 1000, //number of tokens
-            model: "gpt-4o", //the model name
-            messages: openAiMessages, //Do not change this, it sends the history of the messsages
-          },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              // NOTE: your key should be "Bearer <KEY>"
-              Authorization: process.env.REACT_APP_GPT_KEY,
-            },
-          },
-        );
+        // Backend expects role + content as plain string; convert safely here:
+        const backendHistory = openAiMessages.map((m) => ({
+          role: m.role,
+          // m.content is [{type:"text", text:"..."}]; convert it back to plain text
+          content: Array.isArray(m.content)
+            ? m.content.map((p) => p.text || "").join("\n")
+            : toText(m.content),
+        }));
 
-        const msg = response.data?.choices?.[0]?.message;
+        const response = await axios.post(`${API_BASE}/api/ai`, {
+          provider: "chatgpt",
+          chatHistory: backendHistory,
+        });
 
-        // msg.content might be string OR parts; convert to plain string
-        chatbotResponseText = Array.isArray(msg?.content)
-          ? msg.content
-              .map((p) => p.text || "")
-              .join("\n")
-              .trim()
-          : toText(msg?.content).trim();
+        // Backend returns { text: "..." }
+        chatbotResponseText = toText(response.data?.text).trim();
       }
 
       // Add chatbot reply to the UI
