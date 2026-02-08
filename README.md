@@ -38,8 +38,7 @@ To get save this code and get it ready to edit, follow these few steps:
    ```
 
 7. Create a new branch for your changes:
-   `     git checkout -b my-change
- `
+   `    git checkout -b my-change`
    Now you are free to start editing and saving your changes locally and in github:
 
 8. After you make changes
@@ -234,12 +233,8 @@ Throughout the steps, please note that you choose ur console's region (you can v
     3.  Name: `ai-proxy` → create function.
     4.  In **Code source**, delete the default code and paste the entire content of `lambda/index.mjs`.
     5.  Click Deploy.
-    6.  **Give Lambda permission to use S3 (no keys needed)** - In the Lambda function page: **Configuration** → **Permissions** - Under Execution role, click the role name (appears in blue). - In the new link that opens, click **Add permissions** → **Attach policies**. Attach a policy like: `AmazonS3FullAccess`
-
-        > This is how Lambda can access S3 securely without any AWS keys.
-
-             - Return again to Configuration → General Configuration, and change timeout to 1 min.
-
+    6.  **Give Lambda permission to use S3 (no keys needed)** - In the Lambda function page: **Configuration** → **Permissions** - Under Execution role, click the role name (appears in blue). - In the new link that opens, click **Add permissions** → **Attach policies**. Attach a policy like: `AmazonS3FullAccess` (This is how Lambda can access S3 securely without any AWS keys).
+    - Return again to Configuration → General Configuration, and change timeout to 1 min.
     7.  **Add your AI API keys to Lambda (safe storage)**
         - Press Configuration → Environment variables
         - Click edit, add, and add all the AI keys (even the empty ones) and your S3 bucket variable.
@@ -262,13 +257,12 @@ Throughout the steps, please note that you choose ur console's region (you can v
 
           > Repository: your repo
 
-              >Branch: the branch you pushed
+          > Branch: the branch you pushed
 
-              >Click Next → Next → Save and deploy
+          > Click Next → Next → Save and deploy
 
         - Click on Hosting, environment variables, and add:
-          `REACT_APP_API_BASE = UR_INVOKE_URL`
-              >Amplify will build and give you a website URL.
+          `REACT_APP_API_BASE = UR_INVOKE_URL` >Amplify will build and give you a website URL.
 
 ## Download your submissions
 
