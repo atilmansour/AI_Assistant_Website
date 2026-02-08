@@ -233,7 +233,10 @@ Throughout the steps, please note that you choose ur console's region (you can v
     3.  Name: `ai-proxy` → create function.
     4.  In **Code source**, delete the default code and paste the entire content of `lambda/index.mjs`.
     5.  Click Deploy.
-    6.  **Give Lambda permission to use S3 (no keys needed)** - In the Lambda function page: **Configuration** → **Permissions** - Under Execution role, click the role name (appears in blue). - In the new link that opens, click **Add permissions** → **Attach policies**. Attach a policy like: `AmazonS3FullAccess` (This is how Lambda can access S3 securely without any AWS keys).
+    6.  **Give Lambda permission to use S3 (no keys needed)**
+    - In the Lambda function page: **Configuration** → **Permissions**
+    - Under Execution role, click the role name (appears in blue).
+    - In the new link that opens, click **Add permissions** → **Attach policies**. Attach a policy like: `AmazonS3FullAccess` (This is how Lambda can access S3 securely without any AWS keys).
     - Return again to Configuration → General Configuration, and change timeout to 1 min.
     7.  **Add your AI API keys to Lambda (safe storage)**
         - Press Configuration → Environment variables
