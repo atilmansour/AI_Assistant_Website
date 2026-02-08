@@ -5,7 +5,7 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 import ThankYou from "./ThankYou";
 import ButtonPress from "./ButtonPress";
 import ProActiveOfferingCond from "./ProActiveOfferingCond";
-import OnlyTextEditor from "./onlyTextEditor";
+import OnlyEditor from "./OnlyEditor";
 import AIStillPage from "./AIStillPage";
 
 const Routes = () => {
@@ -18,7 +18,7 @@ const Routes = () => {
         {/*Here is the addition to your web address https//XXXX/po, you may change to your liking*/}
         <Route path="/u" component={AIStillPage} />
         {/*Here is the addition to your web address https//XXXX/u, you may change to your liking*/}
-        <Route path="/c" component={OnlyTextEditor} />
+        <Route path="/c" component={OnlyEditor} />
         {/*Here is the addition to your web address https//XXXX/c, you may change to your liking*/}
         <Route exact path="/" component={ThankYou} />{" "}
         {/*Here is the addition to your web address https//XXXX/ */}

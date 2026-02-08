@@ -4,7 +4,7 @@ import Button from "../components/Button";
 import Modal from "../components/Modal";
 import AWS from "aws-sdk";
 
-const OnlyTextEditor = () => {
+const OnlyEditor = () => {
   const [editorLog, setEditorLog] = useState([]);
   const [currentLastEditedText, setCurrentLastEditedText] = useState("");
   const [isModalOpen, setModalOpen] = useState(false);
@@ -214,4 +214,4 @@ const OnlyTextEditor = () => {
   );
 };
 
-export default OnlyTextEditor;
+export default OnlyEditor;
