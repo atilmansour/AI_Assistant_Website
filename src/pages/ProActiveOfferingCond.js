@@ -183,43 +183,19 @@ const ProActiveOfferingCond = () => {
     setMessagesLog(allMessages);
   }, []);
 
-  // Function to save logs to S3
   const saveLogsToS3 = async (logs) => {
-    const S3_BUCKET = process.env.REACT_APP_BucketS3;
-    const REGION = "eu-north-1";
+    const API_BASE = process.env.REACT_APP_API_BASE;
 
-    AWS.config.update({
-      accessKeyId: process.env.REACT_APP_ACCESS_KEY_ID,
-      secretAccessKey: process.env.REACT_APP_SECRET_ACCESS_KEY,
+    const res = await fetch(`${API_BASE}/api/logs`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ logs }),
     });
 
-    const s3 = new AWS.S3({
-      params: { Bucket: S3_BUCKET },
-      region: REGION,
-    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data?.error || "Save failed");
 
-    const key = `${logs.id}.txt`;
-    const logsString = JSON.stringify(logs);
-
-    const params = {
-      Bucket: S3_BUCKET,
-      Key: key,
-      Body: logsString,
-    };
-
-    const upload = s3
-      .putObject(params)
-      .on("httpUploadProgress", (evt) => {
-        console.log(
-          "Uploading " + parseInt((evt.loaded * 100) / evt.total) + "%",
-        );
-      })
-      .promise();
-
-    await upload.then((err) => {
-      console.log(err);
-      alert("Please copy this code to qualtrics: " + logs.id);
-    });
+    alert("Please copy this code to qualtrics: " + logs.id);
   };
 
   const assistantSlotClass = `${isChatOpen ? "open" : ""} ${

@@ -96,7 +96,7 @@ export const handler = async (event) => {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_KEY}`,
+        Authorization: process.env.OPENAI_KEY,
       },
       body: JSON.stringify({
         model: "gpt-4o",
