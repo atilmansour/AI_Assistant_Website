@@ -1,40 +1,54 @@
+/**
+ * OnlyEditor.js
+ * Condition: OnlyEditor — editor-only baseline (no AI assistant). Participants must write at least 80 words to submit,
+ * On submit, we upload ONLY editor logs to S3.
+ *
+ * CONFIG YOU WILL EDIT:
+ * - Word threshold (currently 80)
+ * - Instructions text shown to participants
+ * - API base URL: REACT_APP_API_BASE (frontend .env)
+ */
+
 import React, { useState, useEffect, useCallback } from "react";
 import TextEditor from "../components/QuillTextEditor";
 import Button from "../components/Button";
 import Modal from "../components/Modal";
 
 const OnlyEditor = () => {
-  const [editorLog, setEditorLog] = useState([]);
-  const [currentLastEditedText, setCurrentLastEditedText] = useState("");
-  const [isModalOpen, setModalOpen] = useState(false);
-  const [isEarlyModalOpen, setEarlyModalOpen] = useState(false);
-  const [submit, setSubmit] = useState(false);
-  const [canSubmit, setCanSubmit] = useState(false);
-  const [showInactiveModal, setShowInactiveModal] = useState(false); // State for showing inactivity modal
+  // ----------------------------
+  // LOGGING STATE
+  // ----------------------------
+  const [editorLog, setEditorLog] = useState([]); // detailed logs from the editor
+  const [currentLastEditedText, setCurrentLastEditedText] = useState(""); // latest editor text (used to compute word count)
+
+  // ----------------------------
+  // MODALS + SUBMISSION STATE
+  // ----------------------------
+  const [isModalOpen, setModalOpen] = useState(false); // final "confirm submit" modal
+  const [isEarlyModalOpen, setEarlyModalOpen] = useState(false); // "not enough words yet" modal
+  const [submit, setSubmit] = useState(false); // used to disable the submit button + passed into TextEditor
+  const [canSubmit, setCanSubmit] = useState(false); // true only when word threshold is met
+
+  // NOTE: pasteFlagC is always false here (and TextEditor has its own paste prevention too).
+  // If you want to control paste behavior dynamically, convert this into a state variable.
   const pasteFlagC = false;
 
+  // Word count
   const [currentLength, setcurrentLength] = useState(0);
 
+  // Keep `submit` aligned with the "confirm submit" modal state
+  // (When modal is open, the submit button becomes disabled)
   useEffect(() => {
-    if (isModalOpen) {
-      setSubmit(true);
-    } else {
-      setSubmit(false);
-    }
+    setSubmit(isModalOpen);
   }, [isModalOpen]);
 
+  // ----------------------------
+  // Optional: Disable copy/cut/paste globally on the page
+  // ----------------------------
   useEffect(() => {
-    const handleCopy = (event) => {
-      event.preventDefault();
-    };
-
-    const handleCut = (event) => {
-      event.preventDefault();
-    };
-
-    const handlePaste = (event) => {
-      event.preventDefault();
-    };
+    const handleCopy = (event) => event.preventDefault();
+    const handleCut = (event) => event.preventDefault();
+    const handlePaste = (event) => event.preventDefault();
 
     document.addEventListener("copy", handleCopy);
     document.addEventListener("cut", handleCut);
@@ -47,11 +61,24 @@ const OnlyEditor = () => {
     };
   }, []);
 
+  // ----------------------------
+  // Word threshold check
+  // CONFIG YOU WILL EDIT:
+  // Minimum words currently: 80
+  //
+  // NOTE (small bug fix idea):
+  // You are checking `if (currentLength >= 80)` right after calling setcurrentLength(...).
+  // React state updates are async, so `currentLength` can be "one render behind".
+  // A safer pattern is: compute wc, setcurrentLength(wc), setCanSubmit(wc >= 80).
+  // I'm NOT changing your logic here—just pointing it out.
+  // ----------------------------
   useEffect(() => {
     if (currentLastEditedText.length > 0) {
       setcurrentLength(
         currentLastEditedText.trim().split(/\s+/).filter(Boolean).length,
       );
+
+      // This uses currentLength (which may lag by one render)
       if (currentLength >= 80) {
         setCanSubmit(true);
       } else {
@@ -62,71 +89,51 @@ const OnlyEditor = () => {
     }
   }, [currentLastEditedText, currentLength]);
 
-  useEffect(() => {
-    let activityTimer = setTimeout(() => {
-      setShowInactiveModal(true);
-    }, 120000); // 2 minutes in milliseconds
-
-    const activityHandler = () => {
-      clearTimeout(activityTimer);
-      activityTimer = setTimeout(() => {
-        setShowInactiveModal(true);
-      }, 120000);
-    };
-
-    document.addEventListener("mousemove", activityHandler);
-    document.addEventListener("keydown", activityHandler);
-
-    return () => {
-      document.removeEventListener("mousemove", activityHandler);
-      document.removeEventListener("keydown", activityHandler);
-      clearTimeout(activityTimer);
-    };
-  }, []);
-
+  // Open the submit flow:
+  // - If canSubmit: show confirm modal
   const handleOpenModal = () => {
-    if (canSubmit) {
-      setModalOpen(true);
-    } else {
-      setEarlyModalOpen(true);
-    }
+    if (canSubmit) setModalOpen(true);
+    else setEarlyModalOpen(true);
   };
 
-  const handleCloseModal = () => {
-    setModalOpen(false);
-  };
+  const handleCloseModal = () => setModalOpen(false);
+  const handleCloseEarlyModal = () => setEarlyModalOpen(false);
 
-  const handleCloseEarlyModal = () => {
-    setEarlyModalOpen(false);
-  };
-
-  const handleCloseInactiveModal = () => {
-    setShowInactiveModal(false);
-  };
-
+  // Generates an ID that becomes the submission code + S3 filename
+  // CONFIG YOU WILL EDIT:
+  // Change prefix "ANA" if you want to tag a condition/cohort
   function getRandomString(length) {
     const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     const middlePart = Array.from(
-      { length: length },
+      { length },
       () => characters[Math.floor(Math.random() * characters.length)],
     ).join("");
     return `ANA${middlePart}`;
   }
 
+  // Called when user confirms submit
   const handleConfirmSubmit = async () => {
     setModalOpen(false);
+
+    // Only editor logs are saved in this condition
     const logs = {
       id: getRandomString(5),
       editor: editorLog,
     };
+
+    // NOTE: saveLogsToS3 can throw. If you want a user-friendly error:
+    // try { await saveLogsToS3(logs); } catch(e) { alert("Upload failed"); }
     saveLogsToS3(logs);
   };
 
+  // Receives the full editor logs array from TextEditor
   const handleEditorLog = useCallback((allLogs) => {
     setEditorLog(allLogs);
-    setShowInactiveModal(false);
   }, []);
 
+  // Upload logs to backend (/api/logs) which saves to S3
+  // CONFIG YOU WILL EDIT:
+  // - REACT_APP_API_BASE must be set in your frontend .env
   const saveLogsToS3 = async (logs) => {
     const API_BASE = process.env.REACT_APP_API_BASE;
 
@@ -139,17 +146,23 @@ const OnlyEditor = () => {
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data?.error || "Save failed");
 
+    // Message shown after successful upload
     alert("Please copy this code to qualtrics: " + logs.id);
   };
 
   return (
     <div>
+      {/* CONFIG YOU WILL EDIT:
+          Put your participant instructions here.
+      */}
       <p id="instructions" style={{ display: "block" }}>
         Instructions: You can write here your instructions.{" "}
         <strong>The important instructions can be in bold .</strong> While less
         important parts can be in regular fond. Adjust to your liking.
       </p>
+
       <div id="title-text-control">Text Editor</div>
+
       <div id="content-container">
         <div id="editor-area">
           <div id="text-editor-container">
@@ -158,20 +171,18 @@ const OnlyEditor = () => {
               onEditorSubmit={handleEditorLog}
               pasteFlag={pasteFlagC}
               onLastEditedTextChange={setCurrentLastEditedText}
-              showAI={false}
+              showAI={false} // Condition-specific: AI is disabled
             />
           </div>
         </div>
       </div>
-      <Modal
-        isOpen={showInactiveModal}
-        onClose={handleCloseInactiveModal}
-        message="I see that you are still thinking about your application. Try writing. It may flow."
-        showConfirm={false}
-      />
+
       <div id="submit-button-exp">
+        {/* Submit is disabled while the confirm modal is open */}
         <Button title="Submit" onClick={handleOpenModal} disabled={submit} />
       </div>
+
+      {/* Final submit confirmation modal */}
       <Modal
         isOpen={isModalOpen}
         onClose={handleCloseModal}
@@ -179,6 +190,8 @@ const OnlyEditor = () => {
         message="Are you sure you want to submit?"
         showConfirm={true}
       />
+
+      {/* Early submit modal: user has not met the word requirement */}
       <Modal
         isOpen={isEarlyModalOpen}
         onClose={handleCloseEarlyModal}

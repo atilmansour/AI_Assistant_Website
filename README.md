@@ -63,10 +63,6 @@ First, make sure Node.js is downloaded.
 
 You can download it from the following website: https://nodejs.org/en/download
 
-# Amazon Web Services (AWS)
-
-To get ready AWS >>>>>>>>
-
 # Backend Folder (API and Environment Variables)
 
 This project includes a `backend/` folder that runs a small server (proxy) for:
@@ -210,4 +206,80 @@ To stop the local code from running, press `Ctrl+C`.
 > `npm install` is needed the first time you set up the project (or any time `package.json` changes).  
 > After that, you can usually run only `npm start`.
 
-## Upload your code (ready-to-run):
+## Upload your code (ready-to-run): Amazon Web Services (AWS)
+
+If you wish to deploy your website (we recommend doing so in order to make sure this version of the code runs smoothly), you need to have an AWS account.
+
+Throughout the steps, please note that you choose ur console's region (you can view your current region on the top left, next to your name).
+
+1.  To create an account, please [**click here**](portal.aws.amazon.com/billing/signup).
+2.  Choose a region you’ll use consistently (example: `eu-north-1`).
+
+3.  **Create an S3 bucket (for storing files)**
+    1. In AWS Console, search **S3** → open it
+    2. Click **Create bucket**
+    3. Choose a bucket name (must be globally unique)
+    4. Choose your AWS Region (example: `eu-north-1`) and keep using this region
+    5. Click **Create bucket**
+    6. Click Permissions, and scroll down to Cross-origin resource sharing (CORS). click edit, and paste the content of `cors.txt` there.
+    7. In your `backend/.env`, add the following row: `REACT_APP_BucketS3=BUCKET_NAME`. This is the environment variable for your S3 bucket.
+
+4.  **Create a Lambda function (backend)**
+    1.  In AWS Console, search **Lambda** → open it.
+    2.  Click **Create function** → **Author from scratch**.
+    3.  Name: `ai-proxy` → create function.
+    4.  In **Code source**, delete the default code and paste the entire content of `lambda/index.mjs`.
+    5.  Click Deploy.
+    6.  **Give Lambda permission to use S3 (no keys needed)** - In the Lambda function page: **Configuration** → **Permissions** - Under Execution role, click the role name (appears in blue). - In the new link that opens, click **Add permissions** → **Attach policies**. Attach a policy like: `AmazonS3FullAccess`
+
+        > This is how Lambda can access S3 securely without any AWS keys.
+
+             - Return again to Configuration → General Configuration, and change timeout to 1 min.
+
+    7.  **Add your AI API keys to Lambda (safe storage)**
+        - Press Configuration → Environment variables
+        - Click edit, add, and add all the AI keys (even the empty ones) and your S3 bucket variable.
+    8.  **Create an API Gateway endpoint**
+        - In AWS Console, search **API Gateway**
+        - Click Create API → choose HTTP API → Build
+        - Integration: Lambda → select `ai-proxy` (with the same region).
+        - Add a route: Method: `POST`, Path: `/api/ai`, and Method: `POST`, Path: `/api/logs`.
+        - Click create.
+        - On the left, under `develop`, click CORS.
+        - Click configure, for Access-Control-Allow-Origin, enter `*`, for allowed methods, choose `POST, OPTIONS`, and for Access-Control-Allow-Headers enter `Content-Type`.
+        - Click save.
+        - On your left, click on `API:NAME`, and copy the url you find under invoke url.
+    9.  **Create an Amplify app (connect it to GitHub)**
+        - In AWS Console, search Amplify → open it.
+        - Click Create new app → Host web app.
+        - Choose GitHub → Continue.
+        - Authorize AWS Amplify to access your GitHub (first time only).
+        - Select:
+
+          > Repository: your repo
+
+              >Branch: the branch you pushed
+
+              >Click Next → Next → Save and deploy
+
+        - Click on Hosting, environment variables, and add:
+          `REACT_APP_API_BASE = UR_INVOKE_URL`
+              >Amplify will build and give you a website URL.
+
+## Download your submissions
+
+1. To download your submissions, you can access your S3 bucket and download each file.txt alone.
+2. To bulk download your submissions, follow the next few steps:
+
+   **Create an IAM user for CLI** 2. AWS Console → IAM 3. Left menu → Users → Create user 4. Username: cli-downloader (or anything) 5. Permissions: choose Attach policies directly, create policy, JSON, and paste the content of `s3_policy_download.json` → create policy. Choose your policy and press next, then create user. 6. Click on your IAM new user name you just created, on security credentials, and create access key. Please select **Command Line Interface CLI**. Copy both the **access key** and **secret access** key and save them in a private place.
+
+   **Install AWS CLI** using the following [**link**](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
+
+   **In your CMD**
+
+   ```
+   aws configure (will ask you to include your keys, and region)
+   aws s3 sync s3://YOUR_BUCKET_NAME "PATH/TO/Local/Folder"
+   ```
+
+That's it! Please feel free to contact me atil@campus.technion.ac.il or atilxmansour@gmail.com for any questions.

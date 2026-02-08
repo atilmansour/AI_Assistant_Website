@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 //You may add or duplicate .js files into the pages folder to edit or add additional conditions
 import ThankYou from "./ThankYou";
 import ButtonPress from "./ButtonPress";
-import ProActiveOfferingCond from "./ProActiveOfferingCond";
+import ProActiveOfferingCond from "./AIOpensAndCloses";
 import OnlyEditor from "./OnlyEditor";
 import AIStillPage from "./AIStillPage";
 

@@ -1,22 +1,69 @@
-// index.mjs (AWS Lambda)
-// This Lambda acts as a secure proxy to call OpenAI / Claude / Gemini.
-// Secrets (API keys) are stored in Lambda Environment Variables, NOT in the frontend.
+// index.mjs
+import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 
 export const handler = async (event) => {
-  // --- CORS headers: lets your Amplify site call this API ---
-  // For production, replace "*" with your Amplify domain:
-  // e.g. "https://main.xxxxx.amplifyapp.com"
   const headers = {
     "Access-Control-Allow-Origin": "*",
     "Access-Control-Allow-Headers": "Content-Type",
     "Access-Control-Allow-Methods": "POST,OPTIONS",
   };
 
-  // Browser "preflight" request (CORS check)
   if (event?.requestContext?.http?.method === "OPTIONS") {
     return { statusCode: 200, headers, body: "" };
   }
 
+  const path = event?.rawPath || event?.path || "";
+  if (path.includes("/api/logs")) {
+    try {
+      const bucket = process.env.REACT_APP_BucketS3;
+      if (!bucket) {
+        return {
+          statusCode: 500,
+          headers,
+          body: JSON.stringify({ error: "Missing BUCKET_NAME env var" }),
+        };
+      }
+
+      const body = JSON.parse(event.body || "{}");
+      const logs = body?.logs;
+
+      if (!logs?.id) {
+        return {
+          statusCode: 400,
+          headers,
+          body: JSON.stringify({ error: "Missing logs.id" }),
+        };
+      }
+
+      const key = `${logs.id}.txt`;
+      const s3 = new S3Client({});
+
+      await s3.send(
+        new PutObjectCommand({
+          Bucket: bucket,
+          Key: key,
+          Body: JSON.stringify(logs),
+          ContentType: "text/plain",
+        }),
+      );
+
+      return {
+        statusCode: 200,
+        headers,
+        body: JSON.stringify({ ok: true, key }),
+      };
+    } catch (e) {
+      console.error("S3 upload failed:", e);
+      return {
+        statusCode: 500,
+        headers,
+        body: JSON.stringify({
+          error: "Failed to upload logs",
+          details: String(e),
+        }),
+      };
+    }
+  }
   try {
     // Parse incoming JSON from API Gateway
     const body = JSON.parse(event.body || "{}");
