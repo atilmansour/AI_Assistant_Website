@@ -4,7 +4,6 @@ import AI_API from "../components/AI_Options/AI_API";
 import Button from "../components/Button";
 import Modal from "../components/Modal";
 import "../App.css";
-import AWS from "aws-sdk";
 
 const ButtonPress = () => {
   const [editorLog, setEditorLog] = useState([]);

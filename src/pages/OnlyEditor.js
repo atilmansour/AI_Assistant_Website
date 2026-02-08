@@ -2,7 +2,6 @@ import React, { useState, useEffect, useCallback } from "react";
 import TextEditor from "../components/QuillTextEditor";
 import Button from "../components/Button";
 import Modal from "../components/Modal";
-import AWS from "aws-sdk";
 
 const OnlyEditor = () => {
   const [editorLog, setEditorLog] = useState([]);
