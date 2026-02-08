@@ -163,6 +163,10 @@ This folder includes your conditions, link address, and thankyou webpage which s
 
 - **_Routes.js_**: Responsible for the "tree" of the website links. Here, you can add the route to your conditions.
 - **_ThankYou.js_**: This is the webpage users see after submitting their texts. You can adjust the instructions there according to the flow of your experiment.
+- **_AIStillPage.js_**: This is the first condition, where users immediately have access to the AI, and cannot close the AI. Feel free to look for `CONFIG YOU WILL EDIT` for recommended changes.
+- **_ButtonPress.js_**: The AI starts CLOSED and opens only if the participant clicks the AI button in the editor toolbar. We log when the AI was first opened (ms after page load) plus chat open/close/collapse events and submission attempts. Feel free to look for `CONFIG YOU WILL EDIT` for recommended changes.
+- **_AIOpensAndCloses.js_**: The AI assistant opens automatically after 20 seconds, and participants can open and close the AI chat interface. Feel free to look for `CONFIG YOU WILL EDIT` for recommended changes.
+- **_OnlyEditor.js_**: Participants write with no AI assistant (editor-only baseline). Feel free to look for `CONFIG YOU WILL EDIT` for recommended changes.
 
 ## App.css
 
