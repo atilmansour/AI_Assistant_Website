@@ -557,3 +557,67 @@ button:hover {
   text-align: center;
   font-size: 1.1vw;
 }
+
+/* ================================
+   CHAT-ONLY PAGE (same size as editor)
+   ================================ */
+
+/* Same outer spacing feel as the editor page */
+.chat-only-page {
+  min-height: 100vh;
+  padding: 0; /* keep consistent with your current layout */
+}
+
+/* Make the chat "panel" take the same footprint as #text-editor-container */
+.chat-only-container {
+  /* match editor-area margins */
+  margin-top: 0.7%;
+  margin-left: 1%;
+  margin-right: 1%;
+  margin-bottom: 0.5%;
+
+  /* same height as editor panel */
+  height: var(--panel-h);
+
+  /* full width like editor when no AI panel exists */
+  width: calc(100% - 2%); /* accounts for left+right 1% margins */
+  max-width: none;
+
+  display: flex;
+  box-sizing: border-box;
+}
+
+/* Make the chat card look/size like the text editor card */
+.chat-only-container .assistant-inner {
+  width: 100%;
+  height: 100%;
+
+  /* match #text-editor-container styling */
+  padding: 2.08%;
+  box-sizing: border-box;
+
+  border-radius: 4px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+
+  overflow: hidden;
+
+  /* override the animation defaults from .assistant-inner (optional) */
+  transform: none;
+  opacity: 1;
+  transition: none;
+}
+
+/* Ensure the actual chat UI fills the card */
+.chat-only-container #chat-container {
+  height: 100%;
+  padding: .08% !important;
+  padding-left: 2%;
+  box-sizing: border-box;
+}
+
+/* Ensure messages area grows correctly */
+.chat-only-container #chat-output {
+  flex: 1;
+  overflow-y: auto;
+}

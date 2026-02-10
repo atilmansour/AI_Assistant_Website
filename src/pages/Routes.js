@@ -7,6 +7,7 @@ import ButtonPress from "./ButtonPress";
 import ProActiveOfferingCond from "./AIOpensAndCloses";
 import OnlyEditor from "./OnlyEditor";
 import AIStillPage from "./AIStillPage";
+import OnlyAI from "./OnlyAI";
 
 const Routes = () => {
   return (
@@ -20,6 +21,8 @@ const Routes = () => {
         {/*Here is the addition to your web address https//XXXX/u, you may change to your liking*/}
         <Route path="/c" component={OnlyEditor} />
         {/*Here is the addition to your web address https//XXXX/c, you may change to your liking*/}
+        <Route path="/a" component={OnlyAI} />
+        {/*Here is the addition to your web address https//XXXX/a, you may change to your liking*/}
         <Route exact path="/" component={ThankYou} />{" "}
         {/*Here is the addition to your web address https//XXXX/ */}
       </Switch>
