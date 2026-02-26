@@ -4,15 +4,17 @@
 
 To set up your computer, you need to download git on your laptop.
 
-Please use this link to download git: https://git-scm.com/install/
+Please use this link to download git: https://git-scm.com/install/ (you can keep the default settings).
+
+Next, log in into your account using the github downloaded on your laptop.
 
 # Download This Repository
 
-To get save this code and get it ready to edit, follow these few steps:
+After you download github, to get save this code and get it ready to edit, follow these few steps:
 
-1. Click **Fork** (top-right on GitHub) to create your own copy of this repository.
-2. Open your CMD
-3. Go to the folder where you want to save the project using the following command:
+1. Click **Fork** (top-right on GitHub, next to watch) to create your own copy of this repository.
+2. Open your CMD (write "cmd" in your computer search).
+3. Go to the folder where you want to save the code using the following command:
 
    ```
    cd PATH/TO/FOLDER
@@ -21,7 +23,7 @@ To get save this code and get it ready to edit, follow these few steps:
 4. Clone **your fork** to your computer:
 
    ```
-   git clone https://github.com/<YOUR_USERNAME>/<REPO_NAME>.git
+   git clone https://github.com/<YOUR_USERNAME>/<AI_Assistant_Website>.git
    ```
 
 5. Move into project folder using:
@@ -38,29 +40,42 @@ To get save this code and get it ready to edit, follow these few steps:
    ```
 
 7. Create a new branch for your changes:
-   `    git checkout -b my-change`
+
+   ```
+   git checkout main
+   git status
+   ```
+
    Now you are free to start editing and saving your changes locally and in github:
 
-8. After you make changes
+8. Now you can open the folder of the code. After you make changes (you can look for optional changes by searching **CONFIG YOU WILL EDIT**).
+
 9. Save your changes and push them to your fork:
-   For the first time edits:
-   ```
-   git add .
-   git commit -m "Describe your change"
-   git push -u origin my-change
-   ```
-   Afterwards, you can simply run :
+
    ```
    git add .
    git commit -m "Describe your change"
    git push
    ```
 
+   Note that, for the fitst time, git may ask you to identify your information. To do that, run:
+
+   ```
+   git config --global user.email "YOUR_GIT_EMAIL@EMAIL.COM"
+   ```
+
 # Download Node JS
 
-First, make sure Node.js is downloaded.
+First, make sure Node.js is downloaded (you can install the windows installer).
 
 You can download it from the following website: https://nodejs.org/en/download
+
+You may need to close and reopen your cmd and code folder that you are working on. To make sure Node JS is downloaded, run:
+
+```
+node -v
+npm -v
+```
 
 # Backend Folder (API and Environment Variables)
 
@@ -111,7 +126,7 @@ Create `backend/.env` file (name the file `.env` and put it in the `backend` fol
      To generate a claude key, go to [Gemini API's official website](https://ai.google.dev/gemini-api/docs/api-key). You will need to create an account, and get a personal key. It is important to keep this key private, as this is what allows you to connect to Gemini.
 
 - For the other environment keys, please go to the [Amazon Web Services (AWS) section](<#Amazon_Web_Services_(AWS)>)
-- **Make sure `backend/.env` is in `.gitignore`**.
+- **Make sure `backend/.env` is in `.gitignore`** before you upload (in your local code).
 
 - **_backend/server.js_**: Calls OpenAI/Claude/Gemini securely (API keys stay server-side). You can change model names and max tokens here.
 
@@ -182,22 +197,25 @@ Then click the **Elements** tab, select an element on the page, and you’ll see
 
 - Make sure your `backend/.env` is in `.gitignore` so your environment variables are not uploaded to your repository in github.
 
-- Open **two terminals** (one for the backend, one for the frontend).
+- Open **two terminals** (one for the backend, one for the frontend), make sure the terminals are **git bash** (you can change the terminal using the arrow next to the plus after you open the terminal).
 
 ### Terminal 1 (Backend)
 
-````
-```bash
+**You need to run npm install only in the first time**
+
+```
 cd backend
-npm install   # first time only
+npm install
 npm start
-````
+```
 
 ### Terminal 2 (frontend)
 
+**You need to run npm install only in the first time**
+
 ```
-cd ..
-npm install   # first time only
+cd AI_Assistant_Website
+npm install
 npm start
 ```
 
