@@ -29,9 +29,9 @@ const OnlyEditor = () => {
   const [submit, setSubmit] = useState(false); // used to disable the submit button + passed into TextEditor
   const [canSubmit, setCanSubmit] = useState(false); // true only when word threshold is met
 
-  // NOTE: pasteFlagC is always false here (and TextEditor has its own paste prevention too).
+  // CONFIG YOU WILL EDIT: pasteFlag is always false here (and TextEditor has its own paste prevention too).
   // If you want to control paste behavior dynamically, convert this into a state variable.
-  const pasteFlagC = false;
+  const pasteFlag = false;
 
   // Word count
   const [currentLength, setcurrentLength] = useState(0);
@@ -42,9 +42,8 @@ const OnlyEditor = () => {
     setSubmit(isModalOpen);
   }, [isModalOpen]);
 
-  // ----------------------------
-  // Optional: Disable copy/cut/paste globally on the page
-  // ----------------------------
+  //CONFIG YOU WILL EDIT: disables copy/cut/paste, delete the following func to enable
+  // We recommend keeping in this condition, unless users are expected to copy and paste from external website.
   useEffect(() => {
     const handleCopy = (event) => event.preventDefault();
     const handleCut = (event) => event.preventDefault();
@@ -64,13 +63,7 @@ const OnlyEditor = () => {
   // ----------------------------
   // Word threshold check
   // CONFIG YOU WILL EDIT:
-  // Minimum words currently: 80
-  //
-  // NOTE (small bug fix idea):
-  // You are checking `if (currentLength >= 80)` right after calling setcurrentLength(...).
-  // React state updates are async, so `currentLength` can be "one render behind".
-  // A safer pattern is: compute wc, setcurrentLength(wc), setCanSubmit(wc >= 80).
-  // I'm NOT changing your logic here—just pointing it out.
+  // Minimum words currently: 50
   // ----------------------------
   useEffect(() => {
     if (currentLastEditedText.length > 0) {
@@ -78,8 +71,7 @@ const OnlyEditor = () => {
         currentLastEditedText.trim().split(/\s+/).filter(Boolean).length,
       );
 
-      // This uses currentLength (which may lag by one render)
-      if (currentLength >= 80) {
+      if (currentLength >= 50) {
         setCanSubmit(true);
       } else {
         setCanSubmit(false);
@@ -101,14 +93,14 @@ const OnlyEditor = () => {
 
   // Generates an ID that becomes the submission code + S3 filename
   // CONFIG YOU WILL EDIT:
-  // Change prefix "ANA" if you want to tag a condition/cohort
+  // Change prefix "OE" or suffix "C" if you want to tag a condition/cohort
   function getRandomString(length) {
     const characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     const middlePart = Array.from(
       { length },
       () => characters[Math.floor(Math.random() * characters.length)],
     ).join("");
-    return `ANA${middlePart}`;
+    return `OE${middlePart}C`;
   }
 
   // Called when user confirms submit
@@ -121,8 +113,6 @@ const OnlyEditor = () => {
       editor: editorLog,
     };
 
-    // NOTE: saveLogsToS3 can throw. If you want a user-friendly error:
-    // try { await saveLogsToS3(logs); } catch(e) { alert("Upload failed"); }
     saveLogsToS3(logs);
   };
 
@@ -146,6 +136,7 @@ const OnlyEditor = () => {
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data?.error || "Save failed");
 
+    //CONFIG YOU WILL EDIT
     // Message shown after successful upload
     alert("Please copy this code to qualtrics: " + logs.id);
   };
@@ -169,7 +160,7 @@ const OnlyEditor = () => {
             <TextEditor
               submit={submit}
               onEditorSubmit={handleEditorLog}
-              pasteFlag={pasteFlagC}
+              pasteFlag={pasteFlag}
               onLastEditedTextChange={setCurrentLastEditedText}
               showAI={false} // Condition-specific: AI is disabled
             />

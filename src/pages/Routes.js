@@ -4,7 +4,7 @@ import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
 //You may add or duplicate .js files into the pages folder to edit or add additional conditions
 import ThankYou from "./ThankYou";
 import ButtonPress from "./ButtonPress";
-import ProActiveOfferingCond from "./AIOpensAndCloses";
+import AIOpensAndCloses from "./AIOpensAndCloses";
 import OnlyEditor from "./OnlyEditor";
 import AIStillPage from "./AIStillPage";
 import OnlyAI from "./OnlyAI";
@@ -15,7 +15,7 @@ const Routes = () => {
       <Switch>
         <Route path="/b" component={ButtonPress} />{" "}
         {/*Here is the addition to your web address https//XXXX/b, you may change to your liking*/}
-        <Route path="/po" component={ProActiveOfferingCond} />
+        <Route path="/o" component={AIOpensAndCloses} />
         {/*Here is the addition to your web address https//XXXX/po, you may change to your liking*/}
         <Route path="/u" component={AIStillPage} />
         {/*Here is the addition to your web address https//XXXX/u, you may change to your liking*/}

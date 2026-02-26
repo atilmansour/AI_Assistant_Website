@@ -4,7 +4,7 @@
  * logs user activity, and sends the logs to your backend endpoint (/api/logs)
  * so the Lambda can save them to S3.
  *
- * If you change anything, focus on the "CONFIG YOU WILL EDIT" comments below.
+ * sreach for: CONFIG YOU WILL EDIT to edit relevant changes
  */
 
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -14,6 +14,10 @@ import Modal from "../components/Modal";
 import "../App.css";
 
 const OnlyAI = () => {
+  // CONFIG YOU WILL EDIT:
+  // Choose provider: "chatgpt" | "claude" | "gemini"
+  const aiProvider = "chatgpt";
+
   // ----------------------------
   // LOGGING STATE (what we save)
   // ----------------------------
@@ -49,9 +53,9 @@ const OnlyAI = () => {
   // Chat open/close/collapse events (ms since page start)
   const startMsRef = useRef(performance.now());
 
-  // ----------------------------
-  // Optional: disable copy/cut/paste
-  // ----------------------------
+  // Optional: disable copy/cut/paste completely
+  //CONFIG YOU WILL EDIT: Adjust to your liking (delete this function if you want to enable).
+  //We recommend keeping in this condition unless the user can copy from external websites.
   useEffect(() => {
     const handleCopy = (event) => event.preventDefault();
     const handleCut = (event) => event.preventDefault();
@@ -75,7 +79,7 @@ const OnlyAI = () => {
   // ----------------------------
   useEffect(() => {
     const interval = setInterval(() => {
-      setCanSubmitTime(Date.now() - startTimeRef.current >= 180000); // 3 min
+      setCanSubmitTime(Date.now() - startTimeRef.current >= 180000);
     }, 500); // update twice/sec
 
     return () => clearInterval(interval);
@@ -126,7 +130,7 @@ const OnlyAI = () => {
       { length },
       () => characters[Math.floor(Math.random() * characters.length)],
     ).join("");
-    return `PO${middlePart}45`;
+    return `OA${middlePart}A`;
   }
 
   // Called when user confirms submit
@@ -136,6 +140,7 @@ const OnlyAI = () => {
     // Build logs object that will be uploaded to S3 by your backend
     const logs = {
       id: getRandomString(5),
+      aiProvider: aiProvider,
       NumOfSubmitClicks: submitAttempts,
       TimeStampOfSubmitClicks: submitAttemptTimesMs,
       messages: messagesLog,
@@ -202,9 +207,7 @@ const OnlyAI = () => {
               ]}
               // chat-only page: no editor context
               lastEditedText={""}
-              // CONFIG YOU WILL EDIT:
-              // Choose provider: "chatgpt" | "claude" | "gemini"
-              aiProvider={"chatgpt"}
+              aiProvider={aiProvider}
             />
           </div>
         </div>

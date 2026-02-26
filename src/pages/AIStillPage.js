@@ -3,7 +3,7 @@
  * This page shows a writing editor + an AI assistant panel, logs user activity,
  * and sends the logs to your backend endpoint (/api/logs) so the Lambda can save them to S3.
  *
- * If you change anything, focus on the "CONFIG YOU WILL EDIT" comments below.
+ * sreach for: CONFIG YOU WILL EDIT to edit relevant changes
  */
 
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -14,6 +14,10 @@ import Modal from "../components/Modal";
 import "../App.css";
 
 const AIStillPage = () => {
+  // CONFIG YOU WILL EDIT:
+  // Choose provider: "chatgpt" | "claude" | "gemini"
+  const aiProvider = "chatgpt";
+
   // ----------------------------
   // LOGGING STATE (what we save)
   // ----------------------------
@@ -28,9 +32,9 @@ const AIStillPage = () => {
   const [isEarlyModalOpen, setEarlyModalOpen] = useState(false); // "Too early to submit" modal
   const [submit, setSubmit] = useState(false); // passed to editor to mark submit moment (if your editor uses it)
 
-  // NOTE: pasteFlagI is currently always false.
-  // If you ever want to toggle it dynamically, make it a state variable.
-  const pasteFlagI = false;
+  //pasteFlag decides if you enable or disable copying and pasting:
+  //CONFIG YOU WILL EDIT: when true, users can copy and paste to the text editor.
+  const pasteFlag = true;
 
   // canSubmit = time requirement AND word requirement
   const [canSubmit, setCanSubmit] = useState(false);
@@ -76,9 +80,8 @@ const AIStillPage = () => {
     setSubmit(isModalOpen);
   }, [isModalOpen]);
 
-  // ----------------------------
-  // Optional: disable copy/cut/paste
-  // ----------------------------
+  // Optional: disable copy/cut/paste completely
+  //CONFIG YOU WILL EDIT: Adjust to your liking (delete this function if you want to enable).
   useEffect(() => {
     const handleCopy = (event) => event.preventDefault();
     const handleCut = (event) => event.preventDefault();
@@ -102,7 +105,7 @@ const AIStillPage = () => {
   // ----------------------------
   useEffect(() => {
     const interval = setInterval(() => {
-      setCanSubmitTime(Date.now() - startTimeRef.current >= 180000); // 3 min
+      setCanSubmitTime(Date.now() - startTimeRef.current >= 180000);
     }, 500); // update twice/sec
 
     return () => clearInterval(interval);
@@ -145,16 +148,20 @@ const AIStillPage = () => {
   // Combined eligibility + build the early-modal message
   useEffect(() => {
     setCanSubmit(canSubmitWord && canSubmitTime);
-
+    //CONFIG YOU WILL EDIT:
+    //Change here the messages users see when attempting to submit:
     if (!canSubmitWord && !canSubmitTime) {
+      //Before writing word threshold + time threshold has passed
       setMessageEarlyModal(
         "Most participants spend more time developing their ideas before submitting. Please review your work and add any additional thoughts before continuing.",
       );
     } else if (!canSubmitWord) {
+      //Before writing word threshold only
       setMessageEarlyModal(
         "Most participants suggest more developed ideas before submitting. Please review your work and add any additional thoughts before continuing.",
       );
     } else if (!canSubmitTime) {
+      //before time threshold has passed
       setMessageEarlyModal(
         "Most participants spend more time developing their ideas before submitting. Please review your work and add any additional thoughts before continuing.",
       );
@@ -186,7 +193,7 @@ const AIStillPage = () => {
       { length },
       () => characters[Math.floor(Math.random() * characters.length)],
     ).join("");
-    return `PO${middlePart}45`;
+    return `ASP${middlePart}U`;
   }
 
   // Called when user confirms submit
@@ -196,6 +203,7 @@ const AIStillPage = () => {
     // Build logs object that will be uploaded to S3 by your backend
     const logs = {
       id: getRandomString(5),
+      aiProvider: aiProvider,
       NumOfSubmitClicks: submitAttempts,
       TimeStampOfSubmitClicks: submitAttemptTimesMs,
       messages: messagesLog,
@@ -272,7 +280,7 @@ const AIStillPage = () => {
             <TextEditor
               submit={submit}
               onEditorSubmit={handleEditorLog}
-              pasteFlag={pasteFlagI}
+              pasteFlag={pasteFlag}
               onLastEditedTextChange={setCurrentLastEditedText}
               showAI={false}
             />
@@ -281,9 +289,6 @@ const AIStillPage = () => {
 
         {/* RIGHT: Chat slot */}
         <div id="assistant-slot" className={assistantSlotClass}>
-          {/* NOTE: This currently renders "true/false" text in the UI.
-              If you intended a button/handle, replace with actual JSX.
-           */}
           {isChatOpen}
 
           <div className="assistant-inner">
@@ -300,9 +305,7 @@ const AIStillPage = () => {
                 "This is the second message, you can edit, add more, or delete me.",
               ]}
               lastEditedText={currentLastEditedText}
-              // CONFIG YOU WILL EDIT:
-              // Choose provider: "chatgpt" | "claude" | "gemini"
-              aiProvider={"chatgpt"}
+              aiProvider={aiProvider}
             />
           </div>
         </div>

@@ -28,7 +28,7 @@ body {
 }
 
 /* ========= Editor area wrapper ========= */
-/* ✅ UPDATED: flex-grow when chat is closed, fixed 60vw when chat is open */
+/*flex-grow when chat is closed, fixed 60vw when chat is open */
 #editor-area {
   flex: 1 1 auto; /* grow */
   min-width: 0;

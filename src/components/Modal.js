@@ -6,10 +6,9 @@ import "../App.css";
  * Modal
  * A simple modal/popup that shows a message and action buttons.
  *
- * Props:
  * - isOpen (boolean): controls whether the modal is visible
  * - onClose (function): runs when the user clicks Cancel
- * - onConfirm (function): runs when the user clicks Confirm (optional)
+ * - onConfirm (function): runs when the user clicks Confirm
  * - message (string): text shown inside the modal
  * - showConfirm (boolean): whether to show the Confirm button
  */

@@ -3,12 +3,7 @@
  * the AI assistant opens automatically after 20 seconds (even if the participant never clicks it),
  * so we can measure the effect of proactively offering AI help. We log chat auto-open + open/close/collapse events and upload to S3.
  *
- * CONFIG YOU WILL EDIT:
- * - Auto-open delay (currently 20000 ms = 20 seconds)
- * - Minimum time before submit (currently 180000 ms = 3 minutes)
- * - Minimum word count (currently 50 words)
- * - Instructions text + initial chat messages
- * - API base URL: REACT_APP_API_BASE (frontend .env)
+ * sreach for: CONFIG YOU WILL EDIT to edit relevant changes
  */
 
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -18,7 +13,11 @@ import Button from "../components/Button";
 import Modal from "../components/Modal";
 import "../App.css";
 
-const ProActiveOfferingCond = () => {
+const AIOpensAndCloses = () => {
+  // CONFIG YOU WILL EDIT:
+  // Choose provider: "chatgpt" | "claude" | "gemini"
+  const aiProvider = "chatgpt";
+
   // ----------------------------
   // LOGGING STATE (what we save)
   // ----------------------------
@@ -32,9 +31,6 @@ const ProActiveOfferingCond = () => {
   const [isModalOpen, setModalOpen] = useState(false); // "Are you sure?" modal
   const [isEarlyModalOpen, setEarlyModalOpen] = useState(false); // "Too early to submit" modal
   const [submit, setSubmit] = useState(false); // passed into TextEditor (if editor uses it)
-
-  // NOTE: pasteFlagI is always false; if you want to toggle it, make it state.
-  const pasteFlagI = false;
 
   // canSubmit depends on both time + word requirements
   const [canSubmit, setCanSubmit] = useState(false);
@@ -79,6 +75,10 @@ const ProActiveOfferingCond = () => {
   // Prevent the auto-open effect from running twice (React strict mode can double-run effects in dev)
   const hasAutoOpenedRef = useRef(false);
 
+  //pasteFlag decides if you enable or disable copying and pasting:
+  //CONFIG YOU WILL EDIT: when true, users can copy and paste to the text editor.
+  const pasteFlag = false;
+
   // Open chat (fully open, not collapsed)
   const openChat = useCallback(() => {
     setIsChatOpen(true);
@@ -105,7 +105,8 @@ const ProActiveOfferingCond = () => {
     setSubmit(isModalOpen);
   }, [isModalOpen]);
 
-  // Optional: disable copy/cut/paste
+  // Optional: disable copy/cut/paste completely
+  //CONFIG YOU WILL EDIT: Adjust to your liking (delete this function if you want to enable).
   useEffect(() => {
     const handleCopy = (event) => event.preventDefault();
     const handleCut = (event) => event.preventDefault();
@@ -172,19 +173,22 @@ const ProActiveOfferingCond = () => {
     return () => clearTimeout(t);
   }, [openChat, logChatEvent]);
 
-  // Combined eligibility + build early-modal message
   useEffect(() => {
     setCanSubmit(canSubmitWord && canSubmitTime);
-
+    //CONFIG YOU WILL EDIT:
+    //Change here the messages users see when attempting to submit:
     if (!canSubmitWord && !canSubmitTime) {
+      //Before writing word threshold + time threshold has passed
       setMessageEarlyModal(
         "Most participants spend more time developing their ideas before submitting. Please review your work and add any additional thoughts before continuing.",
       );
     } else if (!canSubmitWord) {
+      //Before writing word threshold only
       setMessageEarlyModal(
         "Most participants suggest more developed ideas before submitting. Please review your work and add any additional thoughts before continuing.",
       );
     } else if (!canSubmitTime) {
+      //before time threshold has passed
       setMessageEarlyModal(
         "Most participants spend more time developing their ideas before submitting. Please review your work and add any additional thoughts before continuing.",
       );
@@ -215,7 +219,7 @@ const ProActiveOfferingCond = () => {
       { length },
       () => characters[Math.floor(Math.random() * characters.length)],
     ).join("");
-    return `PO${middlePart}45`;
+    return `AOAC${middlePart}O`;
   }
 
   // Called when user confirms submit
@@ -225,15 +229,13 @@ const ProActiveOfferingCond = () => {
     // Everything we want to save for this condition
     const logs = {
       id: getRandomString(5),
-      chatEvents: chatEvents, // includes chat_auto_open + UI events
+      aiProvider: aiProvider,
+      chatEvents: chatEvents,
       NumOfSubmitClicks: submitAttempts,
       TimeStampOfSubmitClicks: submitAttemptTimesMs,
       messages: messagesLog,
       editor: editorLog,
-      wordCount: currentLength, // helpful extra metadata
     };
-
-    // NOTE: can throw; if you want user-friendly errors, wrap in try/catch
     saveLogsToS3(logs);
   };
 
@@ -260,7 +262,8 @@ const ProActiveOfferingCond = () => {
 
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data?.error || "Save failed");
-
+    // CONFIG YOU WILL EDIT:
+    // This is the message shown to participants after upload succeeds.
     alert("Please copy this code to qualtrics: " + logs.id);
   };
 
@@ -297,7 +300,7 @@ const ProActiveOfferingCond = () => {
             <TextEditor
               submit={submit}
               onEditorSubmit={handleEditorLog}
-              pasteFlag={pasteFlagI}
+              pasteFlag={pasteFlag} //users can copy and paste.
               onLastEditedTextChange={setCurrentLastEditedText}
               showAI={false} // condition-specific: AI is not a button; it's auto-opened instead
             />
@@ -335,14 +338,13 @@ const ProActiveOfferingCond = () => {
 
             <AI_API
               onMessagesSubmit={handleMessages}
-              // CONFIG YOU WILL EDIT: starter chat messages
+              // CONFIG YOU WILL EDIT: present chat messages
               initialMessages={[
                 "Hello, this is a present message that you can edit in your code in AIStillPage.js (theInitialMsg).",
                 "This is the second message, you can edit, add more, or delete me.",
               ]}
               lastEditedText={currentLastEditedText}
-              // CONFIG YOU WILL EDIT: choose provider
-              aiProvider={"chatgpt"} // "chatgpt" | "claude" | "gemini"
+              aiProvider={aiProvider}
             />
           </div>
         </div>
@@ -374,4 +376,4 @@ const ProActiveOfferingCond = () => {
   );
 };
 
-export default ProActiveOfferingCond;
+export default AIOpensAndCloses;

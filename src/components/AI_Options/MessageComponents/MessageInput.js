@@ -5,8 +5,7 @@ import Button from "../../Button";
  * MessageInput
  * A text input + Send button for a chat UI.
  *
- * Props:
- * - onSendMessage - called with the message text when the user sends
+ * onSendMessage - called with the message text when the user sends
  */
 
 const MessageInput = ({ onSendMessage }) => {

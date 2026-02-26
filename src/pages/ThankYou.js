@@ -1,3 +1,5 @@
+//CONFIG YOU WILL EDIT
+//EDIT the following emssages to instruct participants how to continue after submiiting their response.
 const ThankYou = () => {
   return (
     <div className="thank-you">

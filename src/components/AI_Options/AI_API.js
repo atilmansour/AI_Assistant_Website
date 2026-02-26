@@ -86,6 +86,10 @@ const AI_API = ({
     setMessages((prev) => [...prev, newUserMessage]);
 
     // Add writing context so the AI can respond based on what the user wrote
+    //CONFIG YOU WILL EDIT: Insted of "this is what i have written so far,
+    // you can change it to give the AI context (I am supposed to write about INSTRUCTIONS) OR
+    // you can change it to give the AI instructions (for example: Please answer in 1-2 sentences only)"
+
     const writingContext = lastEditedText
       ? `This is what I have written so far: ${toText(lastEditedText)}`
       : `My text is currently empty.`;
@@ -104,17 +108,16 @@ const AI_API = ({
 
     try {
       let chatbotResponseText = "";
+      /**
+       * We do NOT call Anthropic directly from the browser (CORS + API key leak).
+       * Instead, we call OUR backend proxy endpoint: /api/ai
+       *
+       * Your backend will read the real keys (OPENAI_KEY / CLAUDE_KEY / GEMINI_KEY)
+       * from server-side environment variables.
+       */
 
       // ---- Provider 1: Claude (Anthropic) ----
       if (aiProvider === "claude") {
-        /**
-         * IMPORTANT CHANGE:
-         * We do NOT call Anthropic directly from the browser anymore (CORS + API key leak).
-         * Instead, we call OUR backend proxy endpoint: /api/ai
-         *
-         * Your backend will read the real keys (OPENAI_KEY / CLAUDE_KEY / GEMINI_KEY)
-         * from server-side environment variables.
-         */
         const API_BASE =
           process.env.REACT_APP_API_BASE || "http://localhost:5050";
 
@@ -132,11 +135,6 @@ const AI_API = ({
 
         // ---- Provider 2: Gemini (Google) ----
       } else if (aiProvider === "gemini") {
-        /**
-         * IMPORTANT CHANGE:
-         * We do NOT call Gemini directly from the browser anymore (API key leak).
-         * Instead, we call OUR backend proxy endpoint: /api/ai
-         */
         const API_BASE =
           process.env.REACT_APP_API_BASE || "http://localhost:5050";
 
@@ -154,19 +152,10 @@ const AI_API = ({
 
         // ---- Provider 3: OpenAI (ChatGPT) ----
       } else {
-        /**
-         * IMPORTANT CHANGE:
-         * We do NOT call OpenAI directly from the browser anymore (API key leak).
-         * Instead, we call OUR backend proxy endpoint: /api/ai
-         *
-         * We keep your OpenAI "parts" converter here (to avoid changing your structure),
-         * but we send plain strings to the backend to keep it simple.
-         */
         const API_BASE =
           process.env.REACT_APP_API_BASE || "http://localhost:5050";
 
         // Convert internal strings -> OpenAI "parts" format at the boundary
-        // (We keep this code, but we won't send parts to backend; we send plain strings.)
         const openAiMessages = chatHistory.map((m) => ({
           role: m.role,
           content: toOpenAIContent(m.content),

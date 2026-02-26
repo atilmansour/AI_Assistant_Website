@@ -18,10 +18,6 @@ dotenv.config();
 
 const app = express();
 
-// -----------------------------
-// CONFIG
-// -----------------------------
-
 /**
  * In production, lock this down to your real Amplify domain:
  * e.g. https://yourapp.amplifyapp.com
@@ -128,6 +124,7 @@ app.post("/api/ai", async (req, res) => {
       const r = await axios.post(
         "https://api.anthropic.com/v1/messages",
         {
+          //CONFIG YOU WILL EDIT: you can edit here the Claude model and max tokens, etc.
           model: "claude-sonnet-4-20250514",
           max_tokens: 1000,
           messages: chatHistory,
@@ -163,6 +160,7 @@ app.post("/api/ai", async (req, res) => {
         }));
 
       const r = await axios.post(
+        //CONFIG YOU WILL EDIT: you can edit here the Gemini model and max tokens, etc.
         "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
         {
           contents,
@@ -192,6 +190,7 @@ app.post("/api/ai", async (req, res) => {
     const r = await axios.post(
       "https://api.openai.com/v1/chat/completions",
       {
+        //CONFIG YOU WILL EDIT: you can edit here the ChatGPT model and max tokens, etc.
         model: "gpt-4o",
         max_tokens: 1000,
         // OpenAI expects messages: [{role, content: string}, ...]

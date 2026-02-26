@@ -84,9 +84,7 @@ This project includes a `backend/` folder that runs a small server (proxy) for:
 
 ### Backend environment variables
 
-Create `backend/.env` and add your secrets there (see the Environment Variables section).
-
-After you finished all the above steps, create a new file called: ".env"
+Create `backend/.env` file (name the file `.env` and put it in the `backend` folder) and add your secrets there (see the Environment Variables section).
 
 - In this file you will need to write 6 rows, just like this:
   ```
@@ -166,6 +164,7 @@ This folder includes your conditions, link address, and thankyou webpage which s
 - **_ButtonPress.js_**: The AI starts CLOSED and opens only if the participant clicks the AI button in the editor toolbar. We log when the AI was first opened (ms after page load) plus chat open/close/collapse events and submission attempts. Feel free to look for `CONFIG YOU WILL EDIT` for recommended changes.
 - **_AIOpensAndCloses.js_**: The AI assistant opens automatically after 20 seconds, and participants can open and close the AI chat interface. Feel free to look for `CONFIG YOU WILL EDIT` for recommended changes.
 - **_OnlyEditor.js_**: Participants write with no AI assistant (editor-only baseline). Feel free to look for `CONFIG YOU WILL EDIT` for recommended changes.
+- **_OnlyAI.js_**: Participants chat with the AI only (no text editor). Feel free to look for 'CONFIG YOU WILL EDIT' for recommended changes.
 
 ## App.css
 
@@ -284,6 +283,8 @@ Throughout the steps, please note that you choose ur console's region (you can v
    ```
 
 # Optional code uses:
+
+The following code is written in python, in case you do not have python installed, please install it from [the official Python page](https://www.python.org/downloads/).
 
 We provide in the `CodeAnalysisData` folder:
 

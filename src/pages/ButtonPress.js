@@ -9,7 +9,7 @@
  * - submit attempts + submit attempt times
  * Then we POST everything to /api/logs, and the backend (Lambda) saves it to S3.
  *
- * If you change anything, look for: "CONFIG YOU WILL EDIT"
+ * sreach for: CONFIG YOU WILL EDIT to edit relevant changes
  */
 
 import { useState, useEffect, useCallback, useRef } from "react";
@@ -20,6 +20,10 @@ import Modal from "../components/Modal";
 import "../App.css";
 
 const ButtonPress = () => {
+  // CONFIG YOU WILL EDIT:
+  // Choose provider: "chatgpt" | "claude" | "gemini"
+  const aiProvider = "chatgpt";
+
   // ----------------------------
   // LOGGING STATE (what we save)
   // ----------------------------
@@ -36,7 +40,7 @@ const ButtonPress = () => {
 
   // NOTE: currently pasteFlagI is always false.
   // If you want to turn paste prevention on/off dynamically, make it a state variable.
-  const pasteFlagI = false;
+  const pasteFlagI = true;
 
   // Track submit clicks (even failed/early attempts)
   const [submitAttempts, setSubmitAttempts] = useState(0);
@@ -220,7 +224,7 @@ const ButtonPress = () => {
       { length },
       () => characters[Math.floor(Math.random() * characters.length)],
     ).join("");
-    return `B${middlePart}45`;
+    return `BP${middlePart}B`;
   }
 
   // Called when user confirms submit
@@ -230,6 +234,7 @@ const ButtonPress = () => {
     // Build logs to upload to S3
     const logs = {
       id: getRandomString(5),
+      aiProvider: aiProvider,
 
       // Chat interaction summary
       chatEvents: chatEvents, // open/close/collapse events (timestamped)
@@ -366,8 +371,7 @@ const ButtonPress = () => {
                 "This is the second message, you can edit, add more, or delete me.",
               ]}
               lastEditedText={currentLastEditedText}
-              // CONFIG YOU WILL EDIT:
-              aiProvider={"chatgpt"} // "chatgpt" | "claude" | "gemini"
+              aiProvider={aiProvider}
             />
           </div>
         </div>

@@ -5,7 +5,7 @@ import "../App.css";
 
 /**
  * CustomToolbar
- * Defines the Quill toolbar UI, including an optional "AI Assistant" button.
+ * Defines the Quill toolbar UI, including an optional "AI Assistant" button (used for the ButtonPress condition only).
  */
 const CustomToolbar = ({ showAI, onOpenChat }) => (
   <div id="toolbar" className="ql-toolbar ql-snow">
@@ -53,7 +53,7 @@ const CustomToolbar = ({ showAI, onOpenChat }) => (
  * A controlled ReactQuill editor that:
  * - Logs snapshots (timestamp + HTML) when the user types/deletes (space/delete rule)
  * - Reports plain text back to the parent via onLastEditedTextChange (e.g., for word count)
- * - Optionally blocks paste based on pasteFlag
+ * - Optionally blocks paste based on pasteFlag (depending on condition)
  * - Submits accumulated logs when `submit` becomes true
  */
 const TextEditor = ({
@@ -128,7 +128,7 @@ const TextEditor = ({
    * handleChange runs on each editor change.
    * - Updates the controlled editor value
    * - Sends plain text to parent (for live word count, etc.)
-   * - Logs snapshots only when user inserts a space or deletes text (your rule)
+   * - Logs snapshots only when user inserts a space or deletes text
    */
   const handleChange = (content, delta, source, editor) => {
     // Keep the editor controlled
