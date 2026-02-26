@@ -9,7 +9,7 @@
  * - API base URL: REACT_APP_API_BASE (frontend .env)
  */
 
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import TextEditor from "../components/QuillTextEditor";
 import Button from "../components/Button";
 import Modal from "../components/Modal";
