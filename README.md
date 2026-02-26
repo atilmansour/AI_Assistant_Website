@@ -12,7 +12,7 @@ Next, log in into your account using the github downloaded on your laptop.
 
 # Download This Repository
 
-After you download github, to get save this code and get it ready to edit, follow these few steps:
+After you download github, to save this code and get it ready to edit, follow these few steps:
 
 1. Click **Fork** (top-right on GitHub, next to watch) to create your own copy of this repository.
 2. Open your Command Prompt - CMD (write "cmd" in your computer search).
@@ -41,7 +41,7 @@ After you download github, to get save this code and get it ready to edit, follo
    git remote -v
    ```
 
-7. Create a new branch for your changes:
+7. Make sure your branch is main using the following:
 
    ```
    git checkout main
@@ -50,7 +50,7 @@ After you download github, to get save this code and get it ready to edit, follo
 
    Now you are free to start editing and saving your changes locally and in github:
 
-8. Next, you can open the folder of the code. Throughout the code, you can look for relevant change suggestions by searching **CONFIG YOU WILL EDIT**. To search for this term across files, you can click `Ctrl+shift+f`. Now, you can make a small change just to test that your changes are being saved.
+8. Next, open the local repository in your preferred IDE (for exmaple, using [Visual Studio Code](https://code.visualstudio.com/)). Throughout the code, you can look for relevant change suggestions by searching **CONFIG YOU WILL EDIT**. To search for this term across files, you can click `Ctrl+shift+f`. Now, you can make a small change just to test that your changes are being saved.
 
 9. Save your changes and push them to your fork:
 
