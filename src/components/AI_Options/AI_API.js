@@ -18,7 +18,7 @@ const AI_API = ({
   // Store chat messages in state (we keep everything as plain strings internally)
   const [messages, setMessages] = useState(() =>
     (initialMessages || []).map((text) => ({
-      timestamp: new Date().toLocaleTimeString(),
+      timestamp: Math.round(performance.now()),
       text: String(text ?? ""),
       sender: "chatbot",
     })),
@@ -33,7 +33,7 @@ const AI_API = ({
   useEffect(() => {
     setMessages(
       (initialMessages || []).map((text) => ({
-        timestamp: new Date().toLocaleTimeString(),
+        timestamp: Math.round(performance.now()),
         text: String(text ?? ""),
         sender: "chatbot",
       })),
@@ -73,7 +73,7 @@ const AI_API = ({
    * Adds the user's message to the UI immediately, then calls the selected AI provider.
    */
   const sendMessage = async (userMessage) => {
-    const timestamp = new Date().toLocaleTimeString();
+    const timestamp = Math.round(performance.now());
 
     // Create a user message object (stored as plain string)
     const newUserMessage = {

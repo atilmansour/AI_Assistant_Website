@@ -83,8 +83,8 @@ const TextEditor = ({
    */
   useEffect(() => {
     if (submit) {
-      const timestamp = new Date().toLocaleTimeString();
-      onEditorSubmit([...log, { timestamp, text }]);
+      const t_ms = Math.round(performance.now());
+      onEditorSubmit([...log, { t_ms, text }]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [submit]);
@@ -149,11 +149,11 @@ const TextEditor = ({
       const spaceDeleted = ops.some((op) => typeof op.delete === "number");
 
       if (spaceInserted || spaceDeleted) {
-        const timestamp = new Date().toLocaleTimeString();
+        const t_ms = Math.round(performance.now());
         const currentHtml = editor.getHTML ? editor.getHTML() : content;
 
-        // Store timestamp + HTML snapshot
-        setLog((prev) => [...prev, { timestamp, text: currentHtml }]);
+        // Store t_ms + HTML snapshot
+        setLog((prev) => [...prev, { t_ms, text: currentHtml }]);
       }
     }
   };
