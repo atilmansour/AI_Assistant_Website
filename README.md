@@ -23,7 +23,7 @@ After you download github, to get save this code and get it ready to edit, follo
 4. Clone **your fork** to your computer:
 
    ```
-   git clone https://github.com/<YOUR_USERNAME>/<AI_Assistant_Website>.git
+   git clone https://github.com/<YOUR_USERNAME>/AI_Assistant_Website.git
    ```
 
 5. Move into project folder using:
@@ -48,7 +48,7 @@ After you download github, to get save this code and get it ready to edit, follo
 
    Now you are free to start editing and saving your changes locally and in github:
 
-8. Now you can open the folder of the code. After you make changes (you can look for optional changes by searching **CONFIG YOU WILL EDIT**).
+8. Now you can open the folder of the code. Throughout the code, you can look for relevant change suggestions by searching **CONFIG YOU WILL EDIT**, to search for this term across files, you can click `Ctrl+shift+f`. Now, you can make a small change to test that your changes are being saved.
 
 9. Save your changes and push them to your fork:
 

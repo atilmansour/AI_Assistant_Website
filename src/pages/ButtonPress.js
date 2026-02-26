@@ -60,7 +60,7 @@ const ButtonPress = () => {
   // CONFIG YOU WILL EDIT:
   // The message shown when user tries to submit too early
   const [messageEarlyModal, setMessageEarlyModal] = useState(
-    "Most participants spend more time developing their ideas before submitting. Please review your work and add any additional thoughts before continuing.",
+    "Insert here your message, encouraging participants to write for more time + words (participants tried to submit before time + word count threshold).",
   );
 
   // ----------------------------
@@ -156,15 +156,15 @@ const ButtonPress = () => {
 
     if (!canSubmitWord && !canSubmitTime) {
       setMessageEarlyModal(
-        "Most participants spend more time developing their ideas before submitting. Please review your work and add any additional thoughts before continuing.",
+        "Insert here your message, encouraging participants to write for more time + words (participants tried to submit before time + word count threshold).",
       );
     } else if (!canSubmitWord) {
       setMessageEarlyModal(
-        "Most participants suggest more developed ideas before submitting. Please review your work and add any additional thoughts before continuing.",
+        "Insert here your message, encouraging participants to write for more words (participants tried to submit before word count threshold).",
       );
     } else if (!canSubmitTime) {
       setMessageEarlyModal(
-        "Most participants spend more time developing their ideas before submitting. Please review your work and add any additional thoughts before continuing.",
+        "Insert here your message, encouraging participants to write for more time (participants tried to submit before time threshold).",
       );
     }
   }, [canSubmitWord, canSubmitTime]);
@@ -286,7 +286,7 @@ const ButtonPress = () => {
 
     // CONFIG YOU WILL EDIT:
     // What the participant sees after successful upload
-    alert("Please copy this code to qualtrics: " + logs.id);
+    alert("Please copy this code to XXX: " + logs.id);
   };
 
   // Used by CSS to style the chat open/collapsed state

@@ -7,7 +7,7 @@ const ThankYou = () => {
       {/*In a smaller text, updating the users that their submissions were recorded */}
       <h1>To continue the Study: </h1>{" "}
       {/*If this is part of a study, instruct your users on how to continue. */}
-      <p>Please copy the code and paste it in Qualtrics.</p>{" "}
+      <p>Please copy the code and paste it in XXX.</p>{" "}
       {/*Specific instructions */}
     </div>
   );

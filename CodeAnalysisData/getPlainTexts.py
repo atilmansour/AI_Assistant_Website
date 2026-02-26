@@ -1,6 +1,6 @@
 """
-This script converts your S3 submission .txt files (JSON logs) into clean, plain-text files
-(one per participant ID) that are ready to use. Optionally, it can also merge
+This script converts your S3 raw .txt files into clean, plain-text files
+(one per participant/submission) that are ready to use. Optionally, it can also merge
 those texts into an existing CSV using a 'code' column.
 """
 

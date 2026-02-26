@@ -61,7 +61,7 @@ const AIStillPage = () => {
   // CONFIG YOU WILL EDIT:
   // Message shown if participant tries to submit too early (word/time not met)
   const [messageEarlyModal, setMessageEarlyModal] = useState(
-    "Most participants spend more time developing their ideas before submitting. Please review your work and add any additional thoughts before continuing.",
+    "Insert here your message, encouraging participants to write for more time + words (participants tried to submit before time + word count threshold).",
   );
 
   // Chat open/close/collapse events (ms since page start)
@@ -153,17 +153,17 @@ const AIStillPage = () => {
     if (!canSubmitWord && !canSubmitTime) {
       //Before writing word threshold + time threshold has passed
       setMessageEarlyModal(
-        "Most participants spend more time developing their ideas before submitting. Please review your work and add any additional thoughts before continuing.",
+        "Insert here your message, encouraging participants to write for more time + words (participants tried to submit before time + word count threshold).",
       );
     } else if (!canSubmitWord) {
       //Before writing word threshold only
       setMessageEarlyModal(
-        "Most participants suggest more developed ideas before submitting. Please review your work and add any additional thoughts before continuing.",
+        "Insert here your message, encouraging participants to write for more words (participants tried to submit before word count threshold).",
       );
     } else if (!canSubmitTime) {
       //before time threshold has passed
       setMessageEarlyModal(
-        "Most participants spend more time developing their ideas before submitting. Please review your work and add any additional thoughts before continuing.",
+        "Insert here your message, encouraging participants to write for more time (participants tried to submit before time threshold).",
       );
     }
   }, [canSubmitWord, canSubmitTime]);
@@ -209,10 +209,6 @@ const AIStillPage = () => {
       messages: messagesLog,
       editor: editorLog,
     };
-
-    // NOTE: This function is async and can throw.
-    // If you want to show an error popup, wrap with try/catch:
-    // try { await saveLogsToS3(logs); } catch(e) { alert("Upload failed"); }
     saveLogsToS3(logs);
   };
 
@@ -246,7 +242,7 @@ const AIStillPage = () => {
 
     // CONFIG YOU WILL EDIT:
     // This is the message shown to participants after upload succeeds.
-    alert("Please copy this code to qualtrics: " + logs.id);
+    alert("Please copy this code to XXX: " + logs.id);
   };
 
   // CSS helper class for chat open/closed styling

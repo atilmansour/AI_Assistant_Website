@@ -20,6 +20,7 @@ const OnlyEditor = () => {
   // ----------------------------
   const [editorLog, setEditorLog] = useState([]); // detailed logs from the editor
   const [currentLastEditedText, setCurrentLastEditedText] = useState(""); // latest editor text (used to compute word count)
+  const startMsRef = useRef(performance.now());
 
   // ----------------------------
   // MODALS + SUBMISSION STATE
@@ -27,14 +28,32 @@ const OnlyEditor = () => {
   const [isModalOpen, setModalOpen] = useState(false); // final "confirm submit" modal
   const [isEarlyModalOpen, setEarlyModalOpen] = useState(false); // "not enough words yet" modal
   const [submit, setSubmit] = useState(false); // used to disable the submit button + passed into TextEditor
-  const [canSubmit, setCanSubmit] = useState(false); // true only when word threshold is met
+  // canSubmit = time requirement AND word requirement
+  const [canSubmit, setCanSubmit] = useState(false);
+
+  // Used to measure time spent on page for "minimum time before submit"
+  const startTimeRef = useRef(Date.now());
+
+  // Track how many times they clicked submit + when (ms since page start)
+  const [submitAttempts, setSubmitAttempts] = useState(0);
+  const [submitAttemptTimesMs, setSubmitAttemptTimesMs] = useState([]); // [t1, t2, ...]
+
+  // ----------------------------
+  // SUBMIT REQUIREMENTS
+  // ----------------------------
+  const [currentLength, setcurrentLength] = useState(0); // current word count
+  const [canSubmitWord, setCanSubmitWord] = useState(false); // word threshold met?
+  const [canSubmitTime, setCanSubmitTime] = useState(false); // time threshold met?
+
+  // CONFIG YOU WILL EDIT:
+  // Message shown if participant tries to submit too early (word/time not met)
+  const [messageEarlyModal, setMessageEarlyModal] = useState(
+    "Insert here your message, encouraging participants to write for more time + words (participants tried to submit before time + word count threshold).",
+  );
 
   // CONFIG YOU WILL EDIT: pasteFlag is always false here (and TextEditor has its own paste prevention too).
   // If you want to control paste behavior dynamically, convert this into a state variable.
   const pasteFlag = false;
-
-  // Word count
-  const [currentLength, setcurrentLength] = useState(0);
 
   // Keep `submit` aligned with the "confirm submit" modal state
   // (When modal is open, the submit button becomes disabled)
@@ -61,29 +80,70 @@ const OnlyEditor = () => {
   }, []);
 
   // ----------------------------
-  // Word threshold check
+  // Time requirement (minimum time on page)
   // CONFIG YOU WILL EDIT:
-  // Minimum words currently: 50
+  // Currently: 3 minutes (180000 ms)
   // ----------------------------
   useEffect(() => {
-    if (currentLastEditedText.length > 0) {
-      setcurrentLength(
-        currentLastEditedText.trim().split(/\s+/).filter(Boolean).length,
+    const interval = setInterval(() => {
+      setCanSubmitTime(Date.now() - startTimeRef.current >= 180000);
+    }, 500); // update twice/sec
+
+    return () => clearInterval(interval);
+  }, []);
+
+  // Update immediately when they return to the tab (so the timer is accurate)
+  useEffect(() => {
+    const onVis = () => {
+      setCanSubmitTime(Date.now() - startTimeRef.current >= 180000);
+    };
+    document.addEventListener("visibilitychange", onVis);
+    return () => document.removeEventListener("visibilitychange", onVis);
+  }, []);
+
+  // ----------------------------
+  // Word requirement (minimum words typed)
+  // CONFIG YOU WILL EDIT:
+  // Currently: >= 50 words
+  // ----------------------------
+  useEffect(() => {
+    const wc = currentLastEditedText.trim().split(/\s+/).filter(Boolean).length;
+    setcurrentLength(wc);
+    setCanSubmitWord(wc >= 50);
+  }, [currentLastEditedText]);
+
+  // Combined eligibility + build the early-modal message
+  useEffect(() => {
+    setCanSubmit(canSubmitWord && canSubmitTime);
+    //CONFIG YOU WILL EDIT:
+    //Change here the messages users see when attempting to submit:
+    if (!canSubmitWord && !canSubmitTime) {
+      //Before writing word threshold + time threshold has passed
+      setMessageEarlyModal(
+        "Insert here your message, encouraging participants to write for more time + words (participants tried to submit before time + word count threshold).",
       );
-
-      if (currentLength >= 50) {
-        setCanSubmit(true);
-      } else {
-        setCanSubmit(false);
-      }
-    } else {
-      setCanSubmit(false);
+    } else if (!canSubmitWord) {
+      //Before writing word threshold only
+      setMessageEarlyModal(
+        "Insert here your message, encouraging participants to write for more words (participants tried to submit before word count threshold).",
+      );
+    } else if (!canSubmitTime) {
+      //before time threshold has passed
+      setMessageEarlyModal(
+        "Insert here your message, encouraging participants to write for more time (participants tried to submit before time threshold).",
+      );
     }
-  }, [currentLastEditedText, currentLength]);
+  }, [canSubmitWord, canSubmitTime]);
 
-  // Open the submit flow:
-  // - If canSubmit: show confirm modal
+  // When user clicks Submit button:
+  // 1) log click time
+  // 2) either open confirmation modal (if eligible) OR early modal (if not eligible)
   const handleOpenModal = () => {
+    const t_ms = Math.round(performance.now() - startMsRef.current);
+
+    setSubmitAttempts((n) => n + 1);
+    setSubmitAttemptTimesMs((prev) => [...prev, t_ms]);
+
     if (canSubmit) setModalOpen(true);
     else setEarlyModalOpen(true);
   };
@@ -110,6 +170,8 @@ const OnlyEditor = () => {
     // Only editor logs are saved in this condition
     const logs = {
       id: getRandomString(5),
+      NumOfSubmitClicks: submitAttempts,
+      TimeStampOfSubmitClicks: submitAttemptTimesMs,
       editor: editorLog,
     };
 
@@ -121,9 +183,12 @@ const OnlyEditor = () => {
     setEditorLog(allLogs);
   }, []);
 
-  // Upload logs to backend (/api/logs) which saves to S3
+  // ----------------------------
+  // Upload logs to backend (/api/logs)
   // CONFIG YOU WILL EDIT:
-  // - REACT_APP_API_BASE must be set in your frontend .env
+  // 1) REACT_APP_API_BASE in your .env (frontend)
+  // 2) Lambda route must handle POST /api/logs and write to S3
+  // ----------------------------
   const saveLogsToS3 = async (logs) => {
     const API_BASE = process.env.REACT_APP_API_BASE;
 
@@ -138,7 +203,7 @@ const OnlyEditor = () => {
 
     //CONFIG YOU WILL EDIT
     // Message shown after successful upload
-    alert("Please copy this code to qualtrics: " + logs.id);
+    alert("Please copy this code to XXX: " + logs.id);
   };
 
   return (
@@ -186,7 +251,7 @@ const OnlyEditor = () => {
       <Modal
         isOpen={isEarlyModalOpen}
         onClose={handleCloseEarlyModal}
-        message="Please write a few more sentences in your application."
+        message={messageEarlyModal}
         showConfirm={false}
       />
     </div>

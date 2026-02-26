@@ -7,6 +7,8 @@
  *
  * FLOW:
  * React (browser) -> POST /api/ai -> (this server) -> provider -> returns { text }
+ *
+ * Search CONFIG YOU WILL EDIT for relevant change suggestions.
  */
 
 import express from "express";

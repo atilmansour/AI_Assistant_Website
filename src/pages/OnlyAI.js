@@ -47,7 +47,7 @@ const OnlyAI = () => {
   // CONFIG YOU WILL EDIT:
   // Message shown if participant tries to submit too early (time not met)
   const [messageEarlyModal, setMessageEarlyModal] = useState(
-    "Most participants spend more time developing their ideas before submitting. Please continue using the chat before continuing.",
+    "Insert here your message, encouraging participants to write for more time (participants tried to submit before time threshold).",
   );
 
   // Chat open/close/collapse events (ms since page start)
@@ -100,7 +100,7 @@ const OnlyAI = () => {
 
     if (!canSubmitTime) {
       setMessageEarlyModal(
-        "Most participants spend more time developing their ideas before submitting. Please continue using the chat before continuing.",
+        "Insert here your message, encouraging participants to write for more time (participants tried to submit before time threshold).",
       );
     }
   }, [canSubmitTime]);
@@ -175,7 +175,7 @@ const OnlyAI = () => {
 
     // CONFIG YOU WILL EDIT:
     // This is the message shown to participants after upload succeeds.
-    alert("Please copy this code to qualtrics: " + logs.id);
+    alert("Please copy this code to XXX: " + logs.id);
   };
 
   return (
@@ -202,7 +202,7 @@ const OnlyAI = () => {
               // CONFIG YOU WILL EDIT:
               // Initial messages shown in the chat.
               initialMessages={[
-                "Hello, this is a present message that you can edit in your code in AIStillPage.js (theInitialMsg).",
+                "Hello, this is a present message that you can edit in your code in OnlyAI.js (theInitialMsg).",
                 "This is the second message, you can edit, add more, or delete me.",
               ]}
               // chat-only page: no editor context

@@ -57,7 +57,7 @@ const AIOpensAndCloses = () => {
 
   // Message shown when user tries to submit too early
   const [messageEarlyModal, setMessageEarlyModal] = useState(
-    "Most participants spend more time developing their ideas before submitting. Please review your work and add any additional thoughts before continuing.",
+    "Insert here your message, encouraging participants to write for more time + words (participants tried to submit before time + word count threshold)",
   );
 
   // ----------------------------
@@ -180,17 +180,17 @@ const AIOpensAndCloses = () => {
     if (!canSubmitWord && !canSubmitTime) {
       //Before writing word threshold + time threshold has passed
       setMessageEarlyModal(
-        "Most participants spend more time developing their ideas before submitting. Please review your work and add any additional thoughts before continuing.",
+        "Insert here your message, encouraging participants to write for more time + words (participants tried to submit before time + word count threshold).",
       );
     } else if (!canSubmitWord) {
       //Before writing word threshold only
       setMessageEarlyModal(
-        "Most participants suggest more developed ideas before submitting. Please review your work and add any additional thoughts before continuing.",
+        "MInsert here your message, encouraging participants to write for more words (participants tried to submit before word count threshold).",
       );
     } else if (!canSubmitTime) {
       //before time threshold has passed
       setMessageEarlyModal(
-        "Most participants spend more time developing their ideas before submitting. Please review your work and add any additional thoughts before continuing.",
+        "Insert here your message, encouraging participants to write for more time (participants tried to submit before timet threshold).",
       );
     }
   }, [canSubmitWord, canSubmitTime]);
@@ -264,7 +264,7 @@ const AIOpensAndCloses = () => {
     if (!res.ok) throw new Error(data?.error || "Save failed");
     // CONFIG YOU WILL EDIT:
     // This is the message shown to participants after upload succeeds.
-    alert("Please copy this code to qualtrics: " + logs.id);
+    alert("Please copy this code to XXX: " + logs.id);
   };
 
   // CSS helper class for chat open/collapsed styling

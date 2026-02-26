@@ -40,11 +40,7 @@ const AI_API = ({
     );
   }, []);
 
-  /**
-   * toText
-   * Converts anything into a plain string.
-   * This prevents crashes if an API returns arrays/objects instead of normal text.
-   */
+  //toText: Converts anything into a plain string. This prevents crashes if an API returns arrays/objects instead of normal text.
   const toText = (v) => {
     if (typeof v === "string") return v;
     if (v == null) return "";
@@ -68,10 +64,8 @@ const AI_API = ({
   // OpenAI may expect content in "parts" format; we only convert at request time
   const toOpenAIContent = (text) => [{ type: "text", text: toText(text) }];
 
-  /**
-   * sendMessage
-   * Adds the user's message to the UI immediately, then calls the selected AI provider.
-   */
+  //sendMessage: Adds the user's message to the UI immediately, then calls the selected AI provider.
+
   const sendMessage = async (userMessage) => {
     const timestamp = Math.round(performance.now());
 
@@ -85,11 +79,12 @@ const AI_API = ({
     // Update UI immediately (so the user sees their message right away)
     setMessages((prev) => [...prev, newUserMessage]);
 
-    // Add writing context so the AI can respond based on what the user wrote
+    // ----------------------------
+    // Add writing context so the AI can respond based on what the user wrote:
     //CONFIG YOU WILL EDIT: Insted of "this is what i have written so far,
     // you can change it to give the AI context (I am supposed to write about INSTRUCTIONS) OR
     // you can change it to give the AI instructions (for example: Please answer in 1-2 sentences only)"
-
+    // ----------------------------
     const writingContext = lastEditedText
       ? `This is what I have written so far: ${toText(lastEditedText)}`
       : `My text is currently empty.`;
