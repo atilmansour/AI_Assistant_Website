@@ -1,6 +1,6 @@
-# AI_Assistant_Website
+# WEB APPLICATION FOR AI ASSISTANTS IN WRITING EXPERIMENTS
 
-The current repository includes a step-by-step tutorial to use a web application platform as experimental designs. Note that, although accessing the code is completely free to use, the code requires AI API keys and deployment on AWS, which may incur usage costs. For pricing, see the relevant following sections and the official API website and AWS for more details.
+The current repository includes a step-by-step tutorial to use a web application platform as experimental designs. Note that, although accessing the code is completely free to use, the code requires AI API keys and deployment on AWS, which may incur usage costs. For pricing, see the relevant sections and the official API website and AWS for more details.
 
 # Download GitHub
 
