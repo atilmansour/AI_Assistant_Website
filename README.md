@@ -1,5 +1,7 @@
 # AI_Assistant_Website
 
+The current repository includes a step-by-step tutorial to use a web application platform as experimental designs. Note that, although accessing the code is completely free to use, the code requires AI API keys and deployment on AWS, which may incur usage costs. For pricing, see the relevant following sections and the official API website and AWS for more details.
+
 # Download GitHub
 
 To set up your computer, you need to download git on your laptop.
