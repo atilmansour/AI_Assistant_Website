@@ -289,5 +289,6 @@ The following code is written in python, in case you do not have python installe
 We provide in the `CodeAnalysisData` folder:
 
 - **_getPlainTexts.py_**: A code that receives the .txt folder path, and extracts the last version of the text (as a plain text) for usage. Please read the comments in the code, as you can also merge the texts with your data according to the codes/texts' names.
+- **_getMessageInCSV.py_**: A code that receives the .txt folder path, and extracts the messages between the chatbot and user (as a csv file) for usage. The csv file includes a timestamp column, a sender column, and a message content column.
 
 That's it! Please feel free to contact me atil@campus.technion.ac.il or atilxmansour@gmail.com for any questions.

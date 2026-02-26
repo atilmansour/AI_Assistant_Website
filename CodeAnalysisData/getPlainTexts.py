@@ -40,7 +40,7 @@ def get_final_editor_html(payload: dict) -> str:
     Returns the *final* editor HTML (Quill output) from the JSON payload.
 
     Your data structure has:
-      payload["editor"] = [ { "timestamp": "...", "text": "<p>...</p>" }, ... ]
+      payload["editor"] = [ { "t_ms": "...", "text": "<p>...</p>" }, ... ]
 
     We take the last snapshot because it represents the final response at submit time.
     """
@@ -141,22 +141,20 @@ def add_text_column_from_txt(csv_file: str, cleaned_text_dir: str, output_csv: s
 
     df[text_col] = texts
     df.to_csv(output_csv, index=False)
-    print(f"✅ Wrote merged CSV: {output_csv}")
+    print(f"Wrote merged CSV: {output_csv}")
 
-
-# ----------------------------
-# 5) Beginner-friendly usage
-# ----------------------------
 
 if __name__ == "__main__":
-    # Step 1: Put your downloaded S3 .txt logs in INPUT_FOLDER
-    INPUT_FOLDER = r"C:\path\to\downloaded_s3_logs"
-
+    #CONFIG YOU WILL EDIT
+    # Step 1: Put your downloaded S3 .txt logs folder in INPUT_FOLDER
+    INPUT_FOLDER = r"exampleDataFiles"
+    #CONFIG YOU WILL EDIT
     # Step 2: This folder will get clean ready texts (<id>.txt)
-    OUTPUT_FOLDER = r"C:\path\to\texts"
+    # Note that if the output and input folder are the same, the code will delete the raw files.
+    OUTPUT_FOLDER = r"exampleDataFiles/cleanTexts"
 
     export_texts(INPUT_FOLDER, OUTPUT_FOLDER)
-
+    #CONFIG YOU WILL EDIT
     # Optional Step 3: If you have a CSV with a 'code' column and want to add the texts into it:
     # CSV_FILE = r"C:\path\to\data.csv"
     # OUT_CSV  = r"C:\path\to\data_with_text.csv"
