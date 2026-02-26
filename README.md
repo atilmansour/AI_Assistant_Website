@@ -15,7 +15,7 @@ Next, log in into your account using the github downloaded on your laptop.
 After you download github, to get save this code and get it ready to edit, follow these few steps:
 
 1. Click **Fork** (top-right on GitHub, next to watch) to create your own copy of this repository.
-2. Open your CMD (write "cmd" in your computer search).
+2. Open your Command Prompt - CMD (write "cmd" in your computer search).
 3. Go to the folder where you want to save the code using the following command:
 
    ```
@@ -50,7 +50,7 @@ After you download github, to get save this code and get it ready to edit, follo
 
    Now you are free to start editing and saving your changes locally and in github:
 
-8. Now you can open the folder of the code. Throughout the code, you can look for relevant change suggestions by searching **CONFIG YOU WILL EDIT**, to search for this term across files, you can click `Ctrl+shift+f`. Now, you can make a small change to test that your changes are being saved.
+8. Next, you can open the folder of the code. Throughout the code, you can look for relevant change suggestions by searching **CONFIG YOU WILL EDIT**. To search for this term across files, you can click `Ctrl+shift+f`. Now, you can make a small change just to test that your changes are being saved.
 
 9. Save your changes and push them to your fork:
 
@@ -60,7 +60,7 @@ After you download github, to get save this code and get it ready to edit, follo
    git push
    ```
 
-   Note that, for the fitst time, git may ask you to identify your information. To do that, run:
+   Note that, for the first use, git may ask you to identify your information. To do that, run:
 
    ```
    git config --global user.email "YOUR_GIT_EMAIL@EMAIL.COM"
@@ -83,8 +83,8 @@ npm -v
 
 This project includes a `backend/` folder that runs a small server (proxy) for:
 
-1. Calling AI providers (OpenAI / Claude / Gemini) securely
-2. Handling AWS actions (e.g., S3) securely
+1. Calling AI providers (OpenAI / Claude / Gemini) securely.
+2. Handling AWS actions (e.g., S3) securely.
 
 **Why do we need a backend?**
 
@@ -95,8 +95,8 @@ This project includes a `backend/` folder that runs a small server (proxy) for:
 ### What is inside `backend/`?
 
 - **server.js**: The backend server. It exposes an endpoint like:
-  - `POST /api/ai` (the frontend sends `{ provider, chatHistory }` and receives `{ text }`)
-- **package.json**: Backend dependencies (express, axios, cors, dotenv, etc.)
+  - `POST /api/ai` (the frontend sends `{ provider, chatHistory }` and receives `{ text }`).
+- **package.json**: Backend dependencies (express, axios, cors, dotenv, etc.).
 - **.env**: Backend secrets (API keys + AWS keys). This file must NOT be uploaded to GitHub.
 
 ### Backend environment variables
@@ -112,7 +112,7 @@ Create `backend/.env` file (name the file `.env` and put it in the `backend` fol
   CLAUDE_KEY=Your claude key
   GEMINI_KEY=Your gemini key
   ```
-- Depending on which AI you will use, you will need to generate a key.
+- Depending on which AI you will use, you will need to generate a key. Please note models' abilities and pricing.
 
   Note that if you want to use only some of the following AI's you can leave the key empty.
   For example, if you only want to use ChatGPT as your AI, you can write `GEMINI_KEY=''` and `CLAUDE_KEY=''`:
@@ -127,8 +127,8 @@ Create `backend/.env` file (name the file `.env` and put it in the `backend` fol
   3. To generate Gemini key: `GEMINI_KEY=AIzaSy...`
      To generate a claude key, go to [Gemini API's official website](https://ai.google.dev/gemini-api/docs/api-key). You will need to create an account, and get a personal key. It is important to keep this key private, as this is what allows you to connect to Gemini.
 
-- For the other environment keys, please go to the [Amazon Web Services (AWS) section](<#Amazon_Web_Services_(AWS)>)
-- **Make sure `backend/.env` is in `.gitignore`** before you upload (in your local code).
+- For the other environment keys, please go to the [Amazon Web Services (AWS) section](<#Amazon_Web_Services_(AWS)>).
+- **Make sure `backend/.env` is in `.gitignore`** (in your local code) before you push your code again to github.
 
 - **_backend/server.js_**: Calls OpenAI/Claude/Gemini securely (API keys stay server-side). You can change model names and max tokens here.
 
@@ -167,7 +167,7 @@ This folder contains:
 
   > **_MessageInput.js_**: A message box that lets the user type a chat message and send it by clicking Send or pressing Enter.
 
-- **_AI_API.js_**: A chat component that sends your messages (plus your current writing) to the backend proxy (`/api/ai`) and shows the AI’s replies on the screen.
+- **_AI_API.js_**: A chat component that sends your messages (including all chat history) to the backend proxy (`/api/ai`) and shows the AI’s replies on the screen.
 
   > AI settings such as model names and max tokens are configured in the backend (`backend/server.js`) because the backend is the part that communicates with OpenAI/Claude/Gemini securely.
 
@@ -178,10 +178,10 @@ This folder includes your conditions, link address, and thankyou webpage which s
 - **_Routes.js_**: Responsible for the "tree" of the website links. Here, you can add the route to your conditions.
 - **_ThankYou.js_**: This is the webpage users see after submitting their texts. You can adjust the instructions there according to the flow of your experiment.
 - **_AIStillPage.js_**: This is the first condition, where users immediately have access to the AI, and cannot close the AI. Feel free to look for `CONFIG YOU WILL EDIT` for recommended changes.
-- **_ButtonPress.js_**: The AI starts CLOSED and opens only if the participant clicks the AI button in the editor toolbar. We log when the AI was first opened (ms after page load) plus chat open/close/collapse events and submission attempts. Feel free to look for `CONFIG YOU WILL EDIT` for recommended changes.
-- **_AIOpensAndCloses.js_**: The AI assistant opens automatically after 20 seconds, and participants can open and close the AI chat interface. Feel free to look for `CONFIG YOU WILL EDIT` for recommended changes.
+- **_ButtonPress.js_**: The AI starts CLOSED and opens only if the participant clicks the AI button in the editor toolbar. We log when the AI was first opened (ms after page load) plus chat open/close/collapse events. Feel free to look for `CONFIG YOU WILL EDIT` for recommended changes.
+- **_AIOpensAndCloses.js_**: The AI assistant opens automatically after 20 seconds, and participants can open and close the AI chat interface. Feel free to look for `CONFIG YOU WILL EDIT` for recommended changes. You can adjust this condition to 0 seconds, so the AI immediately appears but participants can open and close the AI chat interface.
 - **_OnlyEditor.js_**: Participants write with no AI assistant (editor-only baseline). Feel free to look for `CONFIG YOU WILL EDIT` for recommended changes.
-- **_OnlyAI.js_**: Participants chat with the AI only (no text editor). Feel free to look for 'CONFIG YOU WILL EDIT' for recommended changes.
+- **_OnlyAI.js_**: Participants chat with the AI only (no text editor). Feel free to look for `CONFIG YOU WILL EDIT` for recommended changes.
 
 ## App.css
 
@@ -199,11 +199,9 @@ Then click the **Elements** tab, select an element on the page, and you’ll see
 
 - Make sure your `backend/.env` is in `.gitignore` so your environment variables are not uploaded to your repository in github.
 
-- Open **two terminals** (one for the backend, one for the frontend), make sure the terminals are **git bash** (you can change the terminal using the arrow next to the plus after you open the terminal).
+- Open **two terminals** (one for the backend, one for the frontend), make sure to use **git bash** as your terminals (you can change the terminal using the arrow next to the plus after you open the terminal).
 
 ### Terminal 1 (Backend)
-
-**You need to run npm install only in the first time**
 
 ```
 cd backend
@@ -212,8 +210,6 @@ npm start
 ```
 
 ### Terminal 2 (frontend)
-
-**You need to run npm install only in the first time**
 
 ```
 cd AI_Assistant_Website
@@ -226,13 +222,13 @@ The app should open in your browser (usually at http://localhost:3000). To acces
 To stop the local code from running, press `Ctrl+C`.
 
 > `npm install` is needed the first time you set up the project (or any time `package.json` changes).  
-> After that, you can usually run only `npm start`.
+> After that, you can usually run only `cd XXX` depending on the terminal, and `npm start`.
 
 ## Upload your code (ready-to-run): Amazon Web Services (AWS)
 
-If you wish to deploy your website (we recommend doing so in order to make sure this version of the code runs smoothly), you need to have an AWS account.
+If you wish to deploy your website (we recommend doing so in order to make sure this version of the code runs smoothly), you need to have an AWS account. Note that, the deployment of the web application may incur usage costs.
 
-Throughout the steps, please note that you choose ur console's region (you can view your current region on the top left, next to your name).
+Throughout the steps, please note that you choose your console's region (you can view your current region on the top left, next to your name).
 
 1.  To create an account, please [**click here**](portal.aws.amazon.com/billing/signup).
 2.  Choose a region you’ll use consistently (example: `eu-north-1`).
@@ -256,7 +252,7 @@ Throughout the steps, please note that you choose ur console's region (you can v
     - In the Lambda function page: **Configuration** → **Permissions**
     - Under Execution role, click the role name (appears in blue).
     - In the new link that opens, click **Add permissions** → **Attach policies**. Attach a policy like: `AmazonS3FullAccess` (This is how Lambda can access S3 securely without any AWS keys).
-    - Return again to Configuration → General Configuration, and change timeout to 1 min.
+    - Return again to Configuration → General Configuration, and change timeout to 1 min (if you think your data will need more time, adjust the timeout accordinngly).
     7.  **Add your AI API keys to Lambda (safe storage)**
         - Press Configuration → Environment variables
         - Click edit, add, and add all the AI keys (even the empty ones) and your S3 bucket variable.
@@ -290,12 +286,16 @@ Throughout the steps, please note that you choose ur console's region (you can v
 
 1. To download your submissions, you can access your S3 bucket and download each file.txt alone.
 2. To bulk download your submissions, follow the next few steps:
+   1. **Create an IAM user for CLI**
+   2. AWS Console → IAM
+   3. Left menu → Users → Create user
+   4. Username: cli-downloader (or anything)
+   5. Permissions: choose Attach policies directly, create policy, JSON, and paste the content of `s3_policy_download.json` → create policy. Choose your policy and press next, then create user.
+   6. Click on your IAM new user name you just created, on security credentials, and create access key. Please select **Command Line Interface CLI**. Copy both the **access key** and **secret access** key and save them in a private place.
 
-   **Create an IAM user for CLI** 2. AWS Console → IAM 3. Left menu → Users → Create user 4. Username: cli-downloader (or anything) 5. Permissions: choose Attach policies directly, create policy, JSON, and paste the content of `s3_policy_download.json` → create policy. Choose your policy and press next, then create user. 6. Click on your IAM new user name you just created, on security credentials, and create access key. Please select **Command Line Interface CLI**. Copy both the **access key** and **secret access** key and save them in a private place.
+3. **Install AWS CLI** using the following [**link**](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
 
-   **Install AWS CLI** using the following [**link**](https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html)
-
-   **In your CMD**
+4. **In your CMD**
 
    ```
    aws configure (will ask you to include your keys, and region)
