@@ -4,14 +4,14 @@ The current repository includes a step-by-step tutorial to use a web application
 
 The README file offers a step-by-step instructions that can be divided into four main steps:
 
-1. Installation and Local Setup
-   1. Installing Required Applications
+1. [Installation and Local Setup](https://github.com/atilmansour/AI_Assistant_Website?tab=readme-ov-file#step-1-installation-and-local-setup)
+   1. [Installing Required Applications](https://github.com/atilmansour/AI_Assistant_Website?tab=readme-ov-file#step-11-installation-required-applications)
    2. [Local Setup and Environment Variables](https://github.com/atilmansour/AI_Assistant_Website?tab=readme-ov-file#step-12-local-setup-and-environment-variables)
-2. Preparing your experimental conditions.
-3. Local Testing and Deployment
-   1. Local testing to make sure your conditions look as you expect them to look.
-   2. Deployment to AWS so your experiment is ready to run.
-4. Optional Data Cleaning.
+2. [Preparing your experimental conditions.](https://github.com/atilmansour/AI_Assistant_Website?tab=readme-ov-file#step-2-preparing-your-conditions)
+3. [Local Testing and Deployment](https://github.com/atilmansour/AI_Assistant_Website?tab=readme-ov-file#step-3-local-testing-and-deployment)
+   1. [Local testing to make sure your conditions look as you expect them to look.](https://github.com/atilmansour/AI_Assistant_Website?tab=readme-ov-file#step-31-local-testing-to-make-sure-your-conditions-look-as-you-expect-them-to-look)
+   2. [Deployment to AWS so your experiment is ready to run.](https://github.com/atilmansour/AI_Assistant_Website?tab=readme-ov-file#step-32-deployment-to-aws-so-your-experiment-is-ready-to-run)
+4. [Optional Data Cleaning.](https://github.com/atilmansour/AI_Assistant_Website?tab=readme-ov-file#step-4-optional-data-cleaning)
 
 # <font color = 'A8057A'>_Step 1: Installation and Local Setup_</font>
 
@@ -112,7 +112,7 @@ This project includes a `backend/` folder that runs a small server (proxy) for:
 ### What is inside `backend/`?
 
 - **server.js**: The backend server. It exposes an endpoint like:
-  - `POST /api/ai` (the frontend sends `{ provider, chatHistory }` and receives `{ text }`).
+  - `POST /api/ai` (the frontend sends `{ provider, chatHistory }` and receives `{text}`).
 - **package.json**: Backend dependencies (express, axios, cors, dotenv, etc.).
 - **.env**: Backend secrets (API keys + AWS keys). This file must NOT be uploaded to GitHub.
 
@@ -159,12 +159,12 @@ Create `backend/.env` file (name the file `.env` and put it in the `backend` fol
 
 Here you can find important information about all pages:
 
-| Folder                                  | Brief Information                                                                                |
-| --------------------------------------- | ------------------------------------------------------------------------------------------------ |
-| [Components Folder](#Components_Folder) | Reusable UI building blocks (e.g., buttons, modals, editor parts) used across the app.           |
-| [AI Options Folder](#AI_Options_Folder) | Code that handles the AI chat/providers (ChatGPT/Claude/Gemini), message sending, and responses. |
-| [Pages Folder](#Pages_Folder)           | Full screens/routes of the app (each page is a main view the user can navigate to).              |
-| [App CSS](#App.css)                     | Main styling file that controls the app’s look (colors, spacing, layout, chat bubbles, etc.).    |
+| Folder                                                                                                        | Brief Information                                                                                |
+| ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
+| [Components Folder](https://github.com/atilmansour/AI_Assistant_Website?tab=readme-ov-file#components-folder) | Reusable UI building blocks (e.g., buttons, modals, editor parts) used across the app.           |
+| [AI Options Folder](https://github.com/atilmansour/AI_Assistant_Website?tab=readme-ov-file#ai_options-folder) | Code that handles the AI chat/providers (ChatGPT/Claude/Gemini), message sending, and responses. |
+| [Pages Folder](https://github.com/atilmansour/AI_Assistant_Website?tab=readme-ov-file#pages-folder)           | Full screens/routes of the app (each page is a main view the user can navigate to).              |
+| [App CSS](https://github.com/atilmansour/AI_Assistant_Website?tab=readme-ov-file#appcss)                      | Main styling file that controls the app’s look (colors, spacing, layout, chat bubbles, etc.).    |
 
 ## Components Folder
 
@@ -174,7 +174,7 @@ Here, you will find information about ChatGPT, Claude or Gemini's API, the text 
 - **_Modal.js_**: A popup window that shows a message and buttons to confirm or cancel.
 - **_QuillTextEditor.js_**: The text editor part, with a custom toolbar (and optional “AI Assistant” button) that can block pasting, track what the user types over time with timestamps, and send the latest text to the parent for things like word count.
 - **_Button.js_**: A clickable button that can run a function and then take the user to a different page in the app.
-- [**_AI_Options Folder_**](#AI_Options_Folder).
+- [**_AI_Options Folder_**](https://github.com/atilmansour/AI_Assistant_Website?tab=readme-ov-file#ai_options-folder).
 
 ### AI_Options Folder:
 
