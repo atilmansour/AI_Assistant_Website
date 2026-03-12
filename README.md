@@ -1,22 +1,25 @@
-# WEB APPLICATION FOR AI ASSISTANTS IN WRITING EXPERIMENTS
+# A Tutorial for Building and Deploying a Web Application Platform for Experiments with Conversational AI
 
 The current repository includes a step-by-step tutorial to use a web application platform as experimental designs. Note that, although accessing the code is completely free to use, the code requires AI API keys and deployment on AWS, which may incur usage costs. For pricing, see the relevant sections and the official API website and AWS for more details.
 
-The README file offers a step-by-step instructions that can be divided into four main steps:
+The README file offers a step-by-step instructions that are divided into four main steps:
 
 1. [Installation and Local Setup](https://github.com/atilmansour/AI_Assistant_Website?tab=readme-ov-file#step-1-installation-and-local-setup)
    1. [Installing Required Applications](https://github.com/atilmansour/AI_Assistant_Website?tab=readme-ov-file#step-11-installation-required-applications)
    2. [Local Setup and Environment Variables](https://github.com/atilmansour/AI_Assistant_Website?tab=readme-ov-file#step-12-local-setup-and-environment-variables)
-2. [Preparing your experimental conditions.](https://github.com/atilmansour/AI_Assistant_Website?tab=readme-ov-file#step-2-preparing-your-conditions)
+2. [Preparing your experimental conditions](https://github.com/atilmansour/AI_Assistant_Website?tab=readme-ov-file#step-2-preparing-your-conditions)
+   1. Choose your experimental conditions according to your research goals
+   2. Details regarding each experimental condition
+   3. Editing your experimental conditions
 3. [Local Testing and Deployment](https://github.com/atilmansour/AI_Assistant_Website?tab=readme-ov-file#step-3-local-testing-and-deployment)
-   1. [Local testing to make sure your conditions look as you expect them to look.](https://github.com/atilmansour/AI_Assistant_Website?tab=readme-ov-file#step-31-local-testing-to-make-sure-your-conditions-look-as-you-expect-them-to-look)
-   2. [Deployment to AWS so your experiment is ready to run.](https://github.com/atilmansour/AI_Assistant_Website?tab=readme-ov-file#step-32-deployment-to-aws-so-your-experiment-is-ready-to-run)
+   1. [Local testing to make sure your conditions look as you expect them to look](https://github.com/atilmansour/AI_Assistant_Website?tab=readme-ov-file#step-31-local-testing-to-make-sure-your-conditions-look-as-you-expect-them-to-look)
+   2. [Deployment to AWS so your experiment is ready to run](https://github.com/atilmansour/AI_Assistant_Website?tab=readme-ov-file#step-32-deployment-to-aws-so-your-experiment-is-ready-to-run)
    3. [Downloading the submissions](https://github.com/atilmansour/AI_Assistant_Website?tab=readme-ov-file#download-your-submissions)
-4. [Optional Data Cleaning.](https://github.com/atilmansour/AI_Assistant_Website?tab=readme-ov-file#step-4-optional-data-cleaning)
+4. [Data Cleaning](https://github.com/atilmansour/AI_Assistant_Website?tab=readme-ov-file#step-4-data-cleaning)
 
-# <font color = 'A8057A'>_Step 1: Installation and Local Setup_</font>
+# <code style="color : #A8057A">_Step 1: Installation and Local Setup_</code>
 
-# <font color = 'A057A'>_Step 1.1: Installation Required Applications_</font>
+# <code style="color : #AF4788">_Step 1.1: Installation Required Applications_</code>
 
 # Download GitHub
 
@@ -28,7 +31,7 @@ Next, log in into your account using the github downloaded on your laptop.
 
 # Download This Repository
 
-After you download github, to save this code and get it ready to edit, follow these few steps:
+After you download github, to save this code and get it ready to edit, follow these steps:
 
 1. Click **Fork** (top-right on GitHub, next to watch) to create your own copy of this repository.
 2. Open your Command Prompt - CMD (write "cmd" in your computer search).
@@ -311,7 +314,7 @@ Throughout the steps, please note that you choose your console's region (you can
 ## Step 3.3: Download your submissions
 
 1. To download your submissions, you can access your S3 bucket and download each file.txt alone.
-2. To bulk download your submissions, follow the next few steps:
+2. To bulk download your submissions, follow the next steps:
    1. **Create an IAM user for CLI**
    2. AWS Console → IAM
    3. Left menu → Users → Create user
