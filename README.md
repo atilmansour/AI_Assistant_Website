@@ -27,6 +27,8 @@ The first step is to have all the needed applications downloaded to your compute
 
 # <code>_Step 1.1: Installation Required Applications_</code>
 
+First, you need to download a copy of the platform and source code from GitHub, and the required applications, in order for the platform to run locally.
+
 # Download GitHub
 
 To set up your computer, you need to download git on your laptop.
@@ -106,6 +108,8 @@ npm -v
 
 # <code>_Step 1.2: Local Setup and Environment Variables_</code>
 
+Next, you need to set up the platform locally and securely store the sensitive information required to use the conversational AI.
+
 # Backend Folder (API and Environment Variables)
 
 This project includes a `backend/` folder that runs a small server (proxy) for:
@@ -115,7 +119,7 @@ This project includes a `backend/` folder that runs a small server (proxy) for:
 
 **Why do we need a backend?**
 
-- API keys and AWS secret keys must NOT be stored in the React frontend (they become public after deployment).
+- API keys and AWS secret keys must NOT be stored in the React frontend (so they don't become public after deployment).
 - Some providers also block browser requests due to CORS.
 - The backend keeps secrets server-side and returns only the needed data to the frontend.
 
@@ -159,9 +163,11 @@ Create `backend/.env` file (name the file `.env` and put it in the `backend` fol
 
 # <code>_Step 2: Preparing your Experimental Conditions_</code>
 
+After you download all the required applications, have your own copy of the code locally, and set up the AI API keys, the second step is to prepare the experimental conditions you want to use in your experiments
+
 # <code>_Step 2.1: Choose your experimental conditions according to your research goals_</code>
 
-Now it's time for you to define your goal, and follow the instructions below to find the experimental conditions that suit your goals. The platform allows you to choose between five experimental conditions. Here, we provide the summary table which includes the example research goals and corresponding experimental conditions. For the full examples, please check out our paper.
+First, it's time for you to define your goal, and follow the instructions below to find the experimental conditions that suit your goals. The platform allows you to choose between five experimental conditions. Here, we provide the summary table which includes the example research goals and corresponding experimental conditions. For the full examples, please check out our paper.
 
 | Research goals (Your research is about ...)                                                                                                                                   | Condition A Name                                                                                                                       | Condition B Name                                                                         |
 | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
@@ -171,7 +177,7 @@ Now it's time for you to define your goal, and follow the instructions below to 
 | The effects of writing that is produced only through interacting with AI vs. through interacting and writing independently.                                                   | Conversational AI Only                                                                                                                 | Always Visible AI                                                                        |
 | The effects of writing entirely with conversational AI vs. completely independently.                                                                                          | Conversational AI Only                                                                                                                 | No AI                                                                                    |
 | The effects of incorporating conversational AI's words vs. not.                                                                                                               | Turn on copy-paste flags (same AI condition: Always Visible AI, Toggleable AI, Participant-Initiated AI).                              | Turn off copy-paste flags(same AI condition, duplicated).                                |
-| The effects of immediate versus delayed exposure to the option to use conversational AI.                                                                                      | Adjust the delay to 100 milliseconds (same AI condition: Always Visible AI, Toggleable AI, Participant-Initiated AI).                  | Adjust the delay to X milliseconds (same AI condition, duplicated).                      |
+| The effects of immediate versus delayed exposure to the option to use conversational AI.                                                                                      | Adjust the delay to 100 milliseconds (same AI condition: Always Visible AI, Toggleable AI).                                            | Adjust the delay to X milliseconds (same AI condition, duplicated).                      |
 | The effects of different background information (instructions) sent to the conversational AI.                                                                                 | Change the `backgroundAIMessage` (same AI condition: Always Visible AI, Toggleable AI, Participant-Initiated AI).                      | Change the `backgroundAIMessage` (same AI condition, duplicated).                        |
 | The effects of different LLMs powering the conversational AI                                                                                                                  | Change the `aiProvider` to ChatGPT, Gemini, or Claude (same AI condition: Always Visible AI, Toggleable AI, Participant-Initiated AI). | Change the `aiProvider` to ChatGPT, Gemini, or Claude (same AI condition, duplicated).   |
 | The effects of different instructions (writing about one vs. another topic).                                                                                                  | Change the instructions as specified in the condition file (same condition).                                                           | Change the instructions as specified in the condition file (same condition, duplicated). |
