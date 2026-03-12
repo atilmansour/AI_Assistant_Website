@@ -145,6 +145,7 @@ Create `backend/.env` file (name the file `.env` and put it in the `backend` fol
      Go to [Claude API's official website](https://claude.com/platform/api). You will need to create an account, and get a personal key. It is important to keep this key private, as this is what allows you to connect to Claude.
 
   3. To generate Gemini key: `GEMINI_KEY=AIzaSy...`
+
      Go to [Gemini API's official website](https://ai.google.dev/gemini-api/docs/api-key). You will need to create an account, and get a personal key. It is important to keep this key private, as this is what allows you to connect to Gemini.
 
 - For the other environment keys, you can keep them empty for now, we will get back to them when we deploy the platform to AWS in [Amazon Web Services (AWS) section](<#Amazon_Web_Services_(AWS)>).
@@ -164,9 +165,9 @@ Now it's time for you to define your goal, and follow the instructions below to 
 
 | Research goals (Your research is about ...)                                                                                                                                   | Condition A Name                                                                                                                       | Condition B Name                                                                         |
 | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| The effect of having the option to use conversational AI vs. having no such option.                                                                                           | Always Visible AI                                                                                                                      | No AI                                                                                    |
-| The effect of having a constant presence of conversational AI vs. having the option to close and reopen it.                                                                   | Always Visible AI                                                                                                                      | Toggleable AI                                                                            |
-| The effect of automatic exposure vs. participant-initiated exposure to the conversational AI.                                                                                 | Toggleable AI                                                                                                                          | Participant-Initiated AI                                                                 |
+| The effects of having the option to use conversational AI vs. having no such option.                                                                                          | Always Visible AI                                                                                                                      | No AI                                                                                    |
+| The effects of having a constant presence of conversational AI vs. having the option to close and reopen it.                                                                  | Always Visible AI                                                                                                                      | Toggleable AI                                                                            |
+| The effects of automatic exposure vs. participant-initiated exposure to the conversational AI.                                                                                | Toggleable AI                                                                                                                          | Participant-Initiated AI                                                                 |
 | The effects of writing that is produced only through interacting with AI vs. through interacting and writing independently.                                                   | Conversational AI Only                                                                                                                 | Always Visible AI                                                                        |
 | The effects of writing entirely with conversational AI vs. completely independently.                                                                                          | Conversational AI Only                                                                                                                 | No AI                                                                                    |
 | The effects of incorporating conversational AI's words vs. not.                                                                                                               | Turn on copy-paste flags (same AI condition: Always Visible AI, Toggleable AI, Participant-Initiated AI).                              | Turn off copy-paste flags(same AI condition, duplicated).                                |
@@ -178,42 +179,42 @@ Now it's time for you to define your goal, and follow the instructions below to 
 
 # <code>_Step 2.2 Details regarding each experimental condition_ </code>
 
-Now that you defined your goal, and decided on the conditions you will use for your experiment. Time to learn moe in depth about each of the experimental conditions.
+Now that you defined your goal, and decided on the conditions you will use for your experiment. Time to learn more in depth about each of the experimental conditions.
 
-The following presents all five experimental conditions the platform offers in more detail, and instructions on how to duplicate conditions. Note that all conditions are located in the `src/pages' folder:
+The following presents all five experimental conditions the platform offers in more detail, and instructions on how to duplicate conditions. Note that all conditions are located in the `src/pages` folder:
 
 > Note, In the Always Visible AI, Toggleable AI, and Participant-Initiated AI conditions, researchers can turn on and off the option to copy and paste from the conversational AI to the text editor and vice versa according to researchers' goals.
 >
 > Moreover, researchers can change the LLM powering the conversational AI to ChatGPT, Gemini, or Claude to compare different LLMs.
 >
-> Finally, in all three conditions, participants who try to submit before they meet the adjustable word count threshold and minimum time spent in the writing task (default thresholds are 50 words and 3 minutes) will receive a customizable pop-up message.
+> Finally, in all conditions, there are thresholds for the amount of words written in the text editor or time spent on the platform, which are customizable.
 
 1. **Always Visible AI Condition**:
    - **_Purpose_**: This condition includes a text editor and conversational AI interface. The condition allows researchers to test the effects of constantly having the option to use conversational AI.
    - **_Differences from other conditions_**: Compared to the participant-initiated condition, here, the conversational AI automatically appears after a set number of seconds (default is 100 milliseconds = appearing upon page load). Compared to the toggleable-AI condition, here, participants cannot close and reopen the conversational AI interface.
-   - **_Route Suffix_**: Add `/u` to the base link of the platform \*adjusted in `Routes,js` file, located in the pages folder.
+   - **_Route Suffix_**: Add `/u` to the base link of the platform, can be adjusted in `Routes.js` file, located in the pages folder.
    - **_Default participant-code_**: A default prefix of "AVA" and a suffix of U.
 
 2. **Toggleable AI Condition**:
    - **_Purpose_**: This condition includes a text editor and a toggleable conversational AI interface, meaning that participants can close and reopen the conversational AI. The condition allows researchers to test the effects of having the option to close and reopen the conversational AI.
    - **_Differences from other conditions_**: Compared to the Always Visible AI condition, in which the AI is constantly visible, here, participants can close and reopen that conversational AI. Compared to the participant-initiated condition, in which the conversational AI opens after participants press a button, here, the conversational AI interface opens after a set number of seconds.
-   - **_Route Suffix_**: Add `/o` to the base link of the platform \*adjusted in `Routes,js` file, located in the pages folder.
+   - **_Route Suffix_**: Add `/o` to the base link of the platform, can be adjusted in `Routes.js` file, located in the pages folder.
    - **_Default participant-code_**: A default prefix of "TA" and a suffix of O.
 3. **Participant-Initiated AI Condition**:
    - **_Purpose_**: This condition includes a text editor and a conversational AI interface, where the conversational AI appears only if participants choose to activate it themselves, by pressing a button in the text editor's toolbar.
    - **_Differences from other conditions_**: Compared to the Always Visible AI condition, participants can close and reopen the conversational AI interface. Compared to both Always Visible AI and Toggleable AI conditions, in which the conversational AI automatically opens after a set number of seconds, here, participants must actively press a button in order to activate it.
-   - **_Route Suffix_**: Add `/b` to the base link of the platform \*adjusted in `Routes,js` file, located in the pages folder.
+   - **_Route Suffix_**: Add `/b` to the base link of the platform, can be adjusted in `Routes.js` file, located in the pages folder.
    - **_Default participant-code_**: A default prefix of "PI" and a suffix of B.
 
 4. **No AI Condition**:
    - **_Purpose_**: This condition includes only a text editor. It allows researchers to test a setting in which participants do not have access to conversational AI, and it can serve as a control condition for comparison with all other AI-available conditions.
-   - **_Route Suffix_**: Add `/c` to the base link of the platform \*adjusted in `Routes,js` file, located in the pages folder.
+   - **_Route Suffix_**: Add `/c` to the base link of the platform, can be adjusted in `Routes.js` file, located in the pages folder.
    - **_Default participant-code_**: A default prefix of "NA" and a suffix of C.
 
 5. **Conversational AI Only Condition**:
    - **_Purpose_**: This condition includes only a conversational AI interface. It allows researchers to examine how users interact with conversational AI and to study writing produced entirely through AI. It can also be added to experiments when researchers want greater control over the instructions or background information given to the LLM, as well as an easy way to record all messages exchanged between participants and the conversational AI.
    - **_Differences from other conditions_**: Compared to the No AI condition, in which participants need to rely entirely on themselves for writing, here, participants need to interact with the conversational AI.
-   - **_Route Suffix_**: Add `/a` to the base link of the platform \*adjusted in `Routes,js` file, located in the pages folder.
+   - **_Route Suffix_**: Add `/a` to the base link of the platform, can be adjusted in `Routes.js` file, located in the pages folder.
    - **_Default participant-code_**: A default prefix of "OA" and a suffix of A.
 
 **Creating new conditions**:
