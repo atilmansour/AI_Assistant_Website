@@ -1,8 +1,8 @@
 # A Tutorial for Building and Deploying a Web Application Platform for Experiments with Conversational AI
 
-The tutorial introduces free open-source code, with detailed step-by-step instructions including the installation of the code, the deployment of the web application, and data cleaning suggestions. The open-source code is accompanied by detailed instructions and recommendations for adjustments to researchers' needs and preferences.
+The tutorial introduces free open-source code, with detailed step-by-step instructions including the installation of the code, building experimental conditions, the deployment of the web application, and data cleaning suggestions. The open-source code is accompanied by detailed instructions and recommendations for adjustments to your needs and preferences. 
 
-Throughout the code files, researchers can look for relevant change suggestions (e.g., instructions presented to participants) by searching for `CONFIG YOU WILL EDIT` comments. These comments were written to allow optional user-friendly customization.
+Throughout the code files, look for relevant change suggestions (e.g., conversational AI's present messages) by searching for `CONFIG YOU WILL EDIT` comments. These comments were written to allow optional user-friendly customization. 
 
 Note that, although accessing the code is completely free to use, the code requires AI API keys and deployment on AWS, which may incur usage costs. For pricing, see the relevant sections and the official API website and AWS for more details.
 
@@ -23,19 +23,19 @@ The README file offers a step-by-step instructions that are divided into four ma
 
 # <code>_Step 1: Installation and Local Setup_</code>
 
-The first step is to have all the needed applications downloaded to your computer, in order to be able to run the platform locally and easily make later changes.
+The first step is to have all the needed applications downloaded to your computer, so you can use the platform locally and easily make changes. 
 
 # <code>_Step 1.1: Installation Required Applications_</code>
 
-First, you need to download a copy of the platform and source code from GitHub, and the required applications, in order for the platform to run locally.
+First, you need to install the required applications and download a copy of the platform and source code from GitHub, in order for the platform to run locally.
 
 # Download GitHub
 
-To set up your computer, you need to download git on your laptop.
+The first step is to create a GitHub account and download the Git application on your computer so you can work with the repository.
 
-Please use this link to download git: https://git-scm.com/install/ (you can keep the default settings).
+To set up your computer, you need to download git on your laptop. Please use this link to download git: https://git-scm.com/install/ (you can keep the default settings).
 
-Next, log in into your account using the github downloaded on your laptop.
+Next, sign in (or sign up) into your account using the github downloaded on your laptop. The GitHub account is used to save the source code in an online repository and to help deploy it as a web application.
 
 # Download This Repository
 
@@ -77,9 +77,10 @@ After you download github, to save this code and get it ready to edit, follow th
 
    Now you are free to start editing and saving your changes locally and in github:
 
-8. Next, open the local repository in your preferred IDE (for exmaple, using [Visual Studio Code](https://code.visualstudio.com/)). Throughout the code, you can look for relevant change suggestions by searching **CONFIG YOU WILL EDIT**. To search for this term across files, you can click `Ctrl+shift+f`. Now, you can make a small change just to test that your changes are being saved.
+8. Next, open the local repository in your preferred IDE (for exmaple, using [Visual Studio Code](https://code.visualstudio.com/)). 
+Throughout the code, you can look for relevant change suggestions by searching **`CONFIG YOU WILL EDIT`**. To search for this term across files, you can click `Ctrl+shift+f`. Now, you can make a small change just to test that your changes are being saved. For example, open the `ThankYou.js` file, which is located in `src/pages` folder, and change "Your submission was recorded!" to "This is the new submission message!".
 
-9. Save your changes, by saving the file, and push them to your fork:
+9. Save your changes, by saving the file, and then push them to your fork:
 
    ```
    git add .
@@ -108,11 +109,11 @@ npm -v
 
 # <code>_Step 1.2: Local Setup and Environment Variables_</code>
 
-Next, you need to set up the platform locally and securely store the sensitive information required to use the conversational AI.
+Next, you need to set up the platform locally and securely store the sensitive information (e.g., API Keys that provide access to LLMs) required to use the conversational AI. 
 
 # Backend Folder (API and Environment Variables)
 
-This project includes a `backend/` folder that runs a small server (proxy) for:
+This project includes a `backend/` folder that runs a small server for:
 
 1. Calling AI providers (ChatGPT / Claude / Gemini) securely.
 2. Handling AWS actions (e.g., S3) securely.
@@ -155,7 +156,7 @@ Create `backend/.env` file (name the file `.env` and put it in the `backend` fol
 - For the other environment keys, you can keep them empty for now, we will get back to them when we deploy the platform to AWS in [Amazon Web Services (AWS) section](<#Amazon_Web_Services_(AWS)>).
 - **Make sure `backend/.env` is in `.gitignore`** (in your local code) before you push your code again to github. To do that, you need to have a line that says `backend/.env` inside your .gitignore file.
 
-- **_backend/server.js_**: Calls ChatGPT/Claude/Gemini securely (API keys stay private). Here, you can change model names and max tokens here.
+- **_backend/server.js_**: This file calls ChatGPT/Claude/Gemini securely (API keys stay private). Here, you can change model names and max tokens here.
 
   > You may change the components of each AI's API: The default is max_tokens = 1000, and the following models: gpt-4o (ChatGPT), 2.5-flash (Gemini), 4 sonnet (Claude). You may adjust these to your liking.
 
@@ -163,74 +164,67 @@ Create `backend/.env` file (name the file `.env` and put it in the `backend` fol
 
 # <code>_Step 2: Preparing your Experimental Conditions_</code>
 
-After you download all the required applications, have your own copy of the code locally, and set up the AI API keys, the second step is to prepare the experimental conditions you want to use in your experiments
+After downloading all the required applications, having your own copy of the code locally, and setting up the AI API keys, the second step is to prepare the experimental conditions you want to use in your experiments. Step 2 includes preparing and customizing the experimental conditions according to your purposes.
 
-# <code>_Step 2.1: Choose your experimental conditions according to your research goals_</code>
+# <code>_Step 2.1: Choosing your experimental conditions according to your research goals_</code>
 
-First, it's time for you to define your goal, and follow the instructions below to find the experimental conditions that suit your goals. The platform allows you to choose between five experimental conditions. Here, we provide the summary table which includes the example research goals and corresponding experimental conditions. For the full examples, please check out our paper.
+First, you need to define your goal, and follow the instructions below to find the experimental conditions most suitable for your goal. The platform allows you to choose between some or all of the five experimental conditions and to update them. Here, we provide a table which includes examples of experimental conditions that can be used to test different research questions. 
 
-| Research goals (Your research is about ...)                                                                                                                                   | Condition A Name                                                                                                                       | Condition B Name                                                                         |
-| ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| The effects of having the option to use conversational AI vs. having no such option.                                                                                          | Always Visible AI                                                                                                                      | No AI                                                                                    |
-| The effects of having a constant presence of conversational AI vs. having the option to close and reopen it.                                                                  | Always Visible AI                                                                                                                      | Toggleable AI                                                                            |
-| The effects of automatic exposure vs. participant-initiated exposure to the conversational AI.                                                                                | Toggleable AI                                                                                                                          | Participant-Initiated AI                                                                 |
-| The effects of writing that is produced only through interacting with AI vs. through interacting and writing independently.                                                   | Conversational AI Only                                                                                                                 | Always Visible AI                                                                        |
-| The effects of writing entirely with conversational AI vs. completely independently.                                                                                          | Conversational AI Only                                                                                                                 | No AI                                                                                    |
-| The effects of incorporating conversational AI's words vs. not.                                                                                                               | Turn on copy-paste flags (same AI condition: Always Visible AI, Toggleable AI, Participant-Initiated AI).                              | Turn off copy-paste flags(same AI condition, duplicated).                                |
-| The effects of immediate versus delayed exposure to the option to use conversational AI.                                                                                      | Adjust the delay to 100 milliseconds (same AI condition: Always Visible AI, Toggleable AI).                                            | Adjust the delay to X milliseconds (same AI condition, duplicated).                      |
-| The effects of different background information (instructions) sent to the conversational AI.                                                                                 | Change the `backgroundAIMessage` (same AI condition: Always Visible AI, Toggleable AI, Participant-Initiated AI).                      | Change the `backgroundAIMessage` (same AI condition, duplicated).                        |
-| The effects of different LLMs powering the conversational AI                                                                                                                  | Change the `aiProvider` to ChatGPT, Gemini, or Claude (same AI condition: Always Visible AI, Toggleable AI, Participant-Initiated AI). | Change the `aiProvider` to ChatGPT, Gemini, or Claude (same AI condition, duplicated).   |
-| The effects of different instructions (writing about one vs. another topic).                                                                                                  | Change the instructions as specified in the condition file (same condition).                                                           | Change the instructions as specified in the condition file (same condition, duplicated). |
-| Use the conversational AI as an addition to the experiments for greater control and an easier record of all messages exchanged between participants and the conversational AI | Conversational AI Only                                                                                                                 |
+| Condition | Research Purpose |
+| -------- | -------- |
+| [No AI]() | This condition includes only a text editor. It allows examining your dependent variable (DV) without having access to a conversational AI, and can serve as a control condition to all others. |
+| [Always Visible AI]() | This condition includes a text editor alongside a conversational AI window that remains visible throughout the task. It allows examining your DV when conversational AI is continuously available. |
+| [Toggleable AI]() | This condition includes a text editor alongside a conversational AI window that participants can close and reopen. It allows examining your DV when participants have control over the visibility of the conversational AI window. |
+| [Participant-Initiated AI]() | This condition includes a text editor alongside a conversational AI window that opens only after participants press a button. It allows examining your DV when participants initiate the conversational AI window rather than being proactively offered. |
+| [Chat Only]() | This condition includes only the conversational AI window. It allows examining your DV when participants produce their writing only by interacting with the conversational AI, without an option to independently write in a text editor. |
 
 # <code>_Step 2.2: Details regarding each experimental condition_ </code>
 
-Now that you defined your goal, and decided on the conditions you will use for your experiment. Time to learn more in depth about each of the experimental conditions.
+After defining your goal and deciding on the conditions needed to use for your research goals. Here, we provide more details about each condition to facilitate understanding.
 
-The following presents all five experimental conditions the platform offers in more detail, and instructions on how to duplicate conditions. Note that all conditions are located in the `src/pages` folder:
+After participants successfully submit their response, a pop-up message will instruct participants how to continue and include a code (Example code: PIA35BCB). This code is the name of the .txt file that contains participants' data (see Figure 1). All submission files are given a random 5-character code with an additional prefix and suffix to match the condition.
 
-> Note, In the Always Visible AI, Toggleable AI, and Participant-Initiated AI conditions, researchers can turn on and off the option to copy and paste from the conversational AI to the text editor and vice versa according to researchers' goals.
->
-> Moreover, researchers can change the LLM powering the conversational AI to ChatGPT, Gemini, or Claude to compare different LLMs.
->
-> Finally, in all conditions, there are thresholds for the amount of words written in the text editor or time spent on the platform, which are customizable.
+The following presents the five experimental conditions the platform offers in more detail, and instructions on how to duplicate conditions. Note that all conditions are located in the `src/pages` folder:
+
+1. **No AI Condition**:
+   - This condition includes only a text editor. Participants do not have the option to use conversational AI. The condition can serve as a control condition for all other conditions, where participants have the option to use conversational AI. 
+   - **_Route Suffix_**: Add `/c` to the base link of the platform, can be adjusted in `Routes.js` file, located in the pages folder.
+   - **_Default participant-code_**: A default prefix of "NA" and a suffix of C.
 
 1. **Always Visible AI Condition**:
-   - **_Purpose_**: This condition includes a text editor and conversational AI interface. The condition allows researchers to test the effects of constantly having the option to use conversational AI.
-   - **_Differences from other conditions_**: Compared to the participant-initiated condition, here, the conversational AI automatically appears after a set number of seconds (default is 100 milliseconds = appearing upon page load). Compared to the toggleable-AI condition, here, participants cannot close and reopen the conversational AI interface.
+   - This condition includes a text editor and a conversational AI interface. Participants constantly have the option to use conversational AI. 
+   - **_Differences from other conditions_**: In this condition, the conversational AI automatically appears next to participants' text editor after a set number of seconds (the default is 100 milliseconds, so the conversational AI appears immediately upon page load). Participants cannot control (close and reopen) the conversational AI interface. 
    - **_Route Suffix_**: Add `/u` to the base link of the platform, can be adjusted in `Routes.js` file, located in the pages folder.
    - **_Default participant-code_**: A default prefix of "AVA" and a suffix of U.
 
 2. **Toggleable AI Condition**:
-   - **_Purpose_**: This condition includes a text editor and a toggleable conversational AI interface, meaning that participants can close and reopen the conversational AI. The condition allows researchers to test the effects of having the option to close and reopen the conversational AI.
-   - **_Differences from other conditions_**: Compared to the Always Visible AI condition, in which the AI is constantly visible, here, participants can close and reopen that conversational AI. Compared to the participant-initiated condition, in which the conversational AI opens after participants press a button, here, the conversational AI interface opens after a set number of seconds.
+   - This condition includes a text editor and a toggleable conversational AI interface, meaning that participants can close and reopen the conversational AI. 
+   - **_Differences from other conditions_**: Compared to the Always Visible AI condition, in which the AI is constantly visible, here, participants can close and reopen that conversational AI. 
    - **_Route Suffix_**: Add `/o` to the base link of the platform, can be adjusted in `Routes.js` file, located in the pages folder.
    - **_Default participant-code_**: A default prefix of "TA" and a suffix of O.
 3. **Participant-Initiated AI Condition**:
-   - **_Purpose_**: This condition includes a text editor and a conversational AI interface, where the conversational AI appears only if participants choose to activate it themselves, by pressing a button in the text editor's toolbar.
-   - **_Differences from other conditions_**: Compared to the Always Visible AI condition, participants can close and reopen the conversational AI interface. Compared to both Always Visible AI and Toggleable AI conditions, in which the conversational AI automatically opens after a set number of seconds, here, participants must actively press a button in order to activate it.
+   - This condition includes a text editor and a conversational AI interface, where the conversational AI appears only if participants choose to activate it themselves, by pressing a button in the text editor's toolbar. 
+   - **_Differences from other conditions_**: . Compared to the conditions above, here, participants need to press a button to activate the conversational AI actively. 
    - **_Route Suffix_**: Add `/b` to the base link of the platform, can be adjusted in `Routes.js` file, located in the pages folder.
    - **_Default participant-code_**: A default prefix of "PI" and a suffix of B.
 
-4. **No AI Condition**:
-   - **_Purpose_**: This condition includes only a text editor. It allows researchers to test a setting in which participants do not have access to conversational AI, and it can serve as a control condition for comparison with all other AI-available conditions.
-   - **_Route Suffix_**: Add `/c` to the base link of the platform, can be adjusted in `Routes.js` file, located in the pages folder.
-   - **_Default participant-code_**: A default prefix of "NA" and a suffix of C.
-
-5. **Conversational AI Only Condition**:
-   - **_Purpose_**: This condition includes only a conversational AI interface. It allows researchers to examine how users interact with conversational AI and to study writing produced entirely through AI. It can also be added to experiments when researchers want greater control over the instructions or background information given to the LLM, as well as an easy way to record all messages exchanged between participants and the conversational AI.
-   - **_Differences from other conditions_**: Compared to the No AI condition, in which participants need to rely entirely on themselves for writing, here, participants need to interact with the conversational AI.
+5. **Chat Only Condition**:
+   - **_Purpose_**: This condition includes a conversational AI interface only. Here, participants produce their writing by interacting with the conversational AI without access to a separate text editor. 
+   - **_Differences from other conditions_**: In this condition, participants do not have access to a text editor.
    - **_Route Suffix_**: Add `/a` to the base link of the platform, can be adjusted in `Routes.js` file, located in the pages folder.
    - **_Default participant-code_**: A default prefix of "OA" and a suffix of A.
 
+> Note: In all conditions, participants who try to submit before they meet the adjustable word count threshold and minimum time spent in the writing task (default thresholds are 50 words and 3 minutes) will receive a customizable pop-up message. Moreover, in all conditions, after participants submit their responses, they are directed to a thank-you page (`thankyou.js` file, located in `src/pages` folder) that instructs participants on how to continue the study. Finally, in all conditions that include a conversational AI window, the window includes messages displayed to participants that can be customized or deleted. These messages can be customized to instruct or encourage participants to interact with the conversational AI.
+
+
 **Creating new conditions**:
 
-- **_Purpose_**: allowing researchers to test research goals 6-10 specified in Table 1, which require duplicating a condition.
+- **_Purpose_**: In addition to selecting the experimental conditions, several features within each of the conditions can be customized, and thus, allow the comparison of the condition and its duplicated version to compare certain features. Creating new conditions allows testing differences between several features of the same original condition, such as the option to copy and paste, LLMs powering the conversational AI, background information given to the conversational AI, etc. 
 - **_How to duplicate_**:
   1. Create a new JavaScript file (.js file) by pressing the 'new file' button.
   2. Copy-paste the original condition's content into the new one.
-  3. Change the name of the condition by going to the last line 'export default NAME' and changing all the appearances of the name to fit your new condition (press 'Ctrl+F' to find all the appearances of the condition's name).
-  4. Create a specific path to the new condition, access the `Routes.js` file, which is located in the `src/pages` folder. In the `Routes.js` file, add an import line (import NAME from "./JS_FILE_NAME";), and a Route path, as instructed in the file's comments.
+  3. Change the name of the condition by going to the last line 'export default NAME' and changing all the appearances of the name to fit your new condition (press `Ctrl+F` to find all the appearances of the condition's name).
+  4. Create a specific path to the new condition, access the `Routes.js` file, which is located in the `src/pages` folder. In the `Routes.js` file, add an import line `import NAME from "./JS_FILE_NAME";`, and a Route path, as instructed in the file's comments.
 
 # <code>_Step 2.3: Editing your experimental conditions_</code>
 
@@ -256,9 +250,9 @@ To preview and debug style changes, open **Chrome DevTools**:
 
 Then click the **Elements** tab, select an element on the page, and you’ll see the CSS rules (including from `App.css`) on the right side.
 
-# <code>_Step 3: Local Testing and Deployment_</code>
+# <code>_Step 3: Running and Deploying the Platform_</code>
 
-By now, you have an experiment ready to run! The third step is to test the platform locally and make sure the experiment looks as desired, and then deploy it as a web application!
+By now, you have an experiment ready to run! The third step is to test the platform locally and make sure the experiment looks as desired, and then deploy it as a web application! 
 
 # <code>_Step 3.1: Local testing to make sure your conditions look as you expect them to look_</code>
 
@@ -291,7 +285,7 @@ To stop the local code from running, press `Ctrl+C`.
 > `npm install` is needed the first time you set up the project (or any time `package.json` changes).  
 > After that, you can run only `cd XXX` depending on the terminal, and `npm start`.
 
-# <code>_Step 3.2: Deployment to AWS so your experiment is ready to run._</code>
+# <code>_Step 3.2: Deploying the Web Application_</code>
 
 ## Upload your code (ready-to-run): Amazon Web Services (AWS)
 
@@ -353,7 +347,10 @@ Throughout the steps, please note that you are working within the same console's
 
           > Amplify will build and give you a website URL.
 
+**Imporatant Note**: After deploying the web application, we recommend testing all conditions to ensure that there are no errors before running the experiments, and conducting a pretest to ensure that the entire study runs smoothly. If any errors occur, please return to the relevant step, resolve the error, and repeat the instructions if necessary.  
 # <code>_Step 3.3: Download your submissions_</code>
+
+After deploying the platform, time to download the data so you can view the responses. We recommend trying the web application yourselves, submitting a response in each of your experimental conditions, then viewing the data to verify that all responses are saved.
 
 1. To download your submissions, you can access your S3 bucket and download each file.txt alone.
 2. To bulk download your submissions, follow the next steps:
