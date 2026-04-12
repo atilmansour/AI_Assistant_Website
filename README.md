@@ -380,6 +380,18 @@ After deploying the platform, time to download the data so you can view the resp
    aws s3 sync s3://YOUR_BUCKET_NAME "PATH/TO/Local/Folder"
    ```
 
+## Integrating the platform in your study.
+
+If this platform is being used as part of a larger study, we recommend including instructions like the following for participants:
+
+"Please follow the steps below:
+
+Click here (insert your link and make sure it opens in a new tab) to open the text editor.
+When you finish, click the submit button. After submission, you will receive a code. It may take a few seconds to appear, so please wait.
+Copy the code into the box below to continue."
+
+This procedure will allow you to match the study data with the text data using the code, which corresponds to the name of each .txt file.
+
 # <code>_Step 3.4: Getting to Know your data_</code>
 
 In this section, we provide a table summarising the parameters the data includes at the moment. Note you can edit these parameters, add, or delete some of them according to your liking.
