@@ -6,17 +6,40 @@ import "../../App.css";
 
 /**
  * AI_API
- * A chat UI component that can talk to ChatGPT (OpenAI), Claude (Anthropic), or Gemini (Google).
- * It keeps a messages array in state and sends the full conversation + writing context to the AI.
+ * A chat UI component that can talk to different LLM providers through the backend.
+ *
+ * Supported providers depend on server.js:
+ * - chatgpt / OpenAI
+ * - claude / Anthropic
+ * - gemini / Google
+ * - groq / hosted open-weight models, such as Llama-family models
+ *
+ * The frontend never calls providers directly.
+ * It calls the backend proxy endpoint: POST /api/ai
  */
 const AI_API = ({
   onMessagesSubmit,
   initialMessages = [],
   lastEditedText,
-  LLMProvider = "chatgpt", // "chatgpt" | "claude" | "gemini"
+  LLMProvider = "chatgpt", // "chatgpt" | "claude" | "gemini" | "groq"
+
+  /**
+   * CONFIG YOU WILL EDIT:
+   * Optional model override.
+   *
+   * If this is empty, server.js will use the default model for that provider.
+   *
+   * Examples:
+   * LLMModel = "gpt-4o"
+   * LLMModel = "claude-sonnet-4-20250514"
+   * LLMModel = "gemini-2.5-flash"
+   * LLMModel = "llama-3.3-70b-versatile"
+   */
+  LLMModel = "",
+
   backgroundAIMessage = "",
 }) => {
-  // Store chat messages in state (we keep everything as plain strings internally)
+  // Store chat messages in state
   const [messages, setMessages] = useState(() =>
     (initialMessages || []).map((text) => ({
       timestamp: Math.round(performance.now()),
@@ -30,12 +53,12 @@ const AI_API = ({
     onMessagesSubmit(messages);
   }, [messages, onMessagesSubmit]);
 
-  //toText: Converts anything into a plain string. This prevents crashes if an API returns arrays/objects instead of normal text.
+  // Converts anything into a plain string.
   const toText = (v) => {
     if (typeof v === "string") return v;
     if (v == null) return "";
+
     if (Array.isArray(v)) {
-      // If an array of parts sneaks in, join any .text fields
       return v
         .map((p) => {
           if (typeof p === "string") return p;
@@ -44,6 +67,7 @@ const AI_API = ({
         })
         .join("\n");
     }
+
     try {
       return String(v);
     } catch {
@@ -51,38 +75,34 @@ const AI_API = ({
     }
   };
 
-  // OpenAI may expect content in "parts" format; we only convert at request time
-  const toOpenAIContent = (text) => [{ type: "text", text: toText(text) }];
-
-  //sendMessage: Adds the user's message to the UI immediately, then calls the selected AI provider.
-
+  // sendMessage: Adds the user's message to the UI immediately, then calls the backend.
   const sendMessage = async (userMessage) => {
     const timestamp = Math.round(performance.now());
 
-    // Create a user message object (stored as plain string)
     const newUserMessage = {
       timestamp,
       text: toText(userMessage),
       sender: "user",
     };
 
-    // Update UI immediately (so the user sees their message right away)
+    // Update UI immediately
     setMessages((prev) => [...prev, newUserMessage]);
 
     // ----------------------------
-    // Add writing context so the AI can respond based on what the user wrote:
-    //CONFIG YOU WILL EDIT: You can give the AI_API any background message that you would like.
-    // you can change it to give the AI context (I am supposed to write about INSTRUCTIONS) OR
-    // you can change it to give the AI instructions (for example: Please answer in 1-2 sentences only)"
+    // Add writing context so the AI can respond based on what the user wrote.
+    // CONFIG YOU WILL EDIT:
+    // You can use backgroundAIMessage to give the AI context or instructions.
     // ----------------------------
     const writingContext = lastEditedText
-      ? `${backgroundAIMessage}. This is what I have written so far: ${toText(lastEditedText)}`
+      ? `${backgroundAIMessage}. This is what I have written so far: ${toText(
+          lastEditedText,
+        )}`
       : `${backgroundAIMessage} My text is currently empty.`;
 
-    // IMPORTANT: include the new message in the history we send (state updates are async)
+    // IMPORTANT: include the new message in the history we send
     const fullMessages = [...messages, newUserMessage];
 
-    // Internal chat format: role + plain string content
+    // Backend expects role + plain string content
     const chatHistory = [
       { role: "user", content: writingContext },
       ...fullMessages.map((msg) => ({
@@ -92,94 +112,37 @@ const AI_API = ({
     ];
 
     try {
-      let LLMAssistantResponseText = "";
-      /**
-       * We do NOT call Anthropic directly from the browser (CORS + API key leak).
-       * Instead, we call OUR backend proxy endpoint: /api/ai
-       *
-       * Your backend will read the real keys (OPENAI_KEY / CLAUDE_KEY / GEMINI_KEY)
-       * from server-side environment variables.
-       */
+      const API_BASE =
+        process.env.REACT_APP_API_BASE || "http://localhost:5050";
 
-      // ---- Provider 1: Claude (Anthropic) ----
-      if (LLMProvider === "claude") {
-        const API_BASE =
-          process.env.REACT_APP_API_BASE || "http://localhost:5050";
+      const requestBody = {
+        provider: LLMProvider,
+        chatHistory,
+      };
 
-        const response = await axios.post(`${API_BASE}/api/ai`, {
-          provider: "claude",
-          // Send role + plain string content to backend (backend will call Claude)
-          chatHistory: chatHistory.map((m) => ({
-            role: m.role === "assistant" ? "assistant" : "user",
-            content: toText(m.content),
-          })),
-        });
-
-        // Backend returns { text: "..." }
-        LLMAssistantResponseText = toText(response.data?.text).trim();
-
-        // ---- Provider 2: Gemini (Google) ----
-      } else if (LLMProvider === "gemini") {
-        const API_BASE =
-          process.env.REACT_APP_API_BASE || "http://localhost:5050";
-
-        const response = await axios.post(`${API_BASE}/api/ai`, {
-          provider: "gemini",
-          // Send role + plain string content to backend (backend will call Gemini)
-          chatHistory: chatHistory.map((m) => ({
-            role: m.role === "assistant" ? "assistant" : "user",
-            content: toText(m.content),
-          })),
-        });
-
-        // Backend returns { text: "..." }
-        LLMAssistantResponseText = toText(response.data?.text).trim();
-
-        // ---- Provider 3: OpenAI (ChatGPT) ----
-      } else {
-        const API_BASE =
-          process.env.REACT_APP_API_BASE || "http://localhost:5050";
-
-        // Convert internal strings -> OpenAI "parts" format at the boundary
-        const openAiMessages = chatHistory.map((m) => ({
-          role: m.role,
-          content: toOpenAIContent(m.content),
-        }));
-
-        // Backend expects role + content as plain string; convert safely here:
-        const backendHistory = openAiMessages.map((m) => ({
-          role: m.role,
-          // m.content is [{type:"text", text:"..."}]; convert it back to plain text
-          content: Array.isArray(m.content)
-            ? m.content.map((p) => p.text || "").join("\n")
-            : toText(m.content),
-        }));
-
-        const response = await axios.post(`${API_BASE}/api/ai`, {
-          provider: "chatgpt",
-          chatHistory: backendHistory,
-        });
-
-        // Backend returns { text: "..." }
-        LLMAssistantResponseText = toText(response.data?.text).trim();
+      // Only send model if the researcher provided one.
+      // Otherwise, server.js will use the default model for that provider.
+      if (LLMModel && LLMModel.trim().length > 0) {
+        requestBody.model = LLMModel.trim();
       }
 
-      // Add LLM Assistant reply to the UI
+      const response = await axios.post(`${API_BASE}/api/ai`, requestBody);
+
+      const LLMAssistantResponseText = toText(response.data?.text).trim();
+
       setMessages((prev) => [
         ...prev,
         {
           timestamp,
-          text: toText(LLMAssistantResponseText),
+          text: LLMAssistantResponseText,
           sender: "LLMAssistant",
         },
       ]);
     } catch (error) {
-      // Log errors for debugging
       console.error("Error:", error);
       console.error("Status:", error?.response?.status);
       console.error("Body:", error?.response?.data);
 
-      // Show a friendly error message in the chat
       setMessages((prev) => [
         ...prev,
         {
@@ -193,14 +156,12 @@ const AI_API = ({
 
   return (
     <div id="chat-container">
-      {/* Chat messages area */}
       <div id="chat-output">
         <div id="messages-history">
           <MessageDisplay messages={messages} />
         </div>
       </div>
 
-      {/* Input box + Send button */}
       <MessageInput onSendMessage={sendMessage} />
     </div>
   );

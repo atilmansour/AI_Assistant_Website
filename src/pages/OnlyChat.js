@@ -17,6 +17,10 @@ const OnlyChat = () => {
   // CONFIG YOU WILL EDIT:
   // Choose provider: "chatgpt" | "claude" | "gemini"
   const LLMProvider = "chatgpt";
+  // CONFIG YOU WILL EDIT:
+  //You can specify here the model you want according to the provider, the default models are:
+  // "gpt-4o" | "claude-sonnet-4-20250514" | "gemini-2.5-flash" | "llama-3.3-70b-versatile"
+  const LLMModel = "";
 
   //CONFIG YOU WILL EDIT:
   //Here, you can give the LLM Assistant background informaiton about the task,
@@ -146,6 +150,7 @@ const OnlyChat = () => {
     const logs = {
       id: getRandomString(5),
       LLMProvider: LLMProvider,
+      LLMModel: LLMModel,
       NumOfSubmitClicks: submitAttempts,
       TimeStampOfSubmitClicks: submitAttemptTimesMs,
       messages: messagesLog,
@@ -213,6 +218,7 @@ const OnlyChat = () => {
               // chat-only page: no editor context
               lastEditedText={""}
               LLMProvider={LLMProvider}
+              LLMModel={LLMModel}
               backgroundAIMessage={backgroundAIMessage}
             />
           </div>

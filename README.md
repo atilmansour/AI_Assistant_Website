@@ -120,7 +120,7 @@ Next, you need to set up the platform locally and securely store the sensitive i
 
 This project includes a `backend/` folder that runs a small server for:
 
-1. Calling LLM providers (ChatGPT / Claude / Gemini) securely.
+1. Calling LLM providers (ChatGPT / Claude / Gemini / Groq) securely.
 2. Handling AWS actions (e.g., S3) securely.
 
 **Why do we need a backend?**
@@ -138,14 +138,15 @@ Create `backend/.env` file (name the file `.env` and put it in the `backend` fol
   REACT_APP_SECRET_ACCESS_KEY=Your secret key
   REACT_APP_ACCESS_KEY_ID= Your key
   REACT_APP_BucketS3=Your s3 bucket name
-  OPENAI_KEY=Your GPT key
+  OPENAI_KEY=Bearer Your GPT key
   CLAUDE_KEY=Your claude key
   GEMINI_KEY=Your gemini key
+  GROQ_KEY=Bearer Your Groq key
   ```
 - Depending on which LLM you will use, you will need to generate a key. Please note models' abilities and pricing.
 
   Note that if you want to use only some of the following LLMs, you can leave the key empty.
-  For example, if you only want to use ChatGPT as your LLM, you can write `GEMINI_KEY=''` and `CLAUDE_KEY=''`:
+  For example, if you only want to use ChatGPT as your LLM, you can write `GEMINI_KEY=''`, `CLAUDE_KEY=''`, and `GROQ_KEY=''`:
   1. To generate ChatGPT key: `OPENAI_KEY=Bearer XXXX`
 
      Go to [OpenAI API's official website](https://openai.com/api/). You will need to create an account, and get a personal key. It is important to keep this key private, as this is what allows you to connect to ChatGPT.
@@ -158,12 +159,16 @@ Create `backend/.env` file (name the file `.env` and put it in the `backend` fol
 
      Go to [Gemini API's official website](https://ai.google.dev/gemini-api/docs/api-key). You will need to create an account, and get a personal key. It is important to keep this key private, as this is what allows you to connect to Gemini.
 
+  4. To generate Groq Key: `GROQ_KEY=Bearer XXXX`
+
+     Go To [Groq API's official website](https://console.groq.com/). You will need to create an account, and get a personal key. It is important to keep this key private, as this is what allows you to connect to Groq.
+
 - For the other environment keys, you can keep them empty for now, we will get back to them when we deploy the platform to AWS in [Amazon Web Services (AWS) section](<#Amazon_Web_Services_(AWS)>).
 - **Make sure `backend/.env` is in `.gitignore`** (in your local code) before you push your code again to github. To do that, you need to have a line that says `backend/.env` inside your .gitignore file.
 
 - **_backend/server.js_**: This file calls ChatGPT/Claude/Gemini securely (API keys stay private). Here, you can change model names and max tokens here.
 
-  > You may change the components of each LLM's API: The default is max_tokens = 1000, and the following models: gpt-4o (ChatGPT), 2.5-flash (Gemini), 4 sonnet (Claude). You may adjust these to your liking.
+  > You may change the components of each LLM's API: The default is max_tokens = 1000, and the following models: gpt-4o (ChatGPT), 2.5-flash (Gemini), 4 sonnet (Claude), and llama-3.3-70b-versatile (Groq). You may adjust these to your liking in each experimental condition.
 
   > You can find more information about each LLM on their official API website, and choose the model that best fits your needs.
 
