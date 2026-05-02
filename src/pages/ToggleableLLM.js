@@ -313,6 +313,8 @@ const ToggleableLLM = () => {
       id: getRandomString(5),
       LLMProvider: LLMProvider,
       LLMModel: LLMModel,
+      backgroundLLMMessage: backgroundAIMessage,
+
       chatEvents: chatEvents,
 
       NumOfSubmitClicks: submitAttempts,

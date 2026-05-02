@@ -224,6 +224,7 @@ const OnlyChat = () => {
       id: getRandomString(5),
       LLMProvider: LLMProvider,
       LLMModel: LLMModel,
+      backgroundLLMMessage: backgroundAIMessage,
 
       NumOfSubmitClicks: submitAttempts,
       TimeStampOfSubmitClicks: submitAttemptTimesMs,

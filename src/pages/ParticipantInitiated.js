@@ -318,6 +318,7 @@ const ParticipantInitiated = () => {
       id: getRandomString(5),
       LLMProvider: LLMProvider,
       LLMModel: LLMModel,
+      backgroundLLMMessage: backgroundAIMessage,
 
       chatEvents: chatEvents,
       ButtonPressed: openAiAfterMs,
