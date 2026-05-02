@@ -34,6 +34,12 @@ const AlwaysVisibleLLM = () => {
   const [currentLastEditedText, setCurrentLastEditedText] = useState(""); // latest editor text (used for word count + AI context)
   const [messagesLog, setMessagesLog] = useState([]); // logs from chat messages
 
+  // Tracks whether participants left the page/tab.
+  // All timing values are in milliseconds since page start.
+  const [navigatedAway, setNavigatedAway] = useState(0);
+  const [totalNavigatedAwayMs, setTotalNavigatedAwayMs] = useState(0);
+  const [navigatedAwayExplained, setNavigatedAwayExplained] = useState([]);
+
   // ----------------------------
   // MODALS + SUBMIT STATE
   // ----------------------------
@@ -54,6 +60,9 @@ const AlwaysVisibleLLM = () => {
   // Track how many times they clicked submit + when (ms since page start)
   const [submitAttempts, setSubmitAttempts] = useState(0);
   const [submitAttemptTimesMs, setSubmitAttemptTimesMs] = useState([]); // [t1, t2, ...]
+
+  // Used to store the moment when the participant leaves the page/tab.
+  const awayStartRef = useRef(null);
 
   // ----------------------------
   // SUBMIT REQUIREMENTS
@@ -104,6 +113,70 @@ const AlwaysVisibleLLM = () => {
       document.removeEventListener("copy", handleCopy);
       document.removeEventListener("cut", handleCut);
       document.removeEventListener("paste", handlePaste);
+    };
+  }, []);
+
+  // ----------------------------
+  // Track when participants leave and return to the page
+  // All times are in ms since page start, matching TimeStampOfSubmitClicks.
+  // ----------------------------
+  useEffect(() => {
+    const getTimeMs = () => Math.round(performance.now() - startMsRef.current);
+
+    const markAway = (reason) => {
+      // Avoid double-counting if both blur and visibilitychange fire
+      if (awayStartRef.current !== null) return;
+
+      awayStartRef.current = {
+        atMs: getTimeMs(),
+        reason,
+      };
+    };
+
+    const markReturned = () => {
+      if (awayStartRef.current === null) return;
+
+      const returnedAtMs = getTimeMs();
+      const durationMs = returnedAtMs - awayStartRef.current.atMs;
+
+      const episode = {
+        atMs: awayStartRef.current.atMs,
+        durationMs,
+        returnedAtMs,
+        reason: awayStartRef.current.reason,
+      };
+
+      setNavigatedAway((prev) => prev + 1);
+      setTotalNavigatedAwayMs((prev) => prev + durationMs);
+      setNavigatedAwayExplained((prev) => [...prev, episode]);
+
+      awayStartRef.current = null;
+    };
+
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === "hidden") {
+        markAway("visibility_hidden");
+      } else if (document.visibilityState === "visible") {
+        markReturned();
+      }
+    };
+
+    const handleBlur = () => {
+      markAway("window_blur");
+    };
+
+    const handleFocus = () => {
+      markReturned();
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    window.addEventListener("blur", handleBlur);
+    window.addEventListener("focus", handleFocus);
+
+    return () => {
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+      window.removeEventListener("blur", handleBlur);
+      window.removeEventListener("focus", handleFocus);
     };
   }, []);
 
@@ -214,8 +287,14 @@ const AlwaysVisibleLLM = () => {
       id: getRandomString(5),
       LLMProvider: LLMProvider,
       LLMModel: LLMModel,
+
       NumOfSubmitClicks: submitAttempts,
       TimeStampOfSubmitClicks: submitAttemptTimesMs,
+
+      navigatedAway: navigatedAway,
+      totalNavigatedAwayMs: totalNavigatedAwayMs,
+      navigatedAwayExplained: navigatedAwayExplained,
+
       messages: messagesLog,
       editor: editorLog,
     };
