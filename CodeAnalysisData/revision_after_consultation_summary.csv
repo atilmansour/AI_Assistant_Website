@@ -1,7 +1,6 @@
 participant_id,source_file,number_of_consultation_episodes,mean_words_written_in_pre_window,mean_words_written_in_post_window,mean_words_deleted_in_pre_window,mean_words_deleted_in_post_window,mean_words_edited_in_pre_window,mean_words_edited_in_post_window,mean_net_word_change_in_pre_window,mean_net_word_change_in_post_window,mean_burst_count_in_pre_window,mean_burst_count_in_post_window,mean_burst_words_added_in_pre_window,mean_burst_words_added_in_post_window,has_messages_field,has_editor_field
-AVLA3MS0U,AVLA3MS0U.txt,2,16.0,7.0,0.0,0.0,0.0,6.0,16.0,12.5,2.5,1.0,8.25,12.0,True,True
-OCBP90JA,OCBP90JA.txt,1,,,,,,,,,0.0,0.0,,,True,False
-OLRZ1ESC,OLRZ1ESC.txt,0,,,,,,,,,,,,,False,True
-PI3HHQXB,PI3HHQXB.txt,1,5.0,15.0,0.0,0.0,0.0,0.0,6.0,15.0,1.0,2.0,5.0,6.0,True,True
-PINHWMKB,PINHWMKB.txt,1,9.0,12.0,0.0,0.0,0.0,0.0,9.0,13.0,1.0,1.0,8.0,11.0,True,True
-TLU6DW5O,TLU6DW5O.txt,2,4.0,12.5,0.0,0.0,0.0,0.0,4.0,12.5,0.5,2.5,7.0,4.0833,True,True
+AVLUANYLU,AVLUANYLU.txt,1,17.0,22.0,0.0,0.0,0.0,0.0,17.0,22.0,5.0,1.0,2.4,21.0,True,True
+OCAYKWSA,OCAYKWSA.txt,1,,,,,,,,,0.0,0.0,,,True,False
+OLAN8ANC,OLAN8ANC.txt,0,,,,,,,,,,,,,False,True
+PIZX0FFB,PIZX0FFB.txt,1,0.0,6.0,0.0,0.0,17.0,0.0,16.0,6.0,3.0,2.0,5.0,2.0,True,True
+TLV9S9OO,TLV9S9OO.txt,2,8.0,10.0,0.0,0.0,0.5,0.0,8.0,10.5,3.0,2.5,1.0,3.3334,True,True

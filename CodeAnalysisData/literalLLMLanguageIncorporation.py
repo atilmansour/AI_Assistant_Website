@@ -23,6 +23,20 @@ from typing import Any, Dict, List, Optional, Tuple
 # Output:
 #   1. literal_language_use_simple_summary.csv
 #
+# Main outputs:
+# - participant-level direct incorporation metrics:
+#    * participant_id = participant identifier from the saved data file
+#    * source_file = name of the participant data file analyzed
+#    * n_words_from_llm = number of words in the final text covered by LLM-generated phrases
+#    * longest_phrase_from_llm_n_words = length, in words, of the longest matched LLM-generated phrase
+#    * longest_phrase_from_llm_text = text of the longest matched LLM-generated phrase
+#    * final_text_word_count = number of words in the participant's final submitted text
+#    * n_assistant_messages_used = number of LLM assistant messages included in the analysis
+#    * include_initial_assistant_messages = whether initial/present assistant messages were included in the analysis
+#    * has_messages_field = whether the participant file contains a messages field
+#    * has_editor_field = whether the participant file contains an editor field
+#
+#
 # A word/phrase counts as direct incorporation only if:
 #   (a) it appears in the final submitted text
 #   (b) it appears in an assistant message

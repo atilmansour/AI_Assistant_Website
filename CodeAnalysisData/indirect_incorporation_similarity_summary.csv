@@ -1,7 +1,6 @@
 participant_id,source_file,similarity_final_text_to_llm_text,similarity_threshold,meets_similarity_threshold,final_text_word_count,llm_text_word_count,n_assistant_messages_used,include_initial_assistant_messages,has_messages_field,has_editor_field
-AVLA3MS0U,AVLA3MS0U.txt,0.5424,0.3,True,81,407,3,False,True,True
-OCBP90JA,OCBP90JA.txt,,0.3,False,0,913,10,False,True,False
-OLRZ1ESC,OLRZ1ESC.txt,,0.3,False,72,0,0,False,False,True
-PI3HHQXB,PI3HHQXB.txt,0.1953,0.3,False,72,45,2,False,True,True
-PINHWMKB,PINHWMKB.txt,0.4926,0.3,True,63,211,2,False,True,True
-TLU6DW5O,TLU6DW5O.txt,0.6809,0.3,True,89,525,3,False,True,True
+AVLUANYLU,AVLUANYLU.txt,0.6919,0.3,True,100,176,2,False,True,True
+OCAYKWSA,OCAYKWSA.txt,,0.3,False,0,74,8,False,True,False
+OLAN8ANC,OLAN8ANC.txt,,0.3,False,66,0,0,False,False,True
+PIZX0FFB,PIZX0FFB.txt,0.5316,0.3,True,64,956,3,False,True,True
+TLV9S9OO,TLV9S9OO.txt,0.4695,0.3,True,62,136,4,False,True,True

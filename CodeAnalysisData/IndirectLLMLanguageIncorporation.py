@@ -26,6 +26,21 @@ from typing import Any, Dict, List, Optional
 # Output:
 #   1. indirect_incorporation_similarity_summary.csv
 #
+# Main outputs:
+# - participant-level indirect incorporation metrics:
+#    * participant_id = participant identifier from the saved data file
+#    * source_file = name of the participant data file analyzed
+#    * similarity_final_text_to_llm_text = cosine similarity between the participant's final text and the LLM assistant's messages
+#    * similarity_threshold = threshold used to classify whether similarity is high enough to count as indirect incorporation
+#    * meets_similarity_threshold = True/False indicator for whether the participant's similarity score meets the threshold
+#    * final_text_word_count = number of words in the participant's final submitted text
+#    * llm_text_word_count = number of words in the LLM assistant messages used for the comparison
+#    * n_assistant_messages_used = number of LLM assistant messages included in the similarity calculation
+#    * include_initial_assistant_messages = whether initial/present assistant messages were included in the analysis
+#    * has_messages_field = whether the participant file contains a messages field
+#    * has_editor_field = whether the participant file contains an editor field
+#
+#
 # This script estimates indirect incorporation as the degree of similarity
 # between the LLM-generated language and the participant's final submitted text.
 #

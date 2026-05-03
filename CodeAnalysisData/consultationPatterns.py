@@ -32,29 +32,29 @@ from typing import Any, Dict, List, Optional, Tuple
 #
 # Main outputs:
 # - participant-level summary metrics:
-#    * session_duration_min
-#    * total_consultation_episodes
-#    * first_consultation_sec
-#    * consultations_per_minute
-#    * early_consultations
-#    * middle_consultations
-#    * late_consultations
-#    * time_to_first_consultation_from_first_edit_sec
-#    * time_to_first_consultation_from_chat_open_sec
+#    * session_duration_min = total session duration in minutes
+#    * total_consultation_episodes = number of LLM consultation episodes
+#    * first_consultation_sec = time of the first LLM consultation, in seconds from page start
+#    * consultations_per_minute = number of consultation episodes divided by session duration
+#    * early_consultations = number of consultations in the first third of the session
+#    * middle_consultations = number of consultations in the middle third of the session
+#    * late_consultations = number of consultations in the final third of the session
+#    * time_to_first_consultation_from_first_edit_sec = seconds from first edit to first LLM consultation
+#    * time_to_first_consultation_from_chat_open_sec = seconds from first chat opening to first LLM consultation
 #
 # - event-level consultation metrics:
-#    * consultation_start_ms
-#    * consultation_end_ms
-#    * consultation_duration_sec
-#    * relative_task_position
-#    * task_stage_by_time
-#    * words_written_so_far
-#    * final_word_count
-#    * proportion_of_final_text_written
-#    * n_user_messages_in_episode
-#    * n_assistant_messages_in_episode
-#    * user_messages_joined
-#    * assistant_messages_joined
+#    * consultation_start_ms = start time of the consultation episode, in ms from page start
+#    * consultation_end_ms = end time of the consultation episode, in ms from page start
+#    * consultation_duration_sec = duration of the consultation episode in seconds
+#    * relative_task_position = consultation timing as a proportion of the full session duration
+#    * task_stage_by_time = whether the consultation occurred early, middle, or late in the session
+#    * words_written_so_far = number of words written before the consultation started
+#    * final_word_count = number of words in the final editor snapshot
+#    * proportion_of_final_text_written = proportion of the final text already written before consultation
+#    * n_user_messages_in_episode = number of participant messages in the consultation episode
+#    * n_assistant_messages_in_episode = number of LLM assistant messages in the consultation episode
+#    * user_messages_joined = all participant messages in the episode combined into one field
+#    * assistant_messages_joined = all LLM assistant messages in the episode combined into one field
 #
 # Definitions used here:
 # - Consultation episode = one help-seeking exchange with the LLM,

@@ -1,0 +1,19 @@
+timestamp,sender,text
+284,LLMAssistant,"Hello, this is a present message that you can edit in your code in OnlyChat.js (initialMessages)."
+284,LLMAssistant,"This is the second message, you can edit, add more, or delete me."
+4290,user,hello
+4290,LLMAssistant,Hello! How can I assist you today?
+22860,user,"i think we need to write together a poem, can u start with the first row"
+22860,LLMAssistant,"Whispers of the night sky sang softly to the moon,"
+40441,user,can the poem be about books
+40441,LLMAssistant,"Dusty pages hold worlds where dreams and stories weave,"
+57957,user,"I wait all day so I can leave,"
+57957,LLMAssistant,"To wander through realms where imagination takes its flight,"
+77689,user,"I have a way there to shine bright,"
+77689,LLMAssistant,"Through every tale and turn, my spirit finds its light."
+92128,user,"Tell me soldier, do I have to fight?"
+92128,LLMAssistant,"In battles of the mind, courage often takes the lead,"
+111406,user,"My kid is waiting for me to feed,"
+111406,LLMAssistant,"In stories shared, we find the sustenance we need."
+124387,user,I think it's good right?
+124387,LLMAssistant,"Yes, it's a beautifully woven poem with deep imagery!"

@@ -1,7 +1,0 @@
-timestamp,sender,text
-251,LLMAssistant,"Hello, this is a present message that you can edit in your code in ParticipantInitiated.js (initialMessages)."
-251,LLMAssistant,"This is the second message, you can edit, add more, or delete me."
-29357,user,"hi, can you give me one idea only on what to write about?"
-29357,LLMAssistant,"Sure! How about exploring the theme of ""Resilience in Uncertain Times""? You could delve into personal stories, historical events, or strategies for maintaining resilience during challenging periods."
-125355,user,thank you!
-125355,LLMAssistant,"You're welcome! If you need any more help or additional ideas, feel free to ask. Happy writing!"

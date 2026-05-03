@@ -33,38 +33,55 @@ from typing import Any, Dict, List, Optional, Tuple
 #
 # Main outputs:
 # - participant-level summary metrics:
-#    * number_of_consultation_episodes
-#    * mean_words_written_in_pre_window
-#    * mean_words_written_in_post_window
-#    * mean_words_deleted_in_pre_window
-#    * mean_words_deleted_in_post_window
-#    * mean_words_edited_in_pre_window
-#    * mean_words_edited_in_post_window
-#    * mean_net_word_change_in_pre_window
-#    * mean_net_word_change_in_post_window
-#    * mean_burst_count_in_pre_window
-#    * mean_burst_count_in_post_window
-#    * mean_burst_words_added_in_pre_window
-#    * mean_burst_words_added_in_post_window
+#    * number_of_consultation_episodes = total number of LLM consultation episodes
+#    * mean_words_written_in_pre_window = average number of words added before consultations
+#    * mean_words_written_in_post_window = average number of words added after consultations
+#    * mean_words_deleted_in_pre_window = average number of words deleted before consultations
+#    * mean_words_deleted_in_post_window = average number of words deleted after consultations
+#    * mean_words_edited_in_pre_window = average number of words replaced/edited before consultations
+#    * mean_words_edited_in_post_window = average number of words replaced/edited after consultations
+#    * mean_net_word_change_in_pre_window = average net word change before consultations
+#    * mean_net_word_change_in_post_window = average net word change after consultations
+#    * mean_burst_count_in_pre_window = average number of writing bursts before consultations
+#    * mean_burst_count_in_post_window = average number of writing bursts after consultations
+#    * mean_burst_words_added_in_pre_window = average number of words added within bursts before consultations
+#    * mean_burst_words_added_in_post_window = average number of words added within bursts after consultations
 #
 # - event-level consultation metrics:
-#    * consultation_start_ms
-#    * consultation_end_ms
-#    * consultation_duration_sec
-#    * words_written_in_pre_window
-#    * words_written_in_post_window
-#    * words_deleted_in_pre_window
-#    * words_deleted_in_post_window
-#    * words_edited_in_pre_window
-#    * words_edited_in_post_window
-#    * net_word_change_in_pre_window
-#    * net_word_change_in_post_window
-#    * burst_count_in_pre_window
-#    * burst_count_in_post_window
-#    * mean_burst_duration_sec_in_pre_window
-#    * mean_burst_duration_sec_in_post_window
-#    * mean_burst_words_added_in_pre_window
-#    * mean_burst_words_added_in_post_window
+#    * consultation_start_ms = start time of the consultation episode, in ms from page start
+#    * consultation_end_ms = end time of the consultation episode, in ms from page start
+#    * consultation_duration_sec = duration of the consultation episode in seconds
+#    * n_user_messages_in_episode = number of participant messages in the consultation episode
+#    * n_assistant_messages_in_episode = number of LLM assistant messages in the consultation episode
+#    * user_messages_joined = all participant messages in the episode combined into one field
+#    * assistant_messages_joined = all LLM assistant messages in the episode combined into one field
+#    * words_written_in_pre_window = number of words added in the window before consultation
+#    * words_written_in_post_window = number of words added in the window after consultation
+#    * words_deleted_in_pre_window = number of words deleted in the window before consultation
+#    * words_deleted_in_post_window = number of words deleted in the window after consultation
+#    * words_edited_in_pre_window = number of words replaced/edited in the window before consultation
+#    * words_edited_in_post_window = number of words replaced/edited in the window after consultation
+#    * net_word_change_in_pre_window = final word count minus initial word count before consultation
+#    * net_word_change_in_post_window = final word count minus initial word count after consultation
+#    * text_added_in_pre_window = text added in the window before consultation
+#    * text_deleted_in_pre_window = text deleted in the window before consultation
+#    * text_edited_from_in_pre_window = original text that was replaced before consultation
+#    * text_edited_to_in_pre_window = new text that replaced earlier text before consultation
+#    * text_added_in_post_window = text added in the window after consultation
+#    * text_deleted_in_post_window = text deleted in the window after consultation
+#    * text_edited_from_in_post_window = original text that was replaced after consultation
+#    * text_edited_to_in_post_window = new text that replaced earlier text after consultation
+#    * burst_count_in_pre_window = number of writing bursts before consultation
+#    * burst_count_in_post_window = number of writing bursts after consultation
+#    * mean_burst_duration_sec_in_pre_window = average burst duration before consultation
+#    * mean_burst_duration_sec_in_post_window = average burst duration after consultation
+#    * mean_burst_words_added_in_pre_window = average number of words added within bursts before consultation
+#    * mean_burst_words_added_in_post_window = average number of words added within bursts after consultation
+#    * max_burst_words_added_in_pre_window = largest number of words added in a single burst before consultation
+#    * max_burst_words_added_in_post_window = largest number of words added in a single burst after consultation
+#    * pre_window_ms = size of the pre-consultation window in milliseconds
+#    * post_window_ms = size of the post-consultation window in milliseconds
+#    * burst_pause_threshold_ms = pause length used to separate writing bursts
 #
 # Definitions used here:
 # - Pre window = the fixed time window before a consultation episode.

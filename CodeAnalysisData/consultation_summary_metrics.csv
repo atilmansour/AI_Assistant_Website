@@ -1,7 +1,6 @@
 participant_id,source_file,session_duration_min,total_consultation_episodes,first_consultation_sec,consultations_per_minute,early_consultations,middle_consultations,late_consultations,time_to_first_consultation_from_first_edit_sec,time_to_first_consultation_from_chat_open_sec,has_messages_field,has_chatEvents_field,has_editor_field
-AVLA3MS0U,AVLA3MS0U.txt,3.0683,2,19.392,0.6518,1,1,0,17.047,,True,False,True
-OCBP90JA,OCBP90JA.txt,3.7702,1,19.491,0.2652,1,0,0,,,True,False,False
-OLRZ1ESC,OLRZ1ESC.txt,3.079,0,,0.0,0,0,0,,,False,False,True
-PI3HHQXB,PI3HHQXB.txt,4.2002,1,29.357,0.2381,1,0,0,26.015,19.472,True,True,True
-PINHWMKB,PINHWMKB.txt,3.1215,1,25.507,0.3204,1,0,0,17.114,8.418,True,True,True
-TLU6DW5O,TLU6DW5O.txt,3.4328,2,55.433,0.5826,1,0,1,49.033,35.37,True,True,True
+AVLUANYLU,AVLUANYLU.txt,3.5882,1,53.733,0.2787,1,0,0,49.308,,True,False,True
+OCAYKWSA,OCAYKWSA.txt,3.0865,1,22.86,0.324,1,0,0,,,True,False,False
+OLAN8ANC,OLAN8ANC.txt,3.3808,0,,0.0,0,0,0,,,False,False,True
+PIZX0FFB,PIZX0FFB.txt,3.2612,1,50.248,0.3066,1,0,0,47.495,10.231,True,True,True
+TLV9S9OO,TLV9S9OO.txt,3.224,2,42.059,0.6203,1,0,1,37.917,22.026,True,True,True

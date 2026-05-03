@@ -1,6 +1,0 @@
-Hi, I'm writing here first! 
-The LLM assistant suggested writing about resilience in uncertain times!
-I tried to submit but got a message that told me to write a bit more. 
-I tried opening and closing the LLM assistant!
-I got the error message again when I tried to submit, seems that I need to wait more. Let me chat with the LLM assistant.
-Nevermind, I don't wanna use it.

@@ -25,7 +25,7 @@ const OnlyChat = () => {
   //CONFIG YOU WILL EDIT:
   //Here, you can give the LLM Assistant background informaiton about the task,
   // or instructions to reply in a certain way.
-  const backgroundAIMessage = "Please Answer in one short sentence only.";
+  const backgroundAIMessage = "";
 
   // ----------------------------
   // LOGGING STATE (what we save)
