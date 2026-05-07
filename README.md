@@ -28,6 +28,8 @@ The first step is to have all the needed applications downloaded to your compute
 
 # <code>_Step 1.1: Installation Required Applications_</code>
 
+> **Time estimation for this step: 20 mins**
+
 First, you need to install the required applications and download a copy of the platform and source code from GitHub, in order for the platform to run locally.
 
 # Download GitHub
@@ -114,6 +116,8 @@ npm -v
 
 # <code>_Step 1.2: Local Setup and Environment Variables_</code>
 
+> **Time estimation for this step: 10 mins (if you have API keys ready), 30 mins (if you don't have API keys ready)**
+
 Next, you need to set up the platform locally and securely store the sensitive information (e.g., API Keys that provide access to LLMs) required to use the LLM Assistant.
 
 # Backend Folder (API and Environment Variables)
@@ -173,6 +177,8 @@ Create `backend/.env` file (name the file `.env` and put it in the `backend` fol
   > You can find more information about each LLM on their official API website, and choose the model that best fits your needs.
 
 # <code>_Step 2: Preparing your Experimental Conditions_</code>
+
+> **Time estimation for this step: 60 mins+**
 
 After downloading all the required applications, having your own copy of the code locally, and setting up the LLM API keys, the second step is to prepare the experimental conditions you want to use in your experiments. Step 2 includes preparing and customizing the experimental conditions according to your purposes.
 
@@ -234,9 +240,9 @@ The following presents the five experimental conditions the platform offers in m
 
 - **_Purpose_**: In addition to selecting the experimental conditions, several features within each of the conditions can be customized, and thus, allow the comparison of the condition and its duplicated version to compare certain features. Creating new conditions allows testing differences between several features of the same original condition, such as the option to copy and paste, LLM types, background information given to the LLM Assistant, etc.
 - **_How to duplicate_**:
-  1. Create a new JavaScript file (.js file) by pressing the 'new file' button.
+  1. Create a new JavaScript file (.js file) by pressing the 'new file' button, the file name needs to start with a capital letter.
   2. Copy-paste the original condition's content into the new one.
-  3. Change the name of the condition by going to the last line 'export default NAME' and changing all the appearances of the name to fit your new condition (press `Ctrl+F` to find all the appearances of the condition's name).
+  3. Change the name of the condition by going to the last line 'export default NAME' and changing all the appearances of the name to fit your new condition (press `Ctrl+F` to find all the appearances of the condition's name), the name needs to start with a capital letter.
   4. Create a specific path to the new condition, access the `Routes.js` file, which is located in the `src/pages` folder. In the `Routes.js` file, add an import line `import NAME from "./JS_FILE_NAME";`, and a Route path, as instructed in the file's comments.
 
 # <code>_Step 2.3: Editing your experimental conditions_</code>
@@ -269,6 +275,8 @@ By now, you have an experiment ready to run! The third step is to test the platf
 
 # <code>_Step 3.1: Local testing_</code>
 
+> **Time estimation for this step: 20-30 mins**
+
 - It is now time to test the platform locally and make sure it appears as expected. Even after running the code locally (as described below), you can continue making changes, save them, and the local version will update automatically, allowing you to view your changes in real time..
 
 - Open **two terminals** (one for the backend, one for the frontend):
@@ -297,8 +305,11 @@ To stop the local code from running, press `Ctrl+C`.
 
 > `npm install` is needed the first time you set up the project (or any time `package.json` changes).  
 > After that, you can run only `cd XXX` depending on the terminal, and `npm start`.
+> Windows may require you to accept the installation of npm (after running npm install), or run `npm audit fix`.
 
 # <code>_Step 3.2: Deploying the Web Application_</code>
+
+> **Time estimation for this step: 60 mins**
 
 ## Upload your code (ready-to-run): Amazon Web Services (AWS)
 
@@ -364,6 +375,8 @@ Throughout the steps, please note that you are working within the same console's
 
 # <code>_Step 3.3: Download your submissions_</code>
 
+> **Time estimation for this step: 10-20 mins**
+
 After deploying the platform, time to download the data so you can view the responses. We recommend trying the web application yourselves, submitting a response in each of your experimental conditions, then viewing the data to verify that all responses are saved.
 
 1. To download your submissions, you can access your S3 bucket and download each file.txt alone.
@@ -399,6 +412,8 @@ This procedure will allow you to match the study data with the text data using t
 
 # <code>_Step 3.4: Getting to Know your data_</code>
 
+> **Time estimation for this step: 10 mins**
+
 In this section, we provide a table summarising the parameters the data includes at the moment. Note you can edit these parameters, add, or delete some of them according to your liking.
 
 | Parameter                   | What is stores                                                                                                                                                                                 | Note                                                                                                                                                                                            |
@@ -417,6 +432,8 @@ In this section, we provide a table summarising the parameters the data includes
 | Editor                      | Time-stamped texts produced by participants (ms since page load)                                                                                                                               | The last snapshot contains the final submitted text. Snapshots update after each insertion or deletion. Example: {t_ms: "8709", "text": <p>I am writing</p>}.                                   |
 
 # <code>_Step 4: Data Analysis Codes_</code>
+
+> **Time estimation for this step: 15 mins**
 
 The following code is written in python, in case you do not have python installed, please install it from [the official Python page](https://www.python.org/downloads/).
 
