@@ -285,8 +285,7 @@ const NoLLM = () => {
       editor: editorLog,
     };
 
-    const completionCode = logs.id;
-    sessionStorage.setItem("completionCode", completionCode);
+    sessionStorage.setItem("completionCode", logs.id);
 
     saveLogsToS3(logs);
   };
@@ -316,7 +315,7 @@ const NoLLM = () => {
 
     // CONFIG YOU WILL EDIT:
     // This is the message shown to participants after upload succeeds.
-    alert("Please copy this code to XXX: " + completionCode);
+    alert("Please copy this code to XXX: " + logs.id);
   };
 
   return (

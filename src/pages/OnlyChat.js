@@ -268,8 +268,7 @@ const OnlyChat = () => {
       // editor removed in chat-only page
     };
 
-    const completionCode = logs.id;
-    sessionStorage.setItem("completionCode", completionCode);
+    sessionStorage.setItem("completionCode", logs.id);
     saveLogsToS3(logs);
   };
 
@@ -298,7 +297,7 @@ const OnlyChat = () => {
 
     // CONFIG YOU WILL EDIT:
     // This is the message shown to participants after upload succeeds.
-    alert("Please copy this code to XXX: " + completionCode);
+    alert("Please copy this code to XXX: " + logs.id);
   };
 
   return (
