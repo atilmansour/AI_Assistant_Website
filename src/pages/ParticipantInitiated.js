@@ -64,6 +64,16 @@ const ParticipantInitiated = () => {
   // Used to store the moment when the participant leaves the page/tab.
   const awayStartRef = useRef(null);
 
+  // CONFIG YOU WILL EDIT:
+  // Turn the visible task timer on/off.
+  // true = participants see the timer; false = timer is hidden.
+  const showTaskTimer = false;
+
+  // CONFIG YOU WILL EDIT:
+  // Time limit shown in the timer and used for the submit-time requirement.
+  // Example: 3 minutes = 3 * 60 * 1000 = 180000 ms
+  const taskTimeLimitMs = 3 * 60 * 1000;
+
   // ----------------------------
   // SUBMIT REQUIREMENTS
   // canSubmit = word threshold AND time threshold
@@ -216,21 +226,42 @@ const ParticipantInitiated = () => {
   // Minimum time currently: 3 minutes (180000 ms)
   // ----------------------------
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCanSubmitTime(Date.now() - startTimeRef.current >= 180000); // 3 min
-    }, 500); // update twice/sec
+    const updateTimer = () => {
+      const elapsedMs = Date.now() - startTimeRef.current;
+
+      setElapsedTaskMs(elapsedMs);
+      setCanSubmitTime(elapsedMs >= taskTimeLimitMs);
+    };
+
+    updateTimer();
+
+    const interval = setInterval(updateTimer, 500);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [taskTimeLimitMs]);
 
-  // Update immediately when they return to the tab (keeps timer accurate)
+  // Update immediately when they return to the tab (so the timer is accurate)
   useEffect(() => {
     const onVis = () => {
-      setCanSubmitTime(Date.now() - startTimeRef.current >= 180000);
+      const elapsedMs = Date.now() - startTimeRef.current;
+
+      setElapsedTaskMs(elapsedMs);
+      setCanSubmitTime(elapsedMs >= taskTimeLimitMs);
     };
+
     document.addEventListener("visibilitychange", onVis);
+
     return () => document.removeEventListener("visibilitychange", onVis);
-  }, []);
+  }, [taskTimeLimitMs]);
+
+  const [elapsedTaskMs, setElapsedTaskMs] = useState(0);
+
+  const formatTimer = (ms) => {
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
+    const seconds = String(totalSeconds % 60).padStart(2, "0");
+    return `${minutes}:${seconds}`;
+  };
 
   // Combine time + word conditions into canSubmit and set the early message text
   useEffect(() => {
@@ -367,9 +398,11 @@ const ParticipantInitiated = () => {
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data?.error || "Save failed");
 
+    const completionCode = logs.id;
+    sessionStorage.setItem("completionCode", completionCode);
     // CONFIG YOU WILL EDIT:
-    // What the participant sees after successful upload
-    alert("Please copy this code to XXX: " + logs.id);
+    // This is the message shown to participants after upload succeeds.
+    alert("Please copy this code to XXX: " + completionCode);
   };
 
   // Used by CSS to style the chat open/collapsed state
@@ -467,6 +500,13 @@ const ParticipantInitiated = () => {
           <Button title="Submit" onClick={handleOpenModal} />
         </div>
       </div>
+
+      {showTaskTimer && (
+        <div className="task-timer">
+          Time {formatTimer(Math.min(elapsedTaskMs, taskTimeLimitMs))}/
+          {formatTimer(taskTimeLimitMs)}
+        </div>
+      )}
 
       {/* Final submit confirmation modal */}
       <Modal

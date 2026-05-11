@@ -558,6 +558,24 @@ button:hover {
   font-size: 1.1vw;
 }
 
+.task-timer {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 9999;
+
+  background: white;
+  border: 1px solid #cccccc;
+  border-radius: 8px;
+  padding: 8px 12px;
+
+  font-size: 14px;
+  font-weight: 600;
+  color: #333333;
+
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12);
+}
+
 /* ================================
    CHAT-ONLY PAGE (same size as editor)
    ================================ */

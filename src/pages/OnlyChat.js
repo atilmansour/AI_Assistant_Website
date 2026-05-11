@@ -68,6 +68,16 @@ const OnlyChat = () => {
     "Insert here your message, encouraging participants to write for more time (participants tried to submit before time threshold).",
   );
 
+  // CONFIG YOU WILL EDIT:
+  // Turn the visible task timer on/off.
+  // true = participants see the timer; false = timer is hidden.
+  const showTaskTimer = false;
+
+  // CONFIG YOU WILL EDIT:
+  // Time limit shown in the timer and used for the submit-time requirement.
+  // Example: 3 minutes = 3 * 60 * 1000 = 180000 ms
+  const taskTimeLimitMs = 3 * 60 * 1000;
+
   // Chat open/close/collapse events (ms since page start)
   const startMsRef = useRef(performance.now());
 
@@ -160,21 +170,42 @@ const OnlyChat = () => {
   // Currently: 3 minutes (180000 ms)
   // ----------------------------
   useEffect(() => {
-    const interval = setInterval(() => {
-      setCanSubmitTime(Date.now() - startTimeRef.current >= 180000);
-    }, 500); // update twice/sec
+    const updateTimer = () => {
+      const elapsedMs = Date.now() - startTimeRef.current;
+
+      setElapsedTaskMs(elapsedMs);
+      setCanSubmitTime(elapsedMs >= taskTimeLimitMs);
+    };
+
+    updateTimer();
+
+    const interval = setInterval(updateTimer, 500);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [taskTimeLimitMs]);
 
   // Update immediately when they return to the tab (so the timer is accurate)
   useEffect(() => {
     const onVis = () => {
-      setCanSubmitTime(Date.now() - startTimeRef.current >= 180000);
+      const elapsedMs = Date.now() - startTimeRef.current;
+
+      setElapsedTaskMs(elapsedMs);
+      setCanSubmitTime(elapsedMs >= taskTimeLimitMs);
     };
+
     document.addEventListener("visibilitychange", onVis);
+
     return () => document.removeEventListener("visibilitychange", onVis);
-  }, []);
+  }, [taskTimeLimitMs]);
+
+  const [elapsedTaskMs, setElapsedTaskMs] = useState(0);
+
+  const formatTimer = (ms) => {
+    const totalSeconds = Math.floor(ms / 1000);
+    const minutes = String(Math.floor(totalSeconds / 60)).padStart(2, "0");
+    const seconds = String(totalSeconds % 60).padStart(2, "0");
+    return `${minutes}:${seconds}`;
+  };
 
   // Combined eligibility + early-modal message (chat-only => time only)
   useEffect(() => {
@@ -263,9 +294,11 @@ const OnlyChat = () => {
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data?.error || "Save failed");
 
+    const completionCode = logs.id;
+    sessionStorage.setItem("completionCode", completionCode);
     // CONFIG YOU WILL EDIT:
     // This is the message shown to participants after upload succeeds.
-    alert("Please copy this code to XXX: " + logs.id);
+    alert("Please copy this code to XXX: " + completionCode);
   };
 
   return (
@@ -310,6 +343,13 @@ const OnlyChat = () => {
           <Button title="Submit" onClick={handleOpenModal} />
         </div>
       </div>
+
+      {showTaskTimer && (
+        <div className="task-timer">
+          Time {formatTimer(Math.min(elapsedTaskMs, taskTimeLimitMs))}/
+          {formatTimer(taskTimeLimitMs)}
+        </div>
+      )}
 
       {/* Final submit confirmation modal */}
       <Modal
