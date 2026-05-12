@@ -1,10 +1,8 @@
 # LLM-Assisted Experiment Platform
 
-A beginner-friendly, open-source foundation for controlled experiments on how people use large language model assistance while writing, revising, and making decisions.
+A friendly, open-source foundation for controlled experiments on how people use large language model assistance while writing, revising, and making decisions.
 
 This project is designed for psychology researchers, behavioral scientists, graduate students, and research labs that want to run web-based studies with carefully controlled LLM access conditions.
-
-![Admin dashboard](images/Dashboard.png)
 
 > [!NOTE]
 > The platform is free and open-source, but deployed studies may incur costs from LLM providers and cloud services such as AWS or Azure.
@@ -58,27 +56,27 @@ This repository is intended for:
 
 The current project includes five conditions. Each condition has its own route and completion-code pattern.
 
-| URL | Condition | Completion code pattern | Core manipulation |
-| --- | --- | --- | --- |
-| `/c` | No LLM / control | `OLxxxxxC` | Text editor only, no AI access. |
-| `/u` | Always Visible LLM | `AVLxxxxxU` | Text editor and assistant visible throughout the task. |
-| `/o` | Toggleable LLM | `TLxxxxxO` | Text editor plus assistant that can be shown/collapsed. |
-| `/b` | Participant-Initiated LLM | `PIxxxxxB` | Assistant opens only after the participant chooses to activate it. |
-| `/a` | Only Chat | `OCxxxxxA` | Chat-only interaction without a separate text editor. |
+| Index | URL | Condition | Completion code pattern | Core manipulation |
+| --- | --- | --- | --- | --- |
+| 1 | `/c` | No LLM / control | `OLxxxxxC` | Text editor only, no AI access. |
+| 2 | `/u` | Always Visible LLM | `AVLxxxxxU` | Text editor and assistant visible throughout the task. |
+| 3 | `/o` | Toggleable LLM | `TLxxxxxO` | Text editor plus assistant that can be shown/collapsed. |
+| 4 | `/b` | Participant-Initiated LLM | `PIxxxxxB` | Assistant opens only after the participant chooses to activate it. |
+| 5 | `/a` | Only Chat | `OCxxxxxA` | Chat-only interaction without a separate text editor. |
 
-### No LLM / Control
+### 1. No LLM / Control
 
 ![No LLM condition](images/c_No_LLM.png)
 
 Use this condition when you need a baseline for writing without LLM assistance. It supports questions about how outcomes differ when participants complete the task independently.
 
-### Always Visible LLM
+### 2. Always Visible LLM
 
 ![Always Visible LLM condition](images/u_Always_Visible_LLM.png)
 
 Use this condition when the LLM should be highly available and continuously salient. It supports questions about reliance, cognitive offloading, writing quality, and behavior when assistance is always present.
 
-### Toggleable LLM
+### 3. Toggleable LLM
 
 This condition is useful when you want to study how participants manage access to assistance over time.
 
@@ -88,13 +86,13 @@ This condition is useful when you want to study how participants manage access t
 
 It supports questions about help-seeking, avoidance, attention, and whether participants choose to keep AI assistance visible.
 
-### Participant-Initiated LLM
+### 4. Participant-Initiated LLM
 
 ![Participant-Initiated LLM condition](images/b_Participant_Initiated_LLM.png)
 
 Use this condition when you want the participant to make an explicit decision to request AI assistance. It is especially useful for studying thresholds for help-seeking and intentional AI use.
 
-### Only Chat
+### 5. Only Chat
 
 ![Only Chat condition](images/a_Only_Chat.png)
 
@@ -117,6 +115,8 @@ It lets researchers:
 - review derived metrics such as rounds of interaction, final word count, session duration, participant messages, and AI messages
 - export table-only or full-session data as CSV or JSON
 - delete a session when needed
+
+![Admin dashboard](images/Dashboard.png)
 
 > [!TIP]
 > The dashboard password is controlled by `ADMIN_PASSWORD` in the backend or Lambda environment. Do not commit real admin passwords to GitHub.
