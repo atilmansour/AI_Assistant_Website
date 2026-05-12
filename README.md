@@ -66,11 +66,15 @@ The current project includes five conditions. Each condition has its own route a
 
 ### 1. No LLM / Control
 
+Below is a screenshot of how this mode looks to participants.
+
 ![No LLM condition](images/c_No_LLM.png)
 
 Use this condition when you need a baseline for writing without LLM assistance. It supports questions about how outcomes differ when participants complete the task independently.
 
 ### 2. Always Visible LLM
+
+Below is a screenshot of how this mode looks to participants.
 
 ![Always Visible LLM condition](images/u_Always_Visible_LLM.png)
 
@@ -80,6 +84,8 @@ Use this condition when the LLM should be highly available and continuously sali
 
 This condition is useful when you want to study how participants manage access to assistance over time.
 
+Below are screenshots of how this mode looks before and after the assistant is visible.
+
 | Before assistant is visible | After assistant is visible |
 | --- | --- |
 | ![Toggleable LLM before assistant appears](images/o_Toggleable_LLM_1.png) | ![Toggleable LLM after assistant appears](images/o_Toggleable_LLM_2.png) |
@@ -88,11 +94,15 @@ It supports questions about help-seeking, avoidance, attention, and whether part
 
 ### 4. Participant-Initiated LLM
 
+Below is a screenshot of how this mode looks to participants.
+
 ![Participant-Initiated LLM condition](images/b_Participant_Initiated_LLM.png)
 
 Use this condition when you want the participant to make an explicit decision to request AI assistance. It is especially useful for studying thresholds for help-seeking and intentional AI use.
 
 ### 5. Only Chat
+
+Below is a screenshot of how this mode looks to participants.
 
 ![Only Chat condition](images/a_Only_Chat.png)
 
