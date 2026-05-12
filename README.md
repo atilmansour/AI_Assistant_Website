@@ -9,12 +9,30 @@ This project is designed for psychology researchers, behavioral scientists, grad
 
 ## Table of Contents
 
-| Start Here | Study Design | Setup and Customization | Reference |
-| --- | --- | --- | --- |
-| [What This Platform Does](#what-this-platform-does)<br>Core purpose and collected behavior. | [Experiment Conditions](#experiment-conditions)<br>The five participant-facing modes. | [Local Setup](#local-setup)<br>Run the platform on your machine. | [Repository Map](#repository-map)<br>Where the main files live. |
-| [Who It Is For](#who-it-is-for)<br>Researchers, labs, and technical collaborators. | [What Data Is Collected](#what-data-is-collected)<br>Session fields and condition-specific logs. | [Customization Guide](#customization-guide)<br>Edit instructions, prompts, routes, and providers. | [Troubleshooting](#troubleshooting)<br>Common setup and runtime issues. |
-| [Researcher Dashboard](#researcher-dashboard)<br>Inspect, export, and delete sessions. | [Data Analysis](#data-analysis)<br>Use exported data for analysis workflows. | [Deployment Options](#deployment-options)<br>AWS, Azure-equivalent paths, and hosting notes. | [License and Credits](#license-and-credits)<br>Reuse terms and attribution. |
-| [Architecture](#architecture)<br>Frontend, backend, storage, and cloud flow. |  |  |  |
+**Understand the Platform**
+
+- [What This Platform Does](#what-this-platform-does)
+- [Who It Is For](#who-it-is-for)
+- [Experiment Conditions](#experiment-conditions)
+- [Researcher Dashboard](#researcher-dashboard)
+- [Architecture](#architecture)
+
+**Run and Adapt It**
+
+- [Local Setup](#local-setup)
+- [Customization Guide](#customization-guide)
+- [Deployment Options](#deployment-options)
+
+**Use the Data**
+
+- [What Data Is Collected](#what-data-is-collected)
+- [Data Analysis](#data-analysis)
+
+**Project Reference**
+
+- [Repository Map](#repository-map)
+- [Troubleshooting](#troubleshooting)
+- [License and Credits](#license-and-credits)
 
 ## What This Platform Does
 
