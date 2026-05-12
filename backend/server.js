@@ -33,7 +33,21 @@ const app = express();
  *
  * For local dev, it will be http://localhost:3000
  */
-const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN || "http://localhost:3000";
+const DEFAULT_ALLOWED_ORIGINS = [
+  "https://main.d2gkp0fur5ysdy.amplifyapp.com",
+  "http://localhost:3000",
+  "http://localhost:3005",
+  "http://localhost:3006",
+];
+
+function getAllowedOrigins() {
+  const configured = process.env.ALLOWED_ORIGINS || process.env.ALLOWED_ORIGIN || "";
+  const origins = configured
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+  return origins.length ? origins : DEFAULT_ALLOWED_ORIGINS;
+}
 
 /**
  * Local port for backend (development)
@@ -65,7 +79,13 @@ app.use(express.json({ limit: "10mb" }));
 // Allow your frontend to call this backend (CORS)
 app.use(
   cors({
-    origin: ALLOWED_ORIGIN,
+    origin(origin, callback) {
+      const allowedOrigins = getAllowedOrigins();
+      if (!origin || allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
+        return callback(null, true);
+      }
+      return callback(null, false);
+    },
     methods: ["GET", "POST", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization", "X-Admin-Token"],
   }),

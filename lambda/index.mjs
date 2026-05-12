@@ -4,6 +4,42 @@ import AWS from "aws-sdk";
 
 const s3 = new AWS.S3();
 
+const DEFAULT_ALLOWED_ORIGINS = [
+  "https://main.d2gkp0fur5ysdy.amplifyapp.com",
+  "http://localhost:3000",
+  "http://localhost:3005",
+  "http://localhost:3006",
+];
+
+function getAllowedOrigins() {
+  const configured = process.env.ALLOWED_ORIGINS || process.env.ALLOWED_ORIGIN || "";
+  const origins = configured
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+  return origins.length ? origins : DEFAULT_ALLOWED_ORIGINS;
+}
+
+function getCorsHeaders(event) {
+  const requestOrigin = getHeader(event, "origin");
+  const allowedOrigins = getAllowedOrigins();
+  const allowOrigin = allowedOrigins.includes("*")
+    ? "*"
+    : allowedOrigins.includes(requestOrigin)
+      ? requestOrigin
+      : allowedOrigins[0];
+
+  return {
+    "Access-Control-Allow-Origin": allowOrigin,
+    "Access-Control-Allow-Headers":
+      "Content-Type,Authorization,X-Admin-Token,X-Amz-Date,X-Api-Key,X-Amz-Security-Token",
+    "Access-Control-Allow-Methods": "GET,POST,DELETE,OPTIONS",
+    "Access-Control-Max-Age": "86400",
+    "Content-Type": "application/json",
+    Vary: "Origin",
+  };
+}
+
 function makeAdminToken(password) {
   return crypto
     .createHash("sha256")
@@ -102,21 +138,17 @@ function summarizeLog(logs, objectMeta = {}) {
 }
 
 export const handler = async (event) => {
-  const headers = {
-    "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Content-Type,Authorization,X-Admin-Token",
-    "Access-Control-Allow-Methods": "GET,POST,DELETE,OPTIONS",
-    "Content-Type": "application/json",
-  };
-
-  if (event?.requestContext?.http?.method === "OPTIONS") {
-    return { statusCode: 200, headers, body: "" };
-  }
+  const headers = getCorsHeaders(event);
 
   const path = event?.rawPath || event?.path || "";
   const method = event?.requestContext?.http?.method || event?.httpMethod || "POST";
 
-  if (path.includes("/api/admin/login") || path.includes("/api/research-admin/login")) {
+  try {
+    if (method === "OPTIONS") {
+      return { statusCode: 204, headers, body: "" };
+    }
+
+    if (path.includes("/api/admin/login") || path.includes("/api/research-admin/login")) {
     const body = JSON.parse(event.body || "{}");
     const adminPassword = process.env.ADMIN_PASSWORD || "";
 
@@ -131,7 +163,7 @@ export const handler = async (event) => {
     return response(200, headers, { ok: true, token: makeAdminToken(adminPassword) });
   }
 
-  if (path.includes("/api/admin/sessions") || path.includes("/api/research-admin/sessions")) {
+    if (path.includes("/api/admin/sessions") || path.includes("/api/research-admin/sessions")) {
     if (!validateAdmin(event)) {
       return response(401, headers, { error: "Unauthorized" });
     }
@@ -193,7 +225,7 @@ export const handler = async (event) => {
     return response(405, headers, { error: "Method not allowed" });
   }
 
-  if (path.includes("/api/logs")) {
+    if (path.includes("/api/logs")) {
     try {
       const bucket = getLogsBucket();
       if (!bucket) {
@@ -348,5 +380,12 @@ export const handler = async (event) => {
         details: String(e),
       }),
     };
+  }
+  } catch (e) {
+    console.error("Unhandled Lambda error:", e);
+    return response(500, headers, {
+      error: "Internal server error",
+      details: String(e),
+    });
   }
 };
