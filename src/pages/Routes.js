@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { BrowserRouter as Router, Switch, Route, Redirect } from "react-router-dom";
 
 //First, we are importing all the pages and conditions we have. Each page (other than the ThankYou.js), is a condition in your experiment
 //You may add or duplicate .js files into the pages folder to edit or add additional conditions
@@ -8,11 +8,23 @@ import ToggleableLLM from "./ToggleableLLM";
 import NoLLM from "./NoLLM";
 import AlwaysVisibleLLM from "./AlwaysVisibleLLM";
 import OnlyChat from "./OnlyChat";
+import AdminLogin from "./admin/AdminLogin";
+import AdminPanel from "./admin/AdminPanel";
+
+const AdminRoute = () => {
+  if (!sessionStorage.getItem("adminToken")) {
+    return <Redirect to="/admin/login" />;
+  }
+
+  return <AdminPanel />;
+};
 
 const Routes = () => {
   return (
     <Router>
       <Switch>
+        <Route path="/admin/login" component={AdminLogin} />
+        <Route path="/admin" component={AdminRoute} />
         <Route path="/b" component={ParticipantInitiated} />{" "}
         {/*Here is the addition to your web address https//XXXX/b, you may change to your liking*/}
         <Route path="/o" component={ToggleableLLM} />

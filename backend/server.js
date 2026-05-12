@@ -15,8 +15,15 @@ import express from "express";
 import cors from "cors";
 import axios from "axios";
 import dotenv from "dotenv";
+import crypto from "crypto";
+import AWS from "aws-sdk";
+import path from "path";
+import { fileURLToPath } from "url";
 
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.join(__dirname, ".env") });
 
 const app = express();
 
@@ -53,14 +60,14 @@ const DEFAULT_MAX_TOKENS = 1000;
 // -----------------------------
 
 // Parse JSON request bodies
-app.use(express.json({ limit: "1mb" }));
+app.use(express.json({ limit: "10mb" }));
 
 // Allow your frontend to call this backend (CORS)
 app.use(
   cors({
     origin: ALLOWED_ORIGIN,
-    methods: ["POST", "OPTIONS"],
-    allowedHeaders: ["Content-Type"],
+    methods: ["GET", "POST", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization", "X-Admin-Token"],
   }),
 );
 
@@ -154,6 +161,227 @@ function getSelectedMaxTokens(requestedMaxTokens) {
 
   return DEFAULT_MAX_TOKENS;
 }
+
+// -----------------------------
+// LOGGING + ADMIN HELPERS
+// -----------------------------
+
+const awsConfig = {};
+if (process.env.REACT_APP_REGION || process.env.AWS_REGION) {
+  awsConfig.region = process.env.REACT_APP_REGION || process.env.AWS_REGION;
+}
+if (process.env.REACT_APP_ACCESS_KEY_ID && process.env.REACT_APP_SECRET_ACCESS_KEY) {
+  awsConfig.accessKeyId = process.env.REACT_APP_ACCESS_KEY_ID;
+  awsConfig.secretAccessKey = process.env.REACT_APP_SECRET_ACCESS_KEY;
+}
+AWS.config.update(awsConfig);
+
+const s3 = new AWS.S3();
+
+function getLogsBucket() {
+  return process.env.REACT_APP_BucketS3 || process.env.BUCKET_NAME || "";
+}
+
+function makeAdminToken(password) {
+  return crypto
+    .createHash("sha256")
+    .update(password + ":admin_access_2026")
+    .digest("hex");
+}
+
+function getAdminPassword() {
+  return process.env.ADMIN_PASSWORD || "";
+}
+
+function getBearerToken(req) {
+  const authHeader = req.get("authorization") || "";
+  return (
+    req.get("x-admin-token") ||
+    authHeader.replace(/^Bearer\s+/i, "")
+  ).trim();
+}
+
+function requireAdmin(req, res, next) {
+  const adminPassword = getAdminPassword();
+  if (!adminPassword || getBearerToken(req) !== makeAdminToken(adminPassword)) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  return next();
+}
+
+async function listAllLogObjects(bucket) {
+  const objects = [];
+  let ContinuationToken;
+
+  do {
+    const result = await s3
+      .listObjectsV2({
+        Bucket: bucket,
+        ContinuationToken,
+      })
+      .promise();
+
+    objects.push(
+      ...(result.Contents || []).filter((obj) => obj.Key?.endsWith(".txt")),
+    );
+    ContinuationToken = result.IsTruncated
+      ? result.NextContinuationToken
+      : undefined;
+  } while (ContinuationToken);
+
+  return objects;
+}
+
+async function readLogObject(bucket, key) {
+  const result = await s3.getObject({ Bucket: bucket, Key: key }).promise();
+  const raw = result.Body?.toString("utf-8") || "{}";
+  return JSON.parse(raw);
+}
+
+function deriveConditionFromId(id = "") {
+  if (/^OL[A-Z0-9]+C$/.test(id)) return "No LLM / control";
+  if (/^AVL[A-Z0-9]+U$/.test(id)) return "Always Visible LLM";
+  if (/^TL[A-Z0-9]+O$/.test(id)) return "Toggleable LLM";
+  if (/^PI[A-Z0-9]+B$/.test(id)) return "Participant-Initiated LLM";
+  if (/^OC[A-Z0-9]+A$/.test(id)) return "Only Chat";
+  return "";
+}
+
+function summarizeLog(logs, objectMeta = {}) {
+  const id = String(logs?.id || objectMeta.Key?.replace(/\.txt$/i, "") || "");
+  const messages = Array.isArray(logs?.messages) ? logs.messages : [];
+  const editor = Array.isArray(logs?.editor) ? logs.editor : [];
+
+  return {
+    key: objectMeta.Key || `${id}.txt`,
+    session_id: id,
+    condition: deriveConditionFromId(id),
+    participant_id: "",
+    total_rounds: messages.filter((msg) => msg?.sender === "user").length,
+    submit_click_count: logs?.NumOfSubmitClicks ?? "",
+    created_at: objectMeta.LastModified?.toISOString?.() || "",
+    size: objectMeta.Size || 0,
+    final_solution: editor.length ? editor[editor.length - 1]?.text || "" : "",
+    full_messages_json: messages,
+    editor_progress_json: editor,
+    raw_payload_json: logs,
+  };
+}
+
+// -----------------------------
+// LOGGING ENDPOINT
+// -----------------------------
+
+app.post("/api/logs", async (req, res) => {
+  try {
+    const bucket = getLogsBucket();
+    if (!bucket) {
+      return res.status(500).json({ error: "Missing S3 bucket env var" });
+    }
+
+    const logs = req.body?.logs;
+    if (!logs?.id) {
+      return res.status(400).json({ error: "Missing logs.id" });
+    }
+
+    const key = `${logs.id}.txt`;
+    await s3
+      .putObject({
+        Bucket: bucket,
+        Key: key,
+        Body: JSON.stringify(logs),
+        ContentType: "text/plain",
+      })
+      .promise();
+
+    return res.json({ ok: true, key });
+  } catch (err) {
+    console.error("S3 upload failed:", err);
+    return res.status(500).json({
+      error: "Failed to upload logs",
+      details: String(err),
+    });
+  }
+});
+
+// -----------------------------
+// ADMIN ENDPOINTS
+// -----------------------------
+
+app.post(["/api/admin/login", "/api/research-admin/login"], (req, res) => {
+  const password = req.body?.password;
+  const adminPassword = getAdminPassword();
+
+  if (!adminPassword) {
+    return res.status(500).json({ error: "ADMIN_PASSWORD is not configured" });
+  }
+
+  if (!password || password !== adminPassword) {
+    return res.status(401).json({ error: "Invalid password" });
+  }
+
+  return res.json({ ok: true, token: makeAdminToken(adminPassword) });
+});
+
+app.get(
+  ["/api/admin/sessions", "/api/research-admin/sessions"],
+  requireAdmin,
+  async (_req, res) => {
+    try {
+      const bucket = getLogsBucket();
+      if (!bucket) {
+        return res.status(500).json({ error: "Missing S3 bucket env var" });
+      }
+
+      const objects = await listAllLogObjects(bucket);
+      const sessions = await Promise.all(
+        objects.map(async (objectMeta) => {
+          try {
+            const logs = await readLogObject(bucket, objectMeta.Key);
+            return summarizeLog(logs, objectMeta);
+          } catch (err) {
+            return {
+              key: objectMeta.Key,
+              session_id: objectMeta.Key?.replace(/\.txt$/i, "") || "",
+              condition: "",
+              parse_error: String(err),
+              created_at: objectMeta.LastModified?.toISOString?.() || "",
+              size: objectMeta.Size || 0,
+              raw_payload_json: null,
+            };
+          }
+        }),
+      );
+
+      sessions.sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));
+      return res.json({ sessions });
+    } catch (err) {
+      console.error("Admin sessions fetch failed:", err);
+      return res.status(500).json({ error: "Failed to load sessions", details: String(err) });
+    }
+  },
+);
+
+app.delete(
+  ["/api/admin/sessions", "/api/research-admin/sessions"],
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const bucket = getLogsBucket();
+      const sessionId = String(req.body?.session_id || "").trim();
+      const key = String(req.body?.key || (sessionId ? `${sessionId}.txt` : "")).trim();
+
+      if (!bucket) return res.status(500).json({ error: "Missing S3 bucket env var" });
+      if (!key) return res.status(400).json({ error: "Missing session_id" });
+
+      await s3.deleteObject({ Bucket: bucket, Key: key }).promise();
+      return res.json({ ok: true });
+    } catch (err) {
+      console.error("Admin session delete failed:", err);
+      return res.status(500).json({ error: "Delete failed", details: String(err) });
+    }
+  },
+);
 
 // -----------------------------
 // MAIN ENDPOINT

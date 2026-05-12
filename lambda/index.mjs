@@ -1,11 +1,112 @@
 // index.mjs
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
+import crypto from "crypto";
+import AWS from "aws-sdk";
+
+const s3 = new AWS.S3();
+
+function makeAdminToken(password) {
+  return crypto
+    .createHash("sha256")
+    .update(password + ":admin_access_2026")
+    .digest("hex");
+}
+
+function getHeader(event, name) {
+  const target = name.toLowerCase();
+  const headers = event?.headers || {};
+  const key = Object.keys(headers).find((headerName) => headerName.toLowerCase() === target);
+  return key ? headers[key] : "";
+}
+
+function validateAdmin(event) {
+  const adminPassword = process.env.ADMIN_PASSWORD || "";
+  if (!adminPassword) return false;
+  const authHeader = getHeader(event, "authorization");
+  const token = (
+    getHeader(event, "x-admin-token") ||
+    authHeader.replace(/^Bearer\s+/i, "")
+  ).trim();
+  return token === makeAdminToken(adminPassword);
+}
+
+function response(statusCode, headers, body) {
+  return { statusCode, headers, body: JSON.stringify(body) };
+}
+
+function getLogsBucket() {
+  return process.env.REACT_APP_BucketS3 || process.env.BUCKET_NAME || "";
+}
+
+async function bodyToString(body) {
+  if (!body) return "";
+  if (Buffer.isBuffer(body)) return body.toString("utf-8");
+  if (typeof body === "string") return body;
+  if (typeof body.transformToString === "function") {
+    return body.transformToString();
+  }
+
+  const chunks = [];
+  for await (const chunk of body) {
+    chunks.push(Buffer.from(chunk));
+  }
+  return Buffer.concat(chunks).toString("utf-8");
+}
+
+async function listAllLogObjects(bucket) {
+  const objects = [];
+  let ContinuationToken;
+
+  do {
+    const result = await s3
+      .listObjectsV2({
+        Bucket: bucket,
+        ContinuationToken,
+      })
+      .promise();
+
+    objects.push(...(result.Contents || []).filter((obj) => obj.Key?.endsWith(".txt")));
+    ContinuationToken = result.IsTruncated ? result.NextContinuationToken : undefined;
+  } while (ContinuationToken);
+
+  return objects;
+}
+
+function deriveConditionFromId(id = "") {
+  if (/^OL[A-Z0-9]+C$/.test(id)) return "No LLM / control";
+  if (/^AVL[A-Z0-9]+U$/.test(id)) return "Always Visible LLM";
+  if (/^TL[A-Z0-9]+O$/.test(id)) return "Toggleable LLM";
+  if (/^PI[A-Z0-9]+B$/.test(id)) return "Participant-Initiated LLM";
+  if (/^OC[A-Z0-9]+A$/.test(id)) return "Only Chat";
+  return "";
+}
+
+function summarizeLog(logs, objectMeta = {}) {
+  const id = String(logs?.id || objectMeta.Key?.replace(/\.txt$/i, "") || "");
+  const messages = Array.isArray(logs?.messages) ? logs.messages : [];
+  const editor = Array.isArray(logs?.editor) ? logs.editor : [];
+
+  return {
+    key: objectMeta.Key || `${id}.txt`,
+    session_id: id,
+    condition: deriveConditionFromId(id),
+    participant_id: "",
+    total_rounds: messages.filter((msg) => msg?.sender === "user").length,
+    submit_click_count: logs?.NumOfSubmitClicks ?? "",
+    created_at: objectMeta.LastModified?.toISOString?.() || "",
+    size: objectMeta.Size || 0,
+    final_solution: editor.length ? editor[editor.length - 1]?.text || "" : "",
+    full_messages_json: messages,
+    editor_progress_json: editor,
+    raw_payload_json: logs,
+  };
+}
 
 export const handler = async (event) => {
   const headers = {
     "Access-Control-Allow-Origin": "*",
-    "Access-Control-Allow-Headers": "Content-Type",
-    "Access-Control-Allow-Methods": "POST,OPTIONS",
+    "Access-Control-Allow-Headers": "Content-Type,Authorization,X-Admin-Token",
+    "Access-Control-Allow-Methods": "GET,POST,DELETE,OPTIONS",
+    "Content-Type": "application/json",
   };
 
   if (event?.requestContext?.http?.method === "OPTIONS") {
@@ -13,14 +114,93 @@ export const handler = async (event) => {
   }
 
   const path = event?.rawPath || event?.path || "";
+  const method = event?.requestContext?.http?.method || event?.httpMethod || "POST";
+
+  if (path.includes("/api/admin/login") || path.includes("/api/research-admin/login")) {
+    const body = JSON.parse(event.body || "{}");
+    const adminPassword = process.env.ADMIN_PASSWORD || "";
+
+    if (!adminPassword) {
+      return response(500, headers, { error: "ADMIN_PASSWORD is not configured" });
+    }
+
+    if (!body.password || body.password !== adminPassword) {
+      return response(401, headers, { error: "Invalid password" });
+    }
+
+    return response(200, headers, { ok: true, token: makeAdminToken(adminPassword) });
+  }
+
+  if (path.includes("/api/admin/sessions") || path.includes("/api/research-admin/sessions")) {
+    if (!validateAdmin(event)) {
+      return response(401, headers, { error: "Unauthorized" });
+    }
+
+    const bucket = getLogsBucket();
+    if (!bucket) {
+      return response(500, headers, { error: "Missing S3 bucket env var" });
+    }
+
+    if (method === "GET") {
+      try {
+        const objects = await listAllLogObjects(bucket);
+        const sessions = await Promise.all(
+          objects.map(async (objectMeta) => {
+            try {
+              const result = await s3
+                .getObject({ Bucket: bucket, Key: objectMeta.Key })
+                .promise();
+              const raw = await bodyToString(result.Body);
+              return summarizeLog(JSON.parse(raw || "{}"), objectMeta);
+            } catch (err) {
+              return {
+                key: objectMeta.Key,
+                session_id: objectMeta.Key?.replace(/\.txt$/i, "") || "",
+                condition: "",
+                parse_error: String(err),
+                created_at: objectMeta.LastModified?.toISOString?.() || "",
+                size: objectMeta.Size || 0,
+                raw_payload_json: null,
+              };
+            }
+          }),
+        );
+
+        sessions.sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));
+        return response(200, headers, { sessions });
+      } catch (e) {
+        console.error("Admin sessions fetch failed:", e);
+        return response(500, headers, { error: "Failed to load sessions", details: String(e) });
+      }
+    }
+
+    if (method === "DELETE") {
+      const body = JSON.parse(event.body || "{}");
+      const sessionId = String(body.session_id || "").trim();
+      const key = String(body.key || (sessionId ? `${sessionId}.txt` : "")).trim();
+
+      if (!key) return response(400, headers, { error: "Missing session_id" });
+
+      try {
+        await s3.deleteObject({ Bucket: bucket, Key: key }).promise();
+        return response(200, headers, { ok: true });
+      } catch (e) {
+        console.error("Admin session delete failed:", e);
+        return response(500, headers, { error: "Delete failed", details: String(e) });
+      }
+    }
+
+    return response(405, headers, { error: "Method not allowed" });
+  }
+
   if (path.includes("/api/logs")) {
     try {
-      const bucket = process.env.REACT_APP_BucketS3;
+      const bucket = getLogsBucket();
       if (!bucket) {
         return {
           statusCode: 500,
           headers,
-          body: JSON.stringify({ error: "Missing BUCKET_NAME env var" }),
+          body: JSON.stringify({ error: "Missing S3 bucket env var" }),
         };
       }
 
@@ -36,16 +216,15 @@ export const handler = async (event) => {
       }
 
       const key = `${logs.id}.txt`;
-      const s3 = new S3Client({});
 
-      await s3.send(
-        new PutObjectCommand({
+      await s3
+        .putObject({
           Bucket: bucket,
           Key: key,
           Body: JSON.stringify(logs),
           ContentType: "text/plain",
-        }),
-      );
+        })
+        .promise();
 
       return {
         statusCode: 200,
