@@ -1,32 +1,92 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-/.pnp
+# Dependencies
+node_modules/
+.pnp/
 .pnp.js
-.env.local
-backend/.env
+
+# Environment files / local secrets
 .env
+.env.*
 *.env
 !*.env.example
-!backend/.env.example
+!**/.env.example
 
-# testing
-/coverage
+# Credentials and certificates
+*.pem
+*.key
+*.p12
+*.pfx
+*.crt
+*.cer
+.aws/
 
-# production
-/build
+# Builds and generated output
+build/
+dist/
+out/
+coverage/
+.next/
+.cache/
+.parcel-cache/
+.turbo/
+.vite/
 
-# misc
-.DS_Store
-.env.local
-.env
-.env.development.local
-.env.test.local
-.env.production.local
+# Lambda/deployment archives and package artifacts
+*.zip
+*.tar
+*.tgz
+*.gz
+*.7z
+*.rar
 
+# Logs
+logs/
+*.log
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
 
+# Package manager caches
+.npm/
+.pnpm-store/
+.yarn/cache/
+.yarn/unplugged/
+.yarn/build-state.yml
+.yarn/install-state.gz
+
+# Python caches / virtual environments
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+.venv/
+venv/
+env/
+
+# OS/editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/
+!.vscode/extensions.json
+!.vscode/settings.example.json
+*.swp
+*.swo
+*~
+
+# AWS SAM / CloudShell local artifacts
+.aws-sam/
+.cloudshell/
+awscliv2.zip
+cloudshell-user-settings.json
+
+# Local notes and temporary exports
 SUMMARY.md
+downloads/
+exports/
+tmp/
+temp/
