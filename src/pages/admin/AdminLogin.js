@@ -1,5 +1,15 @@
+/**
+ * Summary:
+ * This page shows the login screen for the researcher admin panel.
+ * Researchers enter the admin password here before they can access the dashboard
+ * for viewing, filtering, exporting, or deleting experiment submissions.
+ *
+ * Search for: CONFIG YOU WILL EDIT to edit relevant changes
+ */
 import { useState } from "react";
 
+// Backend URL used by the admin login page.
+// For local testing, this usually stays as "http://localhost:5050".
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5050";
 
 const AdminLogin = () => {
@@ -34,11 +44,16 @@ const AdminLogin = () => {
   return (
     <div style={s.page}>
       <form onSubmit={submit} style={s.card}>
+        {/* CONFIG YOU WILL EDIT:
+            Title shown on the admin login page.
+        */}
         <h1 style={s.title}>Experiment Admin</h1>
         <input
           type="password"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
+          // CONFIG YOU WILL EDIT:
+          // Placeholder text shown inside the password box.
           placeholder="Admin password"
           style={s.input}
         />
@@ -51,6 +66,9 @@ const AdminLogin = () => {
   );
 };
 
+// CONFIG YOU WILL EDIT:
+// Styling for the admin login page.
+// You can change colors, fonts, spacing, and button style to match your study or institution.
 const s = {
   page: {
     minHeight: "100vh",

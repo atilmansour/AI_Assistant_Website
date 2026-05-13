@@ -41,7 +41,8 @@ const DEFAULT_ALLOWED_ORIGINS = [
 ];
 
 function getAllowedOrigins() {
-  const configured = process.env.ALLOWED_ORIGINS || process.env.ALLOWED_ORIGIN || "";
+  const configured =
+    process.env.ALLOWED_ORIGINS || process.env.ALLOWED_ORIGIN || "";
   const origins = configured
     .split(",")
     .map((origin) => origin.trim())
@@ -81,7 +82,11 @@ app.use(
   cors({
     origin(origin, callback) {
       const allowedOrigins = getAllowedOrigins();
-      if (!origin || allowedOrigins.includes("*") || allowedOrigins.includes(origin)) {
+      if (
+        !origin ||
+        allowedOrigins.includes("*") ||
+        allowedOrigins.includes(origin)
+      ) {
         return callback(null, true);
       }
       return callback(null, false);
@@ -190,7 +195,10 @@ const awsConfig = {};
 if (process.env.REACT_APP_REGION || process.env.AWS_REGION) {
   awsConfig.region = process.env.REACT_APP_REGION || process.env.AWS_REGION;
 }
-if (process.env.REACT_APP_ACCESS_KEY_ID && process.env.REACT_APP_SECRET_ACCESS_KEY) {
+if (
+  process.env.REACT_APP_ACCESS_KEY_ID &&
+  process.env.REACT_APP_SECRET_ACCESS_KEY
+) {
   awsConfig.accessKeyId = process.env.REACT_APP_ACCESS_KEY_ID;
   awsConfig.secretAccessKey = process.env.REACT_APP_SECRET_ACCESS_KEY;
 }
@@ -216,8 +224,7 @@ function getAdminPassword() {
 function getBearerToken(req) {
   const authHeader = req.get("authorization") || "";
   return (
-    req.get("x-admin-token") ||
-    authHeader.replace(/^Bearer\s+/i, "")
+    req.get("x-admin-token") || authHeader.replace(/^Bearer\s+/i, "")
   ).trim();
 }
 
@@ -373,11 +380,15 @@ app.get(
         }),
       );
 
-      sessions.sort((a, b) => String(b.created_at).localeCompare(String(a.created_at)));
+      sessions.sort((a, b) =>
+        String(b.created_at).localeCompare(String(a.created_at)),
+      );
       return res.json({ sessions });
     } catch (err) {
       console.error("Admin sessions fetch failed:", err);
-      return res.status(500).json({ error: "Failed to load sessions", details: String(err) });
+      return res
+        .status(500)
+        .json({ error: "Failed to load sessions", details: String(err) });
     }
   },
 );
@@ -389,16 +400,21 @@ app.delete(
     try {
       const bucket = getLogsBucket();
       const sessionId = String(req.body?.session_id || "").trim();
-      const key = String(req.body?.key || (sessionId ? `${sessionId}.txt` : "")).trim();
+      const key = String(
+        req.body?.key || (sessionId ? `${sessionId}.txt` : ""),
+      ).trim();
 
-      if (!bucket) return res.status(500).json({ error: "Missing S3 bucket env var" });
+      if (!bucket)
+        return res.status(500).json({ error: "Missing S3 bucket env var" });
       if (!key) return res.status(400).json({ error: "Missing session_id" });
 
       await s3.deleteObject({ Bucket: bucket, Key: key }).promise();
       return res.json({ ok: true });
     } catch (err) {
       console.error("Admin session delete failed:", err);
-      return res.status(500).json({ error: "Delete failed", details: String(err) });
+      return res
+        .status(500)
+        .json({ error: "Delete failed", details: String(err) });
     }
   },
 );
@@ -624,5 +640,5 @@ app.post("/api/ai", async (req, res) => {
 
 app.listen(PORT, () => {
   console.log(`AI proxy backend running on http://localhost:${PORT}`);
-  console.log(`CORS allowed origin: ${ALLOWED_ORIGIN}`);
+  console.log(`CORS allowed origin: ${process.env.ALLOWED_ORIGIN}`);
 });

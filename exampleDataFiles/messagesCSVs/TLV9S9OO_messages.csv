@@ -1,16 +1,16 @@
-timestamp,sender,text
-333,LLMAssistant,"Hello, this is a present message that you can edit in your code in ToggleableLLM.js (initialMessages)."
-333,LLMAssistant,"This is the second message, you can edit, add more, or delete me."
-42059,user,can u continue like 2 rows on my poem
-42059,LLMAssistant,"Certainly! Here's a continuation of your poem:  
+﻿message_number,timestamp,sender,text
+1,333,LLMAssistant,"Hello, this is a present message that you can edit in your code in ToggleableLLM.js (initialMessages)."
+2,333,LLMAssistant,"This is the second message, you can edit, add more, or delete me."
+3,42059,user,can u continue like 2 rows on my poem
+4,42059,LLMAssistant,"Certainly! Here's a continuation of your poem:  
 
 Pages whisper secrets softly,  
 Each tale a world I’ve quietly come upon."
-143740,user,what do u think of my poem
-143740,LLMAssistant,"Your poem beautifully captures the solitude and magic of reading. It highlights the intimate connection between a reader and the characters in a book, emphasizing how books can be both companions and gateways to other worlds. The imagery of ""pages whispering secrets"" and the juxtaposition of ""lonely villains"" and ""mysterious witches"" conveys a sense of wonder and discovery. Overall, it's a reflective and evocative piece that successfully conveys the transformative power of literature."
-157143,user,thank you!
-157143,LLMAssistant,"You're welcome! If you have any more questions or need further assistance, feel free to ask. Happy writing!"
-174459,user,would u add to it one final sentence
-174459,LLMAssistant,"Certainly! Here's a final line that complements your poem:
+5,143740,user,what do u think of my poem
+6,143740,LLMAssistant,"Your poem beautifully captures the solitude and magic of reading. It highlights the intimate connection between a reader and the characters in a book, emphasizing how books can be both companions and gateways to other worlds. The imagery of ""pages whispering secrets"" and the juxtaposition of ""lonely villains"" and ""mysterious witches"" conveys a sense of wonder and discovery. Overall, it's a reflective and evocative piece that successfully conveys the transformative power of literature."
+7,157143,user,thank you!
+8,157143,LLMAssistant,"You're welcome! If you have any more questions or need further assistance, feel free to ask. Happy writing!"
+9,174459,user,would u add to it one final sentence
+10,174459,LLMAssistant,"Certainly! Here's a final line that complements your poem:
 
 In their embrace, I find a home, where every ending begins anew."

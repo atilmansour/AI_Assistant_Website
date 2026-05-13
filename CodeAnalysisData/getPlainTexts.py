@@ -1,32 +1,93 @@
 """
-This script converts your S3 raw .txt files into clean, plain-text files
-(one per participant/submission) that are ready to use. Optionally, it can also merge
-those texts into an existing CSV using a 'code' column.
+Summary:
+This script converts downloaded experiment data into clean, plain-text files
+(one per participant/session) that are ready to use for text analysis.
+
+It supports three data download formats:
+1. A folder of raw .txt files from S3
+2. The full JSON export from the admin panel
+3. The full CSV export from the admin panel
+
+The script extracts the final text-editor content, removes Quill/HTML tags,
+writes one clean text file per participant/session, and also saves one combined
+CSV file with a participant/session ID column and a cleaned_text column.
+Optionally, it can also merge those cleaned texts into an existing CSV using a
+participant/code column.
+
+Search for: CONFIG YOU WILL EDIT to edit relevant changes
 """
 
-import os
+from __future__ import annotations
+
+import csv
 import json
-import pandas as pd
+import os
 from html import unescape
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
+import pandas as pd
 from bs4 import BeautifulSoup
 
 
-# ----------------------------
-# 1) Reading + parsing helpers
-# ----------------------------
+# ------------------------------------------------------------
+# 1) Paths and data format settings
+# ------------------------------------------------------------
 
-def load_json_from_txt(txt_path: str) -> dict:
+SCRIPT_DIR = Path(__file__).resolve().parent
+PROJECT_DIR = SCRIPT_DIR.parent
+
+# CONFIG YOU WILL EDIT
+# Choose the data download format you want this script to read.
+# Options:
+#   "TXTFILES"  = a folder containing one .txt file per participant/session
+#   "FULL_JSON" = the full JSON export from the admin panel
+#   "FULL_CSV"  = the full CSV export from the admin panel
+#
+# Important: use the FULL CSV/JSON export, not the table-only export, because
+# this script needs the final text or full text-editor progress.
+DATA_FORMAT = "FULL_CSV"
+
+# CONFIG YOU WILL EDIT
+# Folder used when DATA_FORMAT = "TXTFILES".
+TXT_DATA_DIR = PROJECT_DIR / "exampleDataFiles"
+
+# CONFIG YOU WILL EDIT
+# File used when DATA_FORMAT = "FULL_JSON".
+FULL_JSON_PATH = PROJECT_DIR / "exampleDataFiles" / "sessions_full.json"
+
+# CONFIG YOU WILL EDIT
+# File used when DATA_FORMAT = "FULL_CSV".
+FULL_CSV_PATH = PROJECT_DIR / "exampleDataFiles" / "sessions_full.csv"
+
+# CONFIG YOU WILL EDIT
+# Folder where the clean plain-text files will be saved.
+# Recommendation: keep this different from the raw data folder to avoid overwriting files.
+OUTPUT_FOLDER = PROJECT_DIR / "exampleDataFiles" / "cleanTexts"
+
+# CONFIG YOU WILL EDIT
+# CSV file where all cleaned texts will also be saved together.
+# This file will include one row per participant/session.
+CLEAN_TEXTS_CSV = PROJECT_DIR / "exampleDataFiles" / "clean_texts.csv"
+
+
+# ------------------------------------------------------------
+# 2) Reading + parsing helpers
+# ------------------------------------------------------------
+
+def load_json_from_txt(txt_path: Path | str) -> dict:
     """
-    Loads your submission log from a .txt file.
+    Loads one raw submission log from a .txt file.
 
     Why this exists:
     - Some exports might contain extra characters before the JSON starts.
     - We safely find the first '{' and parse from there.
     """
-    with open(txt_path, "r", encoding="utf-8") as f:
+    txt_path = Path(txt_path)
+
+    with txt_path.open("r", encoding="utf-8") as f:
         raw = f.read().strip()
 
-    # If the file ever has a prefix before the JSON, this makes it robust.
     first_brace = raw.find("{")
     if first_brace == -1:
         raise ValueError(f"No JSON object found in file: {txt_path}")
@@ -35,15 +96,250 @@ def load_json_from_txt(txt_path: str) -> dict:
     return json.loads(raw_json)
 
 
-def get_final_editor_html(payload: dict) -> str:
+def safe_load_json(path: Path | str) -> Optional[Any]:
     """
-    Returns the *final* editor HTML (Quill output) from the JSON payload.
-
-    Your data structure has:
-      payload["editor"] = [ { "t_ms": "...", "text": "<p>...</p>" }, ... ]
-
-    We take the last snapshot because it represents the final response at submit time.
+    Safely loads a JSON file and returns None if it cannot be read.
     """
+    path = Path(path)
+
+    try:
+        with path.open("r", encoding="utf-8") as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"Could not read JSON file {path}: {e}")
+        return None
+
+
+def parse_json_field(value: Any, default: Any = None) -> Any:
+    """
+    Converts JSON-like fields from the full CSV/JSON export into Python objects.
+
+    In the full CSV export, fields such as text_editor_progress, messages,
+    chat_events, and logs are often stored as JSON strings. This helper converts
+    those strings back into Python lists/dictionaries.
+    """
+    if value is None:
+        return default
+
+    if isinstance(value, (dict, list)):
+        return value
+
+    text = str(value).strip()
+    if text == "" or text.lower() in {"nan", "none", "null", "-"}:
+        return default
+
+    try:
+        return json.loads(text)
+    except Exception:
+        return default
+
+
+def stem_without_txt(value: Any, fallback: str = "") -> str:
+    """
+    Returns a clean participant/session ID without a trailing .txt extension.
+    """
+    text = str(value or fallback or "").strip()
+    if text.lower().endswith(".txt"):
+        return text[:-4]
+    return text
+
+
+# ------------------------------------------------------------
+# 3) Data normalization across TXT / full JSON / full CSV
+# ------------------------------------------------------------
+
+def normalize_downloaded_session(record: Dict[str, Any], source_name: str) -> Dict[str, Any]:
+    """
+    Converts one downloaded session into a common internal format.
+
+    Raw .txt logs usually contain:
+      - id
+      - editor
+
+    Full CSV/JSON admin exports may contain:
+      - session_id
+      - text_editor_final_submission
+      - text_editor_progress
+      - logs
+
+    This function makes all formats look similar internally.
+    """
+    logs = parse_json_field(record.get("logs"), default={})
+    if not isinstance(logs, dict):
+        logs = {}
+
+    editor = parse_json_field(record.get("editor"), default=None)
+    if editor is None:
+        editor = parse_json_field(record.get("text_editor_progress"), default=None)
+    if editor is None:
+        editor = parse_json_field(record.get("editor_progress_json"), default=None)
+    if editor is None:
+        editor = logs.get("editor", [])
+
+    final_text = (
+        record.get("text_editor_final_submission")
+        or record.get("final_solution")
+        or logs.get("final_solution")
+        or ""
+    )
+
+    session_id = (
+        record.get("id")
+        or record.get("session_id")
+        or logs.get("id")
+        or stem_without_txt(record.get("s3_key"), fallback=Path(source_name).stem)
+    )
+
+    normalized = dict(logs)
+    normalized["id"] = stem_without_txt(session_id, fallback=Path(source_name).stem)
+    normalized["editor"] = editor if isinstance(editor, list) else []
+    normalized["text_editor_final_submission"] = str(final_text or "")
+
+    for key in ["session_id", "condition", "created_at", "s3_key"]:
+        if key in record and key not in normalized:
+            normalized[key] = record[key]
+
+    return normalized
+
+
+def load_sessions_from_txt_files(data_dir: Path) -> List[Tuple[str, Dict[str, Any]]]:
+    """
+    Reads a folder of raw .txt/.json session files.
+    """
+    if not data_dir.exists():
+        print(f"Data folder not found: {data_dir}")
+        return []
+
+    sessions: List[Tuple[str, Dict[str, Any]]] = []
+
+    for path in sorted(list(data_dir.glob("*.txt")) + list(data_dir.glob("*.json"))):
+        try:
+            if path.suffix.lower() == ".txt":
+                payload = load_json_from_txt(path)
+            else:
+                payload = safe_load_json(path)
+
+            if not isinstance(payload, dict):
+                continue
+
+            normalized = normalize_downloaded_session(payload, source_name=path.name)
+            sessions.append((path.name, normalized))
+
+        except Exception as e:
+            print(f"Failed on {path}: {e}")
+
+    return sessions
+
+
+def load_sessions_from_full_json(path: Path) -> List[Tuple[str, Dict[str, Any]]]:
+    """
+    Reads the full JSON export from the admin panel.
+    """
+    data = safe_load_json(path)
+    if data is None:
+        return []
+
+    if isinstance(data, dict) and isinstance(data.get("sessions"), list):
+        records = data["sessions"]
+    elif isinstance(data, list):
+        records = data
+    else:
+        print(f"Expected a list of sessions in JSON file: {path}")
+        return []
+
+    sessions: List[Tuple[str, Dict[str, Any]]] = []
+    skipped_without_text_data = 0
+
+    for index, record in enumerate(records, start=1):
+        if not isinstance(record, dict):
+            continue
+
+        source_name = str(record.get("s3_key") or record.get("session_id") or f"{path.name}:row{index}")
+        normalized = normalize_downloaded_session(record, source_name=source_name)
+
+        if not normalized.get("text_editor_final_submission") and not normalized.get("editor"):
+            skipped_without_text_data += 1
+
+        sessions.append((source_name, normalized))
+
+    if skipped_without_text_data == len(sessions) and sessions:
+        print(
+            "Warning: This JSON file looks like a table-only export. "
+            "Use the FULL JSON export so final text or text-editor progress is included."
+        )
+
+    return sessions
+
+
+def load_sessions_from_full_csv(path: Path) -> List[Tuple[str, Dict[str, Any]]]:
+    """
+    Reads the full CSV export from the admin panel.
+    """
+    if not path.exists():
+        print(f"CSV file not found: {path}")
+        return []
+
+    sessions: List[Tuple[str, Dict[str, Any]]] = []
+    skipped_without_text_data = 0
+
+    with path.open("r", encoding="utf-8-sig", newline="") as f:
+        reader = csv.DictReader(f)
+
+        for index, record in enumerate(reader, start=1):
+            source_name = str(record.get("s3_key") or record.get("session_id") or f"{path.name}:row{index}")
+            normalized = normalize_downloaded_session(record, source_name=source_name)
+
+            if not normalized.get("text_editor_final_submission") and not normalized.get("editor"):
+                skipped_without_text_data += 1
+
+            sessions.append((source_name, normalized))
+
+    if skipped_without_text_data == len(sessions) and sessions:
+        print(
+            "Warning: This CSV file looks like a table-only export. "
+            "Use the FULL CSV export so final text or text-editor progress is included."
+        )
+
+    return sessions
+
+
+def load_sessions() -> List[Tuple[str, Dict[str, Any]]]:
+    """
+    Loads sessions based on DATA_FORMAT.
+    """
+    format_name = DATA_FORMAT.upper().strip()
+
+    if format_name == "TXTFILES":
+        return load_sessions_from_txt_files(TXT_DATA_DIR)
+
+    if format_name == "FULL_JSON":
+        return load_sessions_from_full_json(FULL_JSON_PATH)
+
+    if format_name == "FULL_CSV":
+        return load_sessions_from_full_csv(FULL_CSV_PATH)
+
+    raise ValueError(
+        f"Unknown DATA_FORMAT: {DATA_FORMAT}. "
+        "Use one of: TXTFILES, FULL_JSON, FULL_CSV."
+    )
+
+
+# ------------------------------------------------------------
+# 4) Extracting final text
+# ------------------------------------------------------------
+
+def get_final_editor_html(payload: Dict[str, Any]) -> str:
+    """
+    Returns the final editor HTML/plain-text from the normalized payload.
+
+    Priority:
+    1. text_editor_final_submission from the full CSV/JSON export, if available
+    2. Last item in payload["editor"], if available
+    """
+    direct_final = payload.get("text_editor_final_submission", "")
+    if isinstance(direct_final, str) and direct_final.strip():
+        return direct_final
+
     editor = payload.get("editor", [])
     if not isinstance(editor, list) or len(editor) == 0:
         return ""
@@ -51,111 +347,169 @@ def get_final_editor_html(payload: dict) -> str:
     last = editor[-1]
     if isinstance(last, dict):
         return str(last.get("text", ""))
+
     return ""
 
 
-# ----------------------------
-# 2) HTML -> plain text cleanup
-# ----------------------------
-
-def quill_html_to_plain_text(html: str) -> str:
+def quill_html_to_plain_text(raw_html: str) -> str:
     """
     Converts Quill/HTML into plain text.
-    - Preserves line breaks (<br>)
-    - Strips tags
-    - Unescapes HTML entities (&nbsp; etc.)
+    - Preserves line breaks from <br>
+    - Strips HTML tags
+    - Unescapes HTML entities such as &nbsp;
     """
-    if not html:
+    if not raw_html:
         return ""
 
-    soup = BeautifulSoup(html, "html.parser")
+    soup = BeautifulSoup(raw_html, "html.parser")
 
-    # Convert <br> into real newlines before extracting text
     for br in soup.find_all("br"):
         br.replace_with("\n")
 
     text = soup.get_text()
     text = unescape(text)
-
-    # Optional: normalize whitespace a bit
     text = text.replace("\r\n", "\n").strip()
+
     return text
 
 
-# ----------------------------
-# 3) Main batch processing
-# ----------------------------
+# ------------------------------------------------------------
+# 5) Main batch processing
+# ------------------------------------------------------------
 
-def export_texts(input_folder: str, output_folder: str) -> None:
+def export_texts(output_folder: Path, output_csv: Path) -> None:
     """
-    Reads all .txt files in input_folder, extracts the final editor content,
-    converts it to plain text, and saves one clean file per participant ID.
+    Loads sessions according to DATA_FORMAT, extracts final editor content,
+    converts it to plain text, and saves:
 
-    Output file name: <id>.txt
+    1. One clean .txt file per participant/session
+       Output file name: <id>.txt
+
+    2. One combined CSV file with one row per participant/session
+       Main columns:
+       - participant_id
+       - source_file
+       - condition
+       - created_at
+       - cleaned_text
     """
-    os.makedirs(output_folder, exist_ok=True)
+    sessions = load_sessions()
 
-    for filename in os.listdir(input_folder):
-        if not filename.lower().endswith(".txt"):
+    if not sessions:
+        print("No data found.")
+        print(f"Current DATA_FORMAT: {DATA_FORMAT}")
+        print(f"TXT_DATA_DIR: {TXT_DATA_DIR}")
+        print(f"FULL_JSON_PATH: {FULL_JSON_PATH}")
+        print(f"FULL_CSV_PATH: {FULL_CSV_PATH}")
+        return
+
+    output_folder.mkdir(parents=True, exist_ok=True)
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
+
+    csv_rows: List[Dict[str, Any]] = []
+    written_count = 0
+    skipped_count = 0
+
+    for source_name, payload in sessions:
+        pid = str(payload.get("id", stem_without_txt(source_name, fallback="unknown_session")))
+
+        final_html = get_final_editor_html(payload)
+        clean_text = quill_html_to_plain_text(final_html)
+
+        row = {
+            "participant_id": pid,
+            "session_id": payload.get("session_id", pid),
+            "source_file": source_name,
+            "condition": payload.get("condition", ""),
+            "created_at": payload.get("created_at", ""),
+            "cleaned_text": clean_text,
+        }
+        csv_rows.append(row)
+
+        if not clean_text.strip():
+            print(f"Skipping text file for {source_name}: no final editor text found.")
+            skipped_count += 1
             continue
 
-        in_path = os.path.join(input_folder, filename)
+        out_path = output_folder / f"{pid}.txt"
 
-        try:
-            payload = load_json_from_txt(in_path)
-            pid = str(payload.get("id", os.path.splitext(filename)[0]))
+        with out_path.open("w", encoding="utf-8") as out:
+            out.write(clean_text)
 
-            final_html = get_final_editor_html(payload)
-            clean_text = quill_html_to_plain_text(final_html)
+        written_count += 1
+        print(f"Wrote text: {out_path}")
 
-            out_path = os.path.join(output_folder, f"{pid}.txt")
-            with open(out_path, "w", encoding="utf-8") as out:
-                out.write(clean_text)
+    if csv_rows:
+        fieldnames = ["participant_id", "session_id", "source_file", "condition", "created_at", "cleaned_text"]
 
-            print(f" Wrote text: {out_path}")
+        with output_csv.open("w", encoding="utf-8-sig", newline="") as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(csv_rows)
 
-        except Exception as e:
-            print(f"Failed on {in_path}: {e}")
+        print(f"Wrote combined clean-text CSV: {output_csv}")
+
+    print("-" * 72)
+    print("Clean text export completed.")
+    print(f"Data format: {DATA_FORMAT}")
+    print(f"Sessions loaded: {len(sessions)}")
+    print(f"Texts written as .txt files: {written_count}")
+    print(f"Rows written to CSV: {len(csv_rows)}")
+    print(f"Sessions skipped for .txt output: {skipped_count}")
+    print(f"Output folder: {output_folder}")
+    print(f"Clean-text CSV: {output_csv}")
 
 
-# ----------------------------
-# 4) Optional: merge into a CSV
-# ----------------------------
+# ------------------------------------------------------------
+# 6) Optional: merge into a CSV
+# ------------------------------------------------------------
 
-def add_text_column_from_txt(csv_file: str, cleaned_text_dir: str, output_csv: str,
-                            code_col: str = "code", text_col: str = "textT1") -> None:
+def add_text_column_from_txt(
+    csv_file: str | Path,
+    cleaned_text_dir: str | Path,
+    output_csv: str | Path,
+    code_col: str = "code",
+    text_col: str = "textT1",
+) -> None:
     """
-    Adds a text column to your existing CSV by matching df[code_col] to <code>.txt in cleaned_text_dir.
-    (Same idea as your movingTextstoCSV.py, just parameterized + a little safer.)
+    Adds a text column to an existing CSV by matching df[code_col]
+    to <code>.txt in cleaned_text_dir.
+
+    Example:
+    If your CSV has a column named "code" and one row has code = ABC123,
+    this function looks for:
+      cleaned_text_dir/ABC123.txt
+    and adds its contents to the output CSV.
     """
+    csv_file = Path(csv_file)
+    cleaned_text_dir = Path(cleaned_text_dir)
+    output_csv = Path(output_csv)
+
     df = pd.read_csv(csv_file)
-    texts = []
+    texts: List[Optional[str]] = []
 
     for code in df[code_col].astype(str):
-        txt_path = os.path.join(cleaned_text_dir, f"{code}.txt")
-        if os.path.isfile(txt_path):
-            with open(txt_path, "r", encoding="utf-8") as f:
+        txt_path = cleaned_text_dir / f"{code}.txt"
+
+        if txt_path.is_file():
+            with txt_path.open("r", encoding="utf-8") as f:
                 texts.append(f.read())
         else:
             texts.append(None)
 
     df[text_col] = texts
+    output_csv.parent.mkdir(parents=True, exist_ok=True)
     df.to_csv(output_csv, index=False)
     print(f"Wrote merged CSV: {output_csv}")
 
 
 if __name__ == "__main__":
-    #CONFIG YOU WILL EDIT
-    # Step 1: Put your downloaded S3 .txt logs folder in INPUT_FOLDER
-    INPUT_FOLDER = r"exampleDataFiles"
-    #CONFIG YOU WILL EDIT
-    # Step 2: This folder will get clean ready texts (<id>.txt)
-    # Note that if the output and input folder are the same, the code will delete the raw files.
-    OUTPUT_FOLDER = r"exampleDataFiles/cleanTexts"
+    export_texts(OUTPUT_FOLDER, CLEAN_TEXTS_CSV)
 
-    export_texts(INPUT_FOLDER, OUTPUT_FOLDER)
-    #CONFIG YOU WILL EDIT
-    # Optional Step 3: If you have a CSV with a 'code' column and want to add the texts into it:
+    # CONFIG YOU WILL EDIT
+    # Optional: If you have a CSV with a participant/code column and want to add
+    # the cleaned texts into it, uncomment and edit the lines below.
+    #
     # CSV_FILE = r"C:\path\to\data.csv"
-    # OUT_CSV  = r"C:\path\to\data_with_text.csv"
+    # OUT_CSV = r"C:\path\to\data_with_text.csv"
     # add_text_column_from_txt(CSV_FILE, OUTPUT_FOLDER, OUT_CSV, code_col="code", text_col="textT1")

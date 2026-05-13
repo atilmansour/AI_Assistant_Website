@@ -1,0 +1,15 @@
+﻿participant_id,session_id,source_file,condition,created_at,cleaned_text
+TLV9S9OO,TLV9S9OO,TLV9S9OO.txt,Toggleable LLM,"3.5.2026, 8:02:00","I need to write a poem about books. 
+Alone I stand between people,I have learned so much from,But never met. Pages whisper secrets softly,Each tale a world I've quietly come upon.Alone I stand to read,Page who would have never,Misread,The lonely villains,And the mysterious witches.In their embrace, I find myself a new home."
+OCAYKWSA,OCAYKWSA,OCAYKWSA.txt,Only Chat,"3.5.2026, 7:58:18",
+AVLUANYLU,AVLUANYLU,AVLUANYLU.txt,Always Visible LLM,"3.5.2026, 7:54:34","When I was young, I went to a new program where I knew no one. I felt very anxious about being the only one to join the program ""late"". 
+As I walked into the room and saw everyone already chatting in small groups, my heart sank and I wondered if I had made a terrible mistake.
+I knew I wanted to be there, and because of that I kept telling myself that its okay.
+in the end, i made friends there, they were excited to see me and did not give me weird looks about being the new student there."
+PIZX0FFB,PIZX0FFB,PIZX0FFB.txt,Participant-Initiated LLM,"3.5.2026, 7:49:59","the instructions specify that i need to write about nature. 
+I am not sure what to write about, let me press on the LLM assistant button. 
+I stepped into the forest like entering an empire build by nature. The profound quietness that settles deep within the soul, I love that. The air itself feels different. It is clean, cool, and carrying the earthy scent."
+OLAN8ANC,OLAN8ANC,OLAN8ANC.txt,No LLM / control,"3.5.2026, 7:45:29","hello, i am writing about my love for books. 
+Books are a door from one world to another, without needing a plane ticket.
+I'm very grateful for the books I have read throughout my life, they taught me many things.
+yeah. ugh I need to write more. I love books. They just gave me perspectives about life I wouldn't have gotten on my own."

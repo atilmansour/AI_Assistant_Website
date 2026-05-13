@@ -1,14 +1,41 @@
+/*
+  AdminPanel.js
+
+  This file defines the researcher-facing admin dashboard for reviewing experiment sessions.
+  It loads submitted sessions from the backend, displays summary statistics by condition,
+  allows researchers to search/filter submissions, inspect individual session details
+  (messages, text-editor progress, configuration, and raw logs), export the data as CSV/JSON,
+  and delete sessions when needed.
+
+  CONFIG YOU WILL EDIT:
+  Researchers may customize the displayed condition names, condition colors, table columns,
+  exported fields, and dashboard labels to match their own study design.
+*/
+
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 const API_BASE = process.env.REACT_APP_API_BASE || "http://localhost:5050";
 
+// Main admin table columns
+// The `key` should match a field created in normalizeSession() below.
+// The `label` is what researchers see in the dashboard.
+// The `tooltip` explains the measure when researchers hover over the column.
 const TABLE_COLUMNS = [
-  { key: "session_id", label: "Session ID", tooltip: "Unique experiment/session identifier." },
-  { key: "condition", label: "Condition", tooltip: "Experiment condition type." },
+  {
+    key: "session_id",
+    label: "Session ID",
+    tooltip: "Unique experiment/session identifier.",
+  },
+  {
+    key: "condition",
+    label: "Condition",
+    tooltip: "Experiment condition type.",
+  },
   {
     key: "rounds_of_interaction",
     label: "Rounds of Interaction",
-    tooltip: "Number of participant-to-AI interaction rounds, derived from participant chat messages.",
+    tooltip:
+      "Number of participant-to-AI interaction rounds, derived from participant chat messages.",
   },
   {
     key: "final_word_count",
@@ -18,7 +45,8 @@ const TABLE_COLUMNS = [
   {
     key: "session_duration",
     label: "Duration",
-    tooltip: "Approximate total experiment duration from the latest saved timestamp.",
+    tooltip:
+      "Approximate total experiment duration from the latest saved timestamp.",
   },
   {
     key: "participant_message_count",
@@ -27,8 +55,8 @@ const TABLE_COLUMNS = [
   },
   {
     key: "ai_message_count",
-    label: "AI Msgs",
-    tooltip: "Number of AI assistant responses.",
+    label: "LLM Msgs",
+    tooltip: "Number of LLM assistant responses.",
   },
   { key: "created_at", label: "Submitted", tooltip: "Submission/upload time." },
 ];
@@ -36,6 +64,9 @@ const TABLE_COLUMNS = [
 const ACTIONS_TOOLTIP = "Available admin actions for the session.";
 const TOOLTIP_DELAY_MS = 800;
 
+// CONFIG YOU WILL EDIT: Experimental condition names
+// These labels appear in the admin filter and summary cards.
+// If you rename conditions in your study, update the labels here too.
 const CONDITIONS = [
   "No LLM / control",
   "Always Visible LLM",
@@ -44,6 +75,9 @@ const CONDITIONS = [
   "Only Chat",
 ];
 
+// CONFIG YOU WILL EDIT: Condition colors in the admin dashboard
+// Edit these colors if you want condition badges/cards to match your study materials.
+// Keep the same condition names as in CONDITIONS above.
 const CONDITION_STYLES = {
   "No LLM / control": {
     background: "#eef2f7",
@@ -121,6 +155,10 @@ function formatDate(iso) {
   return date.toLocaleString();
 }
 
+// CONFIG YOU MAY NEED TO EDIT: Condition detection from session IDs
+// These rules infer the condition from the session ID prefix/suffix.
+// Edit this only if you change the session ID format used by your experimental conditions.
+// Example: AVL...U is currently treated as "Always Visible LLM".
 function deriveConditionFromId(id = "") {
   if (/^OL[A-Z0-9]+C$/.test(id)) return "No LLM / control";
   if (/^AVL[A-Z0-9]+U$/.test(id)) return "Always Visible LLM";
@@ -174,7 +212,9 @@ function formatDuration(ms) {
 }
 
 function getMessageSender(message) {
-  return String(message?.sender || "").toLowerCase().replace(/\s+/g, "");
+  return String(message?.sender || "")
+    .toLowerCase()
+    .replace(/\s+/g, "");
 }
 
 function isParticipantMessage(message) {
@@ -182,7 +222,9 @@ function isParticipantMessage(message) {
 }
 
 function isAIMessage(message) {
-  return ["llmassistant", "assistant", "ai", "model"].includes(getMessageSender(message));
+  return ["llmassistant", "assistant", "ai", "model"].includes(
+    getMessageSender(message),
+  );
 }
 
 function getWordCountOverTime(editorProgress) {
@@ -218,20 +260,31 @@ function getSessionDurationMs({ raw, messages, editorProgress }) {
 function normalizeSession(session) {
   const raw = session?.raw_payload_json || session?.logs || session || {};
   const sessionId = String(
-    session?.session_id || raw?.id || session?.key?.replace(/\.txt$/i, "") || "",
+    session?.session_id ||
+      raw?.id ||
+      session?.key?.replace(/\.txt$/i, "") ||
+      "",
   );
   const messages = safeArray(session?.full_messages_json || raw?.messages);
-  const editorProgress = safeArray(session?.editor_progress_json || raw?.editor);
+  const editorProgress = safeArray(
+    session?.editor_progress_json || raw?.editor,
+  );
   const finalSubmission =
     session?.final_solution ||
     editorProgress[editorProgress.length - 1]?.text ||
     "";
   const timeAwayMs = Number(raw?.totalNavigatedAwayMs ?? 0);
-  const sessionDurationMs = getSessionDurationMs({ raw, messages, editorProgress });
+  const sessionDurationMs = getSessionDurationMs({
+    raw,
+    messages,
+    editorProgress,
+  });
   const participantMessageCount = messages.filter(isParticipantMessage).length;
   const aiMessageCount = messages.filter(isAIMessage).length;
   const wordCountOverTime = getWordCountOverTime(editorProgress);
-  const finalWordCount = editorProgress.length ? countWords(finalSubmission) : "-";
+  const finalWordCount = editorProgress.length
+    ? countWords(finalSubmission)
+    : "-";
 
   return {
     ...session,
@@ -247,7 +300,8 @@ function normalizeSession(session) {
     ai_message_count: aiMessageCount,
     final_word_count: finalWordCount,
     session_duration_ms: sessionDurationMs,
-    session_duration: sessionDurationMs == null ? "-" : formatDuration(sessionDurationMs),
+    session_duration:
+      sessionDurationMs == null ? "-" : formatDuration(sessionDurationMs),
     time_away_ms: Number.isFinite(timeAwayMs) ? timeAwayMs : 0,
     time_away: formatDuration(Number.isFinite(timeAwayMs) ? timeAwayMs : 0),
     leave_events: Number(raw?.navigatedAway ?? 0),
@@ -256,13 +310,15 @@ function normalizeSession(session) {
     chat_events: safeArray(raw?.chatEvents),
     word_count_over_time: wordCountOverTime,
     created_at: session?.created_at || "",
-    submit_click_count: raw?.NumOfSubmitClicks ?? session?.submit_click_count ?? "",
+    submit_click_count:
+      raw?.NumOfSubmitClicks ?? session?.submit_click_count ?? "",
     text_editor_final_submission: finalSubmission,
     text_editor_progress: editorProgress,
     configuration: {
       LLMProvider: raw?.LLMProvider || "",
       LLMModel: raw?.LLMModel || "",
-      backgroundAIMessage: raw?.backgroundAIMessage ?? raw?.backgroundLLMMessage ?? "",
+      backgroundAIMessage:
+        raw?.backgroundAIMessage ?? raw?.backgroundLLMMessage ?? "",
     },
     messages,
     logs: raw,
@@ -305,6 +361,7 @@ function tableExportRows(sessions) {
   );
 }
 
+// These are the fields included when researchers choose "Export full session data".
 function fullExportRows(sessions) {
   return sessions.map((session) => ({
     ...tableExportRows([session])[0],
@@ -333,12 +390,19 @@ function fullExportRows(sessions) {
 }
 
 function exportCSV(sessions, scope) {
-  const rows = scope === "table" ? tableExportRows(sessions) : fullExportRows(sessions);
-  const columns = scope === "table" ? TABLE_COLUMNS.map((c) => c.key) : Object.keys(rows[0] || {});
+  const rows =
+    scope === "table" ? tableExportRows(sessions) : fullExportRows(sessions);
+  const columns =
+    scope === "table"
+      ? TABLE_COLUMNS.map((c) => c.key)
+      : Object.keys(rows[0] || {});
   const csvRows = rows.map((row) =>
     columns
       .map((column) => {
-        const value = typeof row[column] === "object" ? JSON.stringify(row[column]) : row[column];
+        const value =
+          typeof row[column] === "object"
+            ? JSON.stringify(row[column])
+            : row[column];
         return csvEscape(value);
       })
       .join(","),
@@ -351,7 +415,8 @@ function exportCSV(sessions, scope) {
 }
 
 function exportJSON(sessions, scope) {
-  const rows = scope === "table" ? tableExportRows(sessions) : fullExportRows(sessions);
+  const rows =
+    scope === "table" ? tableExportRows(sessions) : fullExportRows(sessions);
   downloadBlob(
     JSON.stringify(rows, null, 2),
     "application/json;charset=utf-8;",
@@ -407,7 +472,10 @@ const AdminPanel = () => {
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     return sessions
-      .filter((session) => conditionFilter === "all" || session.condition === conditionFilter)
+      .filter(
+        (session) =>
+          conditionFilter === "all" || session.condition === conditionFilter,
+      )
       .filter(
         (session) =>
           !q ||
@@ -418,10 +486,14 @@ const AdminPanel = () => {
 
   const stats = useMemo(() => {
     const byCondition = CONDITIONS.reduce((acc, condition) => {
-      acc[condition] = sessions.filter((session) => session.condition === condition).length;
+      acc[condition] = sessions.filter(
+        (session) => session.condition === condition,
+      ).length;
       return acc;
     }, {});
-    const avgRounds = average(sessions.map((session) => session.rounds_of_interaction));
+    const avgRounds = average(
+      sessions.map((session) => session.rounds_of_interaction),
+    );
     const avgFinalWordCount = average(
       sessions
         .filter((session) => session.text_editor_snapshots > 0)
@@ -432,32 +504,46 @@ const AdminPanel = () => {
         .map((session) => session.session_duration_ms)
         .filter((value) => value != null),
     );
-    const avgTimeAway = average(sessions.map((session) => session.time_away_ms));
+    const avgTimeAway = average(
+      sessions.map((session) => session.time_away_ms),
+    );
 
     return {
       total: sessions.length,
       avgRounds: avgRounds == null ? "-" : avgRounds.toFixed(1),
-      avgFinalWordCount: avgFinalWordCount == null ? "-" : avgFinalWordCount.toFixed(1),
-      avgSessionDuration: avgSessionDuration == null ? "-" : formatDuration(avgSessionDuration),
+      avgFinalWordCount:
+        avgFinalWordCount == null ? "-" : avgFinalWordCount.toFixed(1),
+      avgSessionDuration:
+        avgSessionDuration == null ? "-" : formatDuration(avgSessionDuration),
       avgTimeAway: avgTimeAway == null ? "-" : formatDuration(avgTimeAway),
       byCondition,
     };
   }, [sessions]);
 
   const deleteSession = async (session) => {
-    if (!window.confirm(`Delete session ${session.session_id}? This cannot be undone.`)) return;
+    if (
+      !window.confirm(
+        `Delete session ${session.session_id}? This cannot be undone.`,
+      )
+    )
+      return;
     setActionLoading(session.session_id);
 
     try {
       const res = await fetch(`${API_BASE}/api/admin/sessions`, {
         method: "DELETE",
         headers: { ...authHeader(), "Content-Type": "application/json" },
-        body: JSON.stringify({ session_id: session.session_id, key: session.key }),
+        body: JSON.stringify({
+          session_id: session.session_id,
+          key: session.key,
+        }),
       });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "Delete failed");
 
-      setSessions((prev) => prev.filter((row) => row.session_id !== session.session_id));
+      setSessions((prev) =>
+        prev.filter((row) => row.session_id !== session.session_id),
+      );
       if (selected?.session_id === session.session_id) setSelected(null);
     } catch (err) {
       alert("Delete failed: " + err.message);
@@ -476,7 +562,9 @@ const AdminPanel = () => {
       <div style={s.header}>
         <span style={s.headerTitle}>Admin Panel - Experiment Sessions</span>
         <div style={s.headerActions}>
-          <button onClick={loadSessions} style={s.headerButton}>Refresh</button>
+          <button onClick={loadSessions} style={s.headerButton}>
+            Refresh
+          </button>
           <select
             value={exportScope}
             onChange={(event) => setExportScope(event.target.value)}
@@ -485,13 +573,22 @@ const AdminPanel = () => {
             <option value="table">Export table only</option>
             <option value="full">Export full session data</option>
           </select>
-          <button onClick={() => exportCSV(filtered, exportScope)} style={s.headerButton}>
+          <button
+            onClick={() => exportCSV(filtered, exportScope)}
+            style={s.headerButton}
+          >
             CSV
           </button>
-          <button onClick={() => exportJSON(filtered, exportScope)} style={s.headerButton}>
+          <button
+            onClick={() => exportJSON(filtered, exportScope)}
+            style={s.headerButton}
+          >
             JSON
           </button>
-          <button onClick={logout} style={{ ...s.headerButton, ...s.dangerButton }}>
+          <button
+            onClick={logout}
+            style={{ ...s.headerButton, ...s.dangerButton }}
+          >
             Logout
           </button>
         </div>
@@ -531,10 +628,14 @@ const AdminPanel = () => {
         >
           <option value="all">All conditions</option>
           {CONDITIONS.map((condition) => (
-            <option key={condition} value={condition}>{condition}</option>
+            <option key={condition} value={condition}>
+              {condition}
+            </option>
           ))}
         </select>
-        <span style={s.countBadge}>{filtered.length} row{filtered.length === 1 ? "" : "s"}</span>
+        <span style={s.countBadge}>
+          {filtered.length} row{filtered.length === 1 ? "" : "s"}
+        </span>
       </div>
 
       {error && <div style={s.errorBanner}>Error: {error}</div>}
@@ -552,7 +653,9 @@ const AdminPanel = () => {
                 </th>
               ))}
               <th style={s.th}>
-                <DelayedTooltip content={ACTIONS_TOOLTIP}>Actions</DelayedTooltip>
+                <DelayedTooltip content={ACTIONS_TOOLTIP}>
+                  Actions
+                </DelayedTooltip>
               </th>
             </tr>
           </thead>
@@ -578,7 +681,12 @@ const AdminPanel = () => {
                     {column.key === "session_id" ? (
                       <span style={s.mono}>{session[column.key]}</span>
                     ) : column.key === "condition" ? (
-                      <span style={{ ...s.badge, ...getConditionBadgeStyle(session[column.key]) }}>
+                      <span
+                        style={{
+                          ...s.badge,
+                          ...getConditionBadgeStyle(session[column.key]),
+                        }}
+                      >
                         {session[column.key] || "Unknown"}
                       </span>
                     ) : (
@@ -617,11 +725,26 @@ const Stat = ({ label, value, condition }) => {
   const conditionStyle = condition ? getConditionStyle(condition) : null;
 
   return (
-    <div style={{ ...s.statCard, ...(condition ? getConditionCardStyle(condition) : {}) }}>
-      <div style={{ ...s.statVal, ...(conditionStyle ? { color: conditionStyle.color } : {}) }}>
+    <div
+      style={{
+        ...s.statCard,
+        ...(condition ? getConditionCardStyle(condition) : {}),
+      }}
+    >
+      <div
+        style={{
+          ...s.statVal,
+          ...(conditionStyle ? { color: conditionStyle.color } : {}),
+        }}
+      >
         {value}
       </div>
-      <div style={{ ...s.statLabel, ...(conditionStyle ? { color: conditionStyle.color } : {}) }}>
+      <div
+        style={{
+          ...s.statLabel,
+          ...(conditionStyle ? { color: conditionStyle.color } : {}),
+        }}
+      >
         {label}
       </div>
     </div>
@@ -643,26 +766,44 @@ const SessionModal = ({ session, detailTab, setDetailTab, onClose }) => {
         <div style={s.modalHeader}>
           <div>
             <div style={s.modalTitle}>{session.session_id}</div>
-            <div style={{ ...s.modalSubtitle, color: getConditionStyle(session.condition).color }}>
+            <div
+              style={{
+                ...s.modalSubtitle,
+                color: getConditionStyle(session.condition).color,
+              }}
+            >
               {session.condition || "Unknown condition"}
             </div>
           </div>
-          <button onClick={onClose} style={s.closeButton}>x</button>
+          <button onClick={onClose} style={s.closeButton}>
+            x
+          </button>
         </div>
 
         <div style={s.metaGrid}>
           <Meta label="Session ID" value={session.session_id} />
           <div>
             <span style={s.metaKey}>Condition: </span>
-            <span style={{ ...s.badge, ...getConditionBadgeStyle(session.condition) }}>
+            <span
+              style={{
+                ...s.badge,
+                ...getConditionBadgeStyle(session.condition),
+              }}
+            >
               {session.condition || "Unknown"}
             </span>
           </div>
-          <Meta label="Rounds of Interaction" value={session.rounds_of_interaction} />
+          <Meta
+            label="Rounds of Interaction"
+            value={session.rounds_of_interaction}
+          />
           <Meta label="Final word count" value={session.final_word_count} />
           <Meta label="Session duration" value={session.session_duration} />
           <Meta label="Leave events" value={session.leave_events} />
-          <Meta label="Participant messages" value={session.participant_message_count} />
+          <Meta
+            label="Participant messages"
+            value={session.participant_message_count}
+          />
           <Meta label="AI messages" value={session.ai_message_count} />
           <Meta label="Submitted" value={formatDate(session.created_at)} />
           <Meta label="Submit clicks" value={session.submit_click_count} />
@@ -682,20 +823,25 @@ const SessionModal = ({ session, detailTab, setDetailTab, onClose }) => {
 
         {detailTab === "messages" && (
           <div style={s.scrollArea}>
-            {session.messages.length === 0 && <Empty>No chat/messages recorded.</Empty>}
+            {session.messages.length === 0 && (
+              <Empty>No chat/messages recorded.</Empty>
+            )}
             {session.messages.map((message, index) => (
               <div
                 key={`${message.timestamp}-${index}`}
                 style={{
                   ...s.messageBubble,
-                  alignSelf: message.sender === "user" ? "flex-end" : "flex-start",
+                  alignSelf:
+                    message.sender === "user" ? "flex-end" : "flex-start",
                   background: message.sender === "user" ? "#0094ff" : "#f0f0f0",
                   color: message.sender === "user" ? "#fff" : "#222",
                 }}
               >
                 <div style={s.messageMeta}>
                   {message.sender || "message"}
-                  {message.timestamp != null ? ` - ${(message.timestamp / 1000).toFixed(1)}s` : ""}
+                  {message.timestamp != null
+                    ? ` - ${(message.timestamp / 1000).toFixed(1)}s`
+                    : ""}
                 </div>
                 <div style={s.preWrap}>{message.text}</div>
               </div>
@@ -709,10 +855,16 @@ const SessionModal = ({ session, detailTab, setDetailTab, onClose }) => {
             <div style={s.configGrid}>
               <Meta label="Session duration" value={session.session_duration} />
               <Meta label="Leave events" value={session.leave_events} />
-              <Meta label="Participant messages" value={session.participant_message_count} />
+              <Meta
+                label="Participant messages"
+                value={session.participant_message_count}
+              />
               <Meta label="AI messages" value={session.ai_message_count} />
               <Meta label="Final word count" value={session.final_word_count} />
-              <Meta label="Text editor snapshots" value={session.text_editor_snapshots} />
+              <Meta
+                label="Text editor snapshots"
+                value={session.text_editor_snapshots}
+              />
               <Meta label="Total messages" value={session.message_count} />
             </div>
           </div>
@@ -721,7 +873,9 @@ const SessionModal = ({ session, detailTab, setDetailTab, onClose }) => {
         {detailTab === "textEditor" && (
           <div style={s.editorSplit}>
             <div style={{ ...s.editorPane, minHeight: 220 }}>
-              <div style={s.editorPaneHeader}>Text Editor - Final Submission</div>
+              <div style={s.editorPaneHeader}>
+                Text Editor - Final Submission
+              </div>
               <div style={s.editorPaneBody}>
                 <textarea
                   readOnly
@@ -749,7 +903,10 @@ const SessionModal = ({ session, detailTab, setDetailTab, onClose }) => {
         {detailTab === "configuration" && (
           <div style={s.scrollArea}>
             <div style={s.configGrid}>
-              <Meta label="LLMProvider" value={session.configuration.LLMProvider} />
+              <Meta
+                label="LLMProvider"
+                value={session.configuration.LLMProvider}
+              />
               <Meta label="LLMModel" value={session.configuration.LLMModel} />
               <Meta
                 label="backgroundAIMessage"
@@ -761,7 +918,9 @@ const SessionModal = ({ session, detailTab, setDetailTab, onClose }) => {
 
         {detailTab === "raw" && (
           <div style={s.scrollArea}>
-            <pre style={s.jsonBlock}>{JSON.stringify(session.logs, null, 2)}</pre>
+            <pre style={s.jsonBlock}>
+              {JSON.stringify(session.logs, null, 2)}
+            </pre>
           </div>
         )}
       </div>
@@ -776,7 +935,9 @@ const Meta = ({ label, value }) => (
   </div>
 );
 
-const SectionTitle = ({ children }) => <div style={s.sectionTitle}>{children}</div>;
+const SectionTitle = ({ children }) => (
+  <div style={s.sectionTitle}>{children}</div>
+);
 
 const Empty = ({ children }) => <div style={s.empty}>{children}</div>;
 
@@ -803,9 +964,12 @@ const DelayedTooltip = ({ children, content }) => {
     setOpen(false);
   };
 
-  useEffect(() => () => {
-    if (timerId) window.clearTimeout(timerId);
-  }, [timerId]);
+  useEffect(
+    () => () => {
+      if (timerId) window.clearTimeout(timerId);
+    },
+    [timerId],
+  );
 
   return (
     <span
@@ -847,7 +1011,12 @@ const s = {
     zIndex: 10,
   },
   headerTitle: { fontWeight: 700, fontSize: "1.05rem", color: "#0094ff" },
-  headerActions: { display: "flex", gap: "0.4rem", alignItems: "center", flexWrap: "wrap" },
+  headerActions: {
+    display: "flex",
+    gap: "0.4rem",
+    alignItems: "center",
+    flexWrap: "wrap",
+  },
   headerButton: {
     minHeight: 28,
     padding: "0.3rem 0.58rem",
@@ -1075,7 +1244,11 @@ const s = {
     lineHeight: 1.2,
     whiteSpace: "nowrap",
   },
-  tabActive: { color: "#0094ff", borderBottomColor: "#0094ff", fontWeight: 700 },
+  tabActive: {
+    color: "#0094ff",
+    borderBottomColor: "#0094ff",
+    fontWeight: 700,
+  },
   scrollArea: {
     flex: 1,
     overflow: "auto",

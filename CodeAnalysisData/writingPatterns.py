@@ -1,25 +1,22 @@
-
 # ------------------------------------------------------------
 # Writing Patterns
 # ------------------------------------------------------------
-# This script assumes the following folder structure:
+# This script can read experiment data from one of three download formats:
+#   1) TXTFILES  = a folder containing one .txt file per participant/session
+#   2) FULL_JSON = the full JSON export from the admin panel
+#   3) FULL_CSV  = the full CSV export from the admin panel
 #
-# code_website/
-#   CodeAnalysisData/
-#       consultationPatterns.py   <-- this file
-#   exampleDataFiles/
-#       participant1.txt
-#       participant2.txt
-#       ...
-# This file: Writes one CSV file with participant-level metrics to this folder:
+# This file writes one CSV file with participant-level metrics to this folder:
 #    CodeAnalysisData/writing_patterns_metrics.csv
-# - If a file has no "editor", it will skip that file and report it.
+#
+# Main goal:
+# - analyze participants' writing process using the text-editor snapshots
 #
 # Main outputs:
 # - writing pace:
 #    * final_word_count
 #    * total_words_added
-#    * net_words_added (actual words not including deletion)
+#    * net_words_added
 #    * words_added_per_minute
 #    * net_words_per_minute
 # - pauses:
@@ -33,12 +30,11 @@
 #    * mean_burst_duration_sec
 #    * mean_burst_words_added
 #    * max_burst_words_added
-
+#
 # Definitions used here:
 # - Pause = gap of at least PAUSE_THRESHOLD_MS between consecutive editor snapshots.
-#  - Burst = a sequence of consecutive editor snapshots separated by less than PAUSE_THRESHOLD_MS.
+# - Burst = a sequence of consecutive editor snapshots separated by less than PAUSE_THRESHOLD_MS.
 # ------------------------------------------------------------
-
 
 from __future__ import annotations
 
@@ -50,17 +46,167 @@ import statistics
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
+SCRIPT_DIR = Path(__file__).resolve().parent
+PROJECT_DIR = SCRIPT_DIR.parent
+
 # CONFIG YOU WILL EDIT
+# Choose the data download format you want this script to read.
+# Options:
+#   "TXTFILES"  = a folder containing one .txt file per participant/session
+#   "FULL_JSON" = the full JSON export from the admin panel
+#   "FULL_CSV"  = the full CSV export from the admin panel
+#
+# Important: use the FULL CSV/JSON export, not the table-only export, because
+# this script needs the full text-editor progress.
+DATA_FORMAT = "FULL_CSV"
+
+# CONFIG YOU WILL EDIT
+# Folder used when DATA_FORMAT = "TXTFILES".
+TXT_DATA_DIR = PROJECT_DIR / "exampleDataFiles"
+
+# CONFIG YOU WILL EDIT
+# File used when DATA_FORMAT = "FULL_JSON".
+FULL_JSON_PATH = PROJECT_DIR / "exampleDataFiles" / "sessions_full.json"
+
+# CONFIG YOU WILL EDIT
+# File used when DATA_FORMAT = "FULL_CSV".
+FULL_CSV_PATH = PROJECT_DIR / "exampleDataFiles" / "sessions_full.csv"
+
+# CONFIG YOU WILL EDIT
+# Gap length used to define a pause between writing snapshots.
+# Example: 2000 ms = 2 seconds.
 PAUSE_THRESHOLD_MS = 2000
 
-SCRIPT_DIR = Path(__file__).resolve().parent
-DATA_DIR = SCRIPT_DIR.parent / "exampleDataFiles"
 OUTPUT_CSV = SCRIPT_DIR / "writing_patterns_metrics.csv"
 
 
-def load_json(path: Path) -> Dict[str, Any]:
+def load_json(path: Path) -> Any:
     with path.open("r", encoding="utf-8") as f:
         return json.load(f)
+
+
+def safe_load_json(path: Path) -> Optional[Any]:
+    try:
+        return load_json(path)
+    except Exception as e:
+        print(f"Skipping {path.name}: could not read JSON ({e})")
+        return None
+
+
+def parse_json_field(value: Any, default: Any = None) -> Any:
+    """
+    Convert fields from the full CSV/JSON export into Python objects.
+
+    In the full CSV export, fields such as messages, text_editor_progress,
+    chat_events, submit_attempt_timestamps, and logs are saved as JSON strings.
+    This helper turns those strings back into lists/dictionaries.
+    """
+    if value is None:
+        return default
+
+    if isinstance(value, (dict, list)):
+        return value
+
+    text = str(value).strip()
+    if text == "" or text.lower() in {"nan", "none", "null", "-"}:
+        return default
+
+    try:
+        return json.loads(text)
+    except Exception:
+        return default
+
+
+def stem_without_txt(value: Any, fallback: str = "") -> str:
+    text = str(value or fallback or "").strip()
+    if text.lower().endswith(".txt"):
+        return text[:-4]
+    return text
+
+
+def normalize_downloaded_session(record: Dict[str, Any], source_name: str) -> Dict[str, Any]:
+    """
+    Convert one downloaded session into the format expected by this script.
+
+    The original .txt files usually contain:
+      - id
+      - messages
+      - editor
+      - chatEvents
+      - TimeStampOfSubmitClicks
+
+    The full CSV/JSON admin export may instead contain:
+      - session_id
+      - messages
+      - text_editor_progress
+      - chat_events
+      - submit_attempt_timestamps
+      - logs
+
+    This function makes all formats look the same internally.
+    """
+    logs = parse_json_field(record.get("logs"), default={})
+    if not isinstance(logs, dict):
+        logs = {}
+
+    messages = parse_json_field(record.get("messages"), default=None)
+    if messages is None:
+        messages = parse_json_field(record.get("full_messages_json"), default=None)
+    if messages is None:
+        messages = logs.get("messages", [])
+
+    editor = parse_json_field(record.get("editor"), default=None)
+    if editor is None:
+        editor = parse_json_field(record.get("text_editor_progress"), default=None)
+    if editor is None:
+        editor = parse_json_field(record.get("editor_progress_json"), default=None)
+    if editor is None:
+        editor = logs.get("editor", [])
+
+    chat_events = parse_json_field(record.get("chatEvents"), default=None)
+    if chat_events is None:
+        chat_events = parse_json_field(record.get("chat_events"), default=None)
+    if chat_events is None:
+        chat_events = logs.get("chatEvents", [])
+
+    submit_clicks = parse_json_field(record.get("TimeStampOfSubmitClicks"), default=None)
+    if submit_clicks is None:
+        submit_clicks = parse_json_field(record.get("submit_attempt_timestamps"), default=None)
+    if submit_clicks is None:
+        submit_clicks = logs.get("TimeStampOfSubmitClicks", [])
+
+    session_id = (
+        record.get("id")
+        or record.get("session_id")
+        or logs.get("id")
+        or stem_without_txt(record.get("s3_key"), fallback=Path(source_name).stem)
+    )
+
+    normalized = dict(logs)
+    normalized["id"] = stem_without_txt(session_id, fallback=Path(source_name).stem)
+    normalized["messages"] = messages if isinstance(messages, list) else []
+    normalized["editor"] = editor if isinstance(editor, list) else []
+    normalized["chatEvents"] = chat_events if isinstance(chat_events, list) else []
+    normalized["TimeStampOfSubmitClicks"] = submit_clicks if isinstance(submit_clicks, list) else []
+
+    if "ButtonPressed" in record and "ButtonPressed" not in normalized:
+        normalized["ButtonPressed"] = record.get("ButtonPressed")
+
+    # Keep useful metadata from the admin export when available.
+    for key in [
+        "session_id",
+        "condition",
+        "created_at",
+        "s3_key",
+        "LLMProvider",
+        "LLMModel",
+        "backgroundLLMMessage",
+        "backgroundAIMessage",
+    ]:
+        if key in record and key not in normalized:
+            normalized[key] = record[key]
+
+    return normalized
 
 
 def iter_input_files(folder: Path) -> Iterable[Path]:
@@ -139,6 +285,8 @@ def build_editor_series(editor_rows: List[Dict[str, Any]]) -> List[Dict[str, Any
     cleaned: List[Dict[str, Any]] = []
 
     for row in editor_rows:
+        if not isinstance(row, dict):
+            continue
         ts = row.get("t_ms")
         text_html = row.get("text", "")
         if not isinstance(ts, (int, float)):
@@ -289,29 +437,29 @@ def compute_writing_pace_metrics(series: List[Dict[str, Any]], session_duration_
     }
 
 
-def analyze_file(path: Path) -> Optional[Dict[str, Any]]:
-    data = load_json(path)
-
-    participant_id = data.get("id", path.stem)
+def analyze_session_data(data: Dict[str, Any], source_name: str) -> Optional[Dict[str, Any]]:
+    participant_id = data.get("id", Path(source_name).stem)
     editor_rows = safe_editor(data)
     messages = safe_messages(data)
     chat_events = safe_chat_events(data)
 
     if not editor_rows:
-        print(f"Skipping {path.name}: no editor data found.")
+        print(f"Skipping {source_name}: no editor data found.")
         return None
 
     series = build_editor_series(editor_rows)
     if not series:
-        print(f"Skipping {path.name}: editor data exists but could not be parsed.")
+        print(f"Skipping {source_name}: editor data exists but could not be parsed.")
         return None
 
     session_end_ms = get_max_timestamp(data)
     session_duration_min = (session_end_ms / 60000) if session_end_ms and session_end_ms > 0 else None
 
     result: Dict[str, Any] = {
-        "source_file": path.name,
+        "source_file": source_name,
         "participant_id": participant_id,
+        "condition": data.get("condition", ""),
+        "created_at": data.get("created_at", ""),
         "has_messages": bool(messages),
         "has_chat_events": bool(chat_events),
         "message_count": len(messages),
@@ -333,6 +481,7 @@ def write_csv(rows: List[Dict[str, Any]], output_path: Path) -> None:
         print("No results to save.")
         return
 
+    output_path.parent.mkdir(parents=True, exist_ok=True)
     fieldnames = list(rows[0].keys())
     with output_path.open("w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
@@ -340,29 +489,123 @@ def write_csv(rows: List[Dict[str, Any]], output_path: Path) -> None:
         writer.writerows(rows)
 
 
-def main() -> None:
-    if not DATA_DIR.exists():
-        print(f"Data folder not found: {DATA_DIR}")
-        print("Create the folder and put your example/session files there.")
-        return
+def load_sessions_from_txt_files(data_dir: Path) -> List[Tuple[str, Dict[str, Any]]]:
+    if not data_dir.exists():
+        print(f"Data folder not found: {data_dir}")
+        return []
 
-    files = list(iter_input_files(DATA_DIR))
-    if not files:
-        print(f"No .json or .txt files found in: {DATA_DIR}")
+    sessions: List[Tuple[str, Dict[str, Any]]] = []
+
+    for path in iter_input_files(data_dir):
+        data = safe_load_json(path)
+        if not isinstance(data, dict):
+            continue
+        sessions.append((path.name, normalize_downloaded_session(data, source_name=path.name)))
+
+    return sessions
+
+
+def load_sessions_from_full_json(path: Path) -> List[Tuple[str, Dict[str, Any]]]:
+    data = safe_load_json(path)
+    if data is None:
+        return []
+
+    if isinstance(data, dict) and isinstance(data.get("sessions"), list):
+        records = data["sessions"]
+    elif isinstance(data, list):
+        records = data
+    else:
+        print(f"Expected a list of sessions in JSON file: {path}")
+        return []
+
+    sessions: List[Tuple[str, Dict[str, Any]]] = []
+    skipped_without_editor_data = 0
+
+    for index, record in enumerate(records, start=1):
+        if not isinstance(record, dict):
+            continue
+        normalized = normalize_downloaded_session(record, source_name=f"{path.name}:row{index}")
+        if not normalized.get("editor"):
+            skipped_without_editor_data += 1
+        source_name = str(record.get("s3_key") or record.get("session_id") or f"{path.name}:row{index}")
+        sessions.append((source_name, normalized))
+
+    if skipped_without_editor_data == len(sessions) and sessions:
+        print(
+            "Warning: This JSON file looks like a table-only export. "
+            "Use the FULL JSON export so text-editor progress is included."
+        )
+
+    return sessions
+
+
+def load_sessions_from_full_csv(path: Path) -> List[Tuple[str, Dict[str, Any]]]:
+    if not path.exists():
+        print(f"CSV file not found: {path}")
+        return []
+
+    sessions: List[Tuple[str, Dict[str, Any]]] = []
+    skipped_without_editor_data = 0
+
+    with path.open("r", encoding="utf-8-sig", newline="") as f:
+        reader = csv.DictReader(f)
+        for index, record in enumerate(reader, start=1):
+            normalized = normalize_downloaded_session(record, source_name=f"{path.name}:row{index}")
+            if not normalized.get("editor"):
+                skipped_without_editor_data += 1
+            source_name = str(record.get("s3_key") or record.get("session_id") or f"{path.name}:row{index}")
+            sessions.append((source_name, normalized))
+
+    if skipped_without_editor_data == len(sessions) and sessions:
+        print(
+            "Warning: This CSV file looks like a table-only export. "
+            "Use the FULL CSV export so text-editor progress is included."
+        )
+
+    return sessions
+
+
+def load_sessions() -> List[Tuple[str, Dict[str, Any]]]:
+    format_name = DATA_FORMAT.upper().strip()
+
+    if format_name == "TXTFILES":
+        return load_sessions_from_txt_files(TXT_DATA_DIR)
+
+    if format_name == "FULL_JSON":
+        return load_sessions_from_full_json(FULL_JSON_PATH)
+
+    if format_name == "FULL_CSV":
+        return load_sessions_from_full_csv(FULL_CSV_PATH)
+
+    raise ValueError(
+        f"Unknown DATA_FORMAT: {DATA_FORMAT}. "
+        "Use one of: TXTFILES, FULL_JSON, FULL_CSV."
+    )
+
+
+def main() -> None:
+    sessions = load_sessions()
+
+    if not sessions:
+        print("No data found.")
+        print(f"Current DATA_FORMAT: {DATA_FORMAT}")
+        print(f"TXT_DATA_DIR: {TXT_DATA_DIR}")
+        print(f"FULL_JSON_PATH: {FULL_JSON_PATH}")
+        print(f"FULL_CSV_PATH: {FULL_CSV_PATH}")
         return
 
     all_rows: List[Dict[str, Any]] = []
 
-    print(f"Reading files from: {DATA_DIR}")
+    print(f"Data format: {DATA_FORMAT}")
     print(f"Pause threshold: {PAUSE_THRESHOLD_MS} ms")
     print("-" * 72)
 
-    for path in files:
-        result = analyze_file(path)
+    for source_name, data in sessions:
+        result = analyze_session_data(data, source_name=source_name)
         if result is not None:
             all_rows.append(result)
             print(
-                f"{path.name}: "
+                f"{source_name}: "
                 f"final_words={result['final_word_count']}, "
                 f"words_added_per_min={result['words_added_per_minute']}, "
                 f"pause_count={result['pause_count']}, "
@@ -371,6 +614,7 @@ def main() -> None:
 
     print("-" * 72)
     write_csv(all_rows, OUTPUT_CSV)
+    print(f"Processed sessions with writing data: {len(all_rows)}")
     print(f"Saved output to: {OUTPUT_CSV}")
 
 

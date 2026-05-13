@@ -10,13 +10,13 @@ CONFIG YOU WILL EDIT
 
 ## Main Condition Files
 
-| File | Condition |
-| --- | --- |
-| `src/pages/NoLLM.js` | No LLM / control |
-| `src/pages/AlwaysVisibleLLM.js` | Always Visible LLM |
-| `src/pages/ToggleableLLM.js` | Toggleable LLM |
+| File                                | Condition                 |
+| ----------------------------------- | ------------------------- |
+| `src/pages/NoLLM.js`                | No LLM / control          |
+| `src/pages/AlwaysVisibleLLM.js`     | Always Visible LLM        |
+| `src/pages/ToggleableLLM.js`        | Toggleable LLM            |
 | `src/pages/ParticipantInitiated.js` | Participant-Initiated LLM |
-| `src/pages/OnlyChat.js` | Only Chat |
+| `src/pages/OnlyChat.js`             | Only Chat                 |
 
 ## Edit Participant Instructions
 
@@ -46,15 +46,15 @@ src/pages/Routes.js
 
 Current routes:
 
-| Route | Condition |
-| --- | --- |
-| `/c` | No LLM / control |
-| `/u` | Always Visible LLM |
-| `/o` | Toggleable LLM |
-| `/b` | Participant-Initiated LLM |
-| `/a` | Only Chat |
-| `/admin/login` | Admin login |
-| `/admin` | Admin dashboard |
+| Route          | Condition                 |
+| -------------- | ------------------------- |
+| `/c`           | No LLM / control          |
+| `/u`           | Always Visible LLM        |
+| `/o`           | Toggleable LLM            |
+| `/b`           | Participant-Initiated LLM |
+| `/a`           | Only Chat                 |
+| `/admin/login` | Admin login               |
+| `/admin`       | Admin dashboard           |
 
 > [!TIP]
 > Use route names that are meaningful to you but not transparent to participants.
@@ -65,13 +65,13 @@ Each condition has a `getRandomString()` function.
 
 Current patterns:
 
-| Condition | Pattern |
-| --- | --- |
-| No LLM / control | `OLxxxxxC` |
-| Always Visible LLM | `AVLxxxxxU` |
-| Toggleable LLM | `TLxxxxxO` |
-| Participant-Initiated LLM | `PIxxxxxB` |
-| Only Chat | `OCxxxxxA` |
+| Condition                 | Pattern     |
+| ------------------------- | ----------- |
+| No LLM / control          | `OLxxxxxC`  |
+| Always Visible LLM        | `AVLxxxxxU` |
+| Toggleable LLM            | `TLxxxxxO`  |
+| Participant-Initiated LLM | `PIxxxxxB`  |
+| Only Chat                 | `OCxxxxxA`  |
 
 The dashboard derives condition labels from these patterns. If you change them, update:
 
@@ -97,12 +97,12 @@ const backgroundAIMessage = "";
 
 Supported provider names are handled by the backend:
 
-| Provider value | Provider |
-| --- | --- |
-| `chatgpt` | OpenAI |
-| `claude` | Anthropic Claude |
-| `gemini` | Google Gemini |
-| `groq` | Groq |
+| Provider value | Provider         |
+| -------------- | ---------------- |
+| `chatgpt`      | OpenAI           |
+| `claude`       | Anthropic Claude |
+| `gemini`       | Google Gemini    |
+| `groq`         | Groq             |
 
 Provider keys belong in backend or cloud environment variables, never in frontend code.
 
@@ -210,9 +210,9 @@ src/pages/admin/
 
 Important files:
 
-| File | Purpose |
-| --- | --- |
-| `AdminLogin.js` | Password form and token storage. |
+| File            | Purpose                                                       |
+| --------------- | ------------------------------------------------------------- |
+| `AdminLogin.js` | Password form and token storage.                              |
 | `AdminPanel.js` | Session table, filters, detail modal, exports, delete action. |
 
 The dashboard calls:
@@ -222,19 +222,3 @@ POST /api/admin/login
 GET /api/admin/sessions
 DELETE /api/admin/sessions
 ```
-
-## Edit Backend Defaults
-
-Local backend:
-
-```text
-backend/server.js
-```
-
-AWS Lambda backend:
-
-```text
-lambda/index.mjs
-```
-
-If you change backend behavior, keep both files aligned unless you intentionally use different local and deployed behavior.

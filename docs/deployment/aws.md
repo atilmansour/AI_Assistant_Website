@@ -4,18 +4,20 @@ This guide preserves the original AWS deployment workflow and reorganizes it int
 
 The AWS deployment uses:
 
-| Project layer | AWS service |
-| --- | --- |
-| Frontend website | AWS Amplify |
-| API endpoint | API Gateway HTTP API |
-| Backend code | AWS Lambda |
-| Experiment logs | S3 bucket |
-| Backend secrets | Lambda environment variables |
+| Project layer    | AWS service                  |
+| ---------------- | ---------------------------- |
+| Frontend website | AWS Amplify                  |
+| API endpoint     | API Gateway HTTP API         |
+| Backend code     | AWS Lambda                   |
+| Experiment logs  | S3 bucket                    |
+| Backend secrets  | Lambda environment variables |
 
 > [!IMPORTANT]
 > Work in one AWS Region consistently. If you create S3 in one region and Lambda/API Gateway in another, permissions and integrations become harder to debug.
 
 ## Before You Start
+
+> **Time estimation for this step: 50 mins**
 
 You need:
 
@@ -63,9 +65,6 @@ In your local `backend/.env`, set:
 REACT_APP_BucketS3=YOUR_BUCKET_NAME
 ```
 
-> [!NOTE]
-> For deployed Lambda, prefer giving Lambda permission through its IAM execution role instead of storing AWS access keys inside Lambda.
-
 ## 3. Create the Lambda Function
 
 1. Open the AWS Console.
@@ -82,15 +81,6 @@ REACT_APP_BucketS3=YOUR_BUCKET_NAME
 2. In **Code source**, delete the default code.
 3. Paste the contents of [`lambda/index.mjs`](../../lambda/index.mjs).
 4. Click **Deploy**.
-
-If your Lambda deployment process packages dependencies, use the files in `lambda/`:
-
-```bash
-cd lambda
-npm install
-```
-
-Then package `index.mjs`, `package.json`, `package-lock.json`, and `node_modules/` into a deployment ZIP. Do not commit the ZIP or `node_modules/` to GitHub.
 
 ### Give Lambda Permission to Use S3
 
@@ -111,10 +101,11 @@ Minimum actions usually needed:
 
 ### Increase Lambda Timeout
 
+1. Return again to Configuration.
 1. Open **Configuration**.
-2. Open **General configuration**.
-3. Set timeout to about `1 min`.
-4. Save.
+1. Open **General configuration**.
+1. Set timeout to about `1 min`.
+1. Save.
 
 ## 4. Add Lambda Environment Variables
 
@@ -122,7 +113,7 @@ Open the Lambda function:
 
 1. Go to **Configuration**.
 2. Open **Environment variables**.
-3. Add the values your experiment needs.
+3. Add the values your experiment needs (for the LLM keys, add all keys, including the empty ones).
 
 Recommended variables:
 
@@ -151,14 +142,14 @@ ALLOWED_ORIGINS=https://your-amplify-domain.amplifyapp.com,http://localhost:3000
 
 Create routes for the current project:
 
-| Method | Route | Purpose |
-| --- | --- | --- |
-| `POST` | `/api/ai` | Calls the selected LLM provider. |
-| `POST` | `/api/logs` | Saves submitted experiment logs to S3. |
-| `POST` | `/api/admin/login` | Authenticates dashboard access. |
-| `GET` | `/api/admin/sessions` | Lists saved sessions for the dashboard. |
-| `DELETE` | `/api/admin/sessions` | Deletes a selected session. |
-| `OPTIONS` | each route, or global CORS | Supports browser preflight requests. |
+| Method    | Route                      | Purpose                                 |
+| --------- | -------------------------- | --------------------------------------- |
+| `POST`    | `/api/ai`                  | Calls the selected LLM provider.        |
+| `POST`    | `/api/logs`                | Saves submitted experiment logs to S3.  |
+| `POST`    | `/api/admin/login`         | Authenticates dashboard access.         |
+| `GET`     | `/api/admin/sessions`      | Lists saved sessions for the dashboard. |
+| `DELETE`  | `/api/admin/sessions`      | Deletes a selected session.             |
+| `OPTIONS` | each route, or global CORS | Supports browser preflight requests.    |
 
 > [!IMPORTANT]
 > If `/api/admin/login` is missing, the deployed dashboard will fail with `404 Not Found`, and the browser may also show a CORS error because API Gateway generated the 404 response.
@@ -298,14 +289,14 @@ The completion code is also the saved `.txt` file name, which lets you match wri
 
 ## Troubleshooting
 
-| Problem | Likely cause | Fix |
-| --- | --- | --- |
-| `Failed to fetch` | Frontend cannot reach API Gateway. | Check `REACT_APP_API_BASE`, redeploy Amplify, and inspect browser Network tab. |
-| `404` on `/api/admin/login` | API Gateway route is missing or not integrated with Lambda. | Add `POST /api/admin/login` and redeploy the API stage. |
-| CORS error | API Gateway or Lambda response lacks allowed origin headers. | Configure API Gateway CORS and set `ALLOWED_ORIGINS` in Lambda. |
-| `ADMIN_PASSWORD is not configured` | Lambda env var missing. | Add `ADMIN_PASSWORD` to Lambda environment variables. |
-| Logs do not save | Missing bucket env var or Lambda lacks S3 permission. | Check `REACT_APP_BucketS3`/`BUCKET_NAME` and IAM role permissions. |
-| LLM replies fail | Provider key missing or invalid. | Check provider env vars and CloudWatch Lambda logs. |
+| Problem                            | Likely cause                                                 | Fix                                                                            |
+| ---------------------------------- | ------------------------------------------------------------ | ------------------------------------------------------------------------------ |
+| `Failed to fetch`                  | Frontend cannot reach API Gateway.                           | Check `REACT_APP_API_BASE`, redeploy Amplify, and inspect browser Network tab. |
+| `404` on `/api/admin/login`        | API Gateway route is missing or not integrated with Lambda.  | Add `POST /api/admin/login` and redeploy the API stage.                        |
+| CORS error                         | API Gateway or Lambda response lacks allowed origin headers. | Configure API Gateway CORS and set `ALLOWED_ORIGINS` in Lambda.                |
+| `ADMIN_PASSWORD is not configured` | Lambda env var missing.                                      | Add `ADMIN_PASSWORD` to Lambda environment variables.                          |
+| Logs do not save                   | Missing bucket env var or Lambda lacks S3 permission.        | Check `REACT_APP_BucketS3`/`BUCKET_NAME` and IAM role permissions.             |
+| LLM replies fail                   | Provider key missing or invalid.                             | Check provider env vars and CloudWatch Lambda logs.                            |
 
 ## AWS Documentation Links
 

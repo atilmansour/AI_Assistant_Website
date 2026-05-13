@@ -1,5 +1,5 @@
 participant_id,source_file,n_words_from_llm,longest_phrase_from_llm_n_words,longest_phrase_from_llm_text,final_text_word_count,n_assistant_messages_used,include_initial_assistant_messages,has_messages_field,has_editor_field
-AVLUANYLU,AVLUANYLU.txt,37,27,as i walked into the room and saw everyone already chatting in small groups my heart sank and i wondered if i had made a terrible mistake,100,2,False,True,True
-OLAN8ANC,OLAN8ANC.txt,0,0,,66,0,False,True,True
-PIZX0FFB,PIZX0FFB.txt,29,6,that settles deep within the soul,64,3,False,True,True
 TLV9S9OO,TLV9S9OO.txt,19,13,pages whisper secrets softly each tale a world i ve quietly come upon,62,4,False,True,True
+AVLUANYLU,AVLUANYLU.txt,37,27,as i walked into the room and saw everyone already chatting in small groups my heart sank and i wondered if i had made a terrible mistake,100,2,False,True,True
+PIZX0FFB,PIZX0FFB.txt,29,6,that settles deep within the soul,64,3,False,True,True
+OLAN8ANC,OLAN8ANC.txt,0,0,,66,0,False,True,True

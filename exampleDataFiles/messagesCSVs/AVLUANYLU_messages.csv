@@ -1,8 +1,8 @@
-timestamp,sender,text
-517,LLMAssistant,"Hello, this is a present message that you can edit in your code in AlwaysVisibleLLM.js (initialMessages)."
-517,LLMAssistant,"This is the second message, you can edit, add more, or delete me."
-53733,user,can u see my story
-53733,LLMAssistant,"Yes, I can see the beginning of your story! You've written:
+﻿message_number,timestamp,sender,text
+1,517,LLMAssistant,"Hello, this is a present message that you can edit in your code in AlwaysVisibleLLM.js (initialMessages)."
+2,517,LLMAssistant,"This is the second message, you can edit, add more, or delete me."
+3,53733,user,can u see my story
+4,53733,LLMAssistant,"Yes, I can see the beginning of your story! You've written:
 
 ""When I was young, I went to a new program where I knew no one. I felt very anxious about being the only one to join the program 'late'.""
 
@@ -15,8 +15,8 @@ Would you like to continue developing this story? I can help you think about:
 - What you learned from the experience
 
 What direction would you like to take the story in?"
-79630,user,can u give me one sentence suggestion on how to continue
-79630,LLMAssistant,"Here's a sentence you could use to continue:
+5,79630,user,can u give me one sentence suggestion on how to continue
+6,79630,LLMAssistant,"Here's a sentence you could use to continue:
 
 ""As I walked into the room and saw everyone already chatting in small groups, my heart sank and I wondered if I had made a terrible mistake.""
 
