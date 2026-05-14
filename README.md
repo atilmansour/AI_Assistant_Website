@@ -21,7 +21,7 @@ This project is designed for psychology researchers, behavioral scientists, grad
 **Preparing your Experiment (Tutorial from installation of the code to deployment)**
 
 - [Installation and Local Setup](#installation-and-local-setup)
-- [Customizing your Experimental Conditions](#customization-your-experimental-conditions)
+- [Customizing your Experimental Conditions](#customizing-your-experimental-conditions)
 - [Local Testing](#local-testing)
 - [Deployment Options](#deployment-options)
 
@@ -473,7 +473,7 @@ The `CodeAnalysisData/` folder contains Python scripts for extracting and analyz
 | `literalLLMLanguageIncorporation.py`  | Estimate direct reuse of LLM-generated language.                   |
 | `IndirectLLMLanguageIncorporation.py` | Estimate semantic similarity between final text and LLM responses. |
 
-See [Data and analysis](docs/data-and-analysis.md).
+See [Data and analysis](docs/data-and-analysis.md), example data, and analysis output for more details.
 
 ## Repository Map
 
