@@ -879,7 +879,9 @@ const SessionModal = ({ session, detailTab, setDetailTab, onClose }) => {
               <div style={s.editorPaneBody}>
                 <textarea
                   readOnly
-                  value={session.text_editor_final_submission || ""}
+                  value={
+                    htmlToPlainText(session.text_editor_final_submission) || ""
+                  }
                   placeholder="No final text-editor submission recorded."
                   style={s.textareaFill}
                 />

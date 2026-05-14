@@ -237,6 +237,9 @@ Recommended condition URLs:
 
 You can download individual `.txt` files directly from the S3 Console.
 
+> [!NOTE]
+> You may download the data as `.csv` or `.json` directly from the dashboard.
+
 For bulk download, use the AWS CLI.
 
 ### Create an IAM User for CLI Download
