@@ -172,7 +172,7 @@ const OnlyChat = () => {
       window.removeEventListener("blur", handleBlur);
       window.removeEventListener("focus", handleFocus);
     };
-  }, []);
+  }, [includeWarning]);
 
   // ----------------------------
   // Time requirement (minimum time on page)

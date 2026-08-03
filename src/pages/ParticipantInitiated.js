@@ -210,7 +210,7 @@ const ParticipantInitiated = () => {
       window.removeEventListener("blur", handleBlur);
       window.removeEventListener("focus", handleFocus);
     };
-  }, []);
+  }, [includeWarning]);
 
   // ----------------------------
   // Word requirement
@@ -474,19 +474,6 @@ const ParticipantInitiated = () => {
           )}
 
           <div className="assistant-inner">
-            <div className="chat-shell-header">
-              <div>LLM Assistant</div>
-
-              <button
-                className="chat-close"
-                onClick={closeChat}
-                aria-label="Close chat"
-                type="button"
-              >
-                ✕
-              </button>
-            </div>
-
             <AI_API
               onMessagesSubmit={handleMessages}
               // CONFIG YOU WILL EDIT:

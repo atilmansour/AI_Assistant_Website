@@ -198,7 +198,7 @@ const AlwaysVisibleLLM = () => {
       window.removeEventListener("blur", handleBlur);
       window.removeEventListener("focus", handleFocus);
     };
-  }, []);
+  }, [includeWarning]);
 
   // ----------------------------
   // Time requirement (minimum time on page)
@@ -422,10 +422,6 @@ const AlwaysVisibleLLM = () => {
           {isChatOpen}
 
           <div className="assistant-inner">
-            <div className="chat-shell-header">
-              <div>LLM Assistant</div>
-            </div>
-
             <AI_API
               onMessagesSubmit={handleMessages}
               // CONFIG YOU WILL EDIT:

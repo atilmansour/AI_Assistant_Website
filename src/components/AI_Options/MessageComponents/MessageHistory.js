@@ -16,8 +16,23 @@ const MessageHistory = ({ messages }) => {
   const messagesEndRef = useRef(null);
 
   // Scroll to the bottom of the chat
+  // Scroll to the bottom of the chat
   const scrollToBottom = () => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const target = messagesEndRef.current;
+    if (!target) return;
+
+    requestAnimationFrame(() => {
+      let element = target.parentElement;
+
+      while (element) {
+        if (element.scrollHeight > element.clientHeight) {
+          element.scrollTop = element.scrollHeight;
+        }
+
+        if (element.id === "chat-container") break;
+        element = element.parentElement;
+      }
+    });
   };
 
   // Whenever messages change, scroll down to the latest one

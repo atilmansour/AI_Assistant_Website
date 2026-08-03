@@ -223,7 +223,7 @@ const ToggleableLLM = () => {
       window.removeEventListener("blur", handleBlur);
       window.removeEventListener("focus", handleFocus);
     };
-  }, []);
+  }, [includeWarning]);
 
   // ----------------------------
   // Time requirement (minimum time on page)
@@ -459,19 +459,6 @@ const ToggleableLLM = () => {
           )}
 
           <div className="assistant-inner">
-            <div className="chat-shell-header">
-              <div>LLM Assistant</div>
-
-              <button
-                className="chat-close"
-                onClick={closeChat}
-                aria-label="Close chat"
-                type="button"
-              >
-                ✕
-              </button>
-            </div>
-
             <AI_API
               onMessagesSubmit={handleMessages}
               // CONFIG YOU WILL EDIT: present chat messages
