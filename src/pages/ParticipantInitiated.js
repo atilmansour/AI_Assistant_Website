@@ -48,7 +48,7 @@ const ParticipantInitiated = () => {
 
   // CONFIG YOU WILL EDIT:
   // When true, participants see a warning after leaving and returning to the study page.
-  const includeWarning = true;
+  const includeWarning = false;
   const warningMessage = "ADD HERE YOUR WARNING MESSAGE.";
   const [showNavigationWarning, setShowNavigationWarning] = useState(false);
 

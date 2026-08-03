@@ -405,17 +405,17 @@ button:hover {
   margin-right: 0;
   box-sizing: border-box;
 
-  padding: 16px 18px;
+  padding: clamp(8px, 1.2vw, 16px) clamp(10px, 1.4vw, 18px);
   border-radius: 10px;
-  font-size: 18px;
+  font-size: clamp(12px, 1.2vw, 18px);
 }
 
 #chat-container .user-send button {
   flex: 0 0 auto;
   width: auto;
-  padding: 16px 22px;
+  padding: clamp(8px, 1.2vw, 16px) clamp(10px, 1.6vw, 22px);
   border-radius: 10px;
-  font-size: 20px;
+  font-size: clamp(12px, 1.2vw, 20px);
 }
 
 /* ========= Submit button ========= */
