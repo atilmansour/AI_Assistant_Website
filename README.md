@@ -2,9 +2,9 @@
 
 This tutorial introduces a friendly, open-source foundation for controlled experiments on how people use large language model assistance while writing, revising, and making decisions.
 
-The tutorial introduces free open-source code, with detailed step-by-step instructions including the installation of the code, building experimental conditions, the deployment of the web application, and data cleaning suggestions.
+The tutorial introduces free open-source code, with detailed step-by-step instructions including the installation of the code, building experimental templates, the deployment of the web application, and data cleaning suggestions.
 
-This project is designed for psychology researchers, behavioral scientists, graduate students, and research labs that want to run web-based studies with carefully controlled LLM access conditions.
+This project is designed for psychology researchers, behavioral scientists, graduate students, and research labs that want to run web-based studies with carefully controlled LLM access templates.
 
 > [!NOTE]
 > The platform is free and open-source, but deployed studies may incur costs from LLM providers and cloud services such as AWS or Azure.
@@ -14,14 +14,14 @@ This project is designed for psychology researchers, behavioral scientists, grad
 **Understand the Platform**
 
 - [What This Platform Does and Who It Is For](#what-this-platform-does)
-- [Experimental Conditions](#experimental-conditions)
+- [Experimental Templates](#experimental-templates)
 - [Researcher Dashboard](#researcher-dashboard)
 - [Architecture](#architecture)
 
 **Preparing your Experiment (Tutorial from installation of the code to deployment)**
 
 - [Installation and Local Setup](#installation-and-local-setup)
-- [Customizing your Experimental Conditions](#customizing-your-experimental-conditions)
+- [Customizing your Experimental Templates](#customizing-your-experimental-templates)
 - [Local Testing](#local-testing)
 - [Deployment Options](#deployment-options)
 
@@ -38,14 +38,14 @@ This project is designed for psychology researchers, behavioral scientists, grad
 
 ## What This Platform Does
 
-The platform lets researchers run browser-based experiments where participants complete a writing task under different LLM-access conditions. Depending on the condition, participants may write without LLM, see an always-visible LLM assistant, toggle the LLM assistant open and closed, initiate LLM assistance only when needed, or interact with chat only.
+The platform lets researchers run browser-based experiments where participants complete a writing task under different LLM-access templates. Depending on the template, participants may write without LLM, see an always-visible LLM assistant, toggle the LLM assistant open and closed, initiate LLM assistance only when needed, or interact with chat only.
 
 It records study-relevant behavior such as:
 
 - The final submitted text.
 - Time-stamped text-editor progress snapshots after each space addition and deletion.
 - Time-stamped chat messages between participant and LLM.
-- LLM provider/model configuration per condition.
+- LLM provider/model configuration per template.
 - Time-stamped submission attempts.
 - Tab/window leave behavior.
 - LLM assistant open/collapse events where applicable.
@@ -55,37 +55,37 @@ It records study-relevant behavior such as:
 
 This tutorial is intended for researchers, graduate students, research labs, and technical collaborators interested in conducting controlled experiments on LLM-assisted writing. The platform is especially useful for those who want to compare different forms of LLM assistance, customize experimental instructions and prompts, deploy reusable web-based studies, and collect detailed process-level data without building a full experimental system from scratch.
 
-## Experimental Conditions
+## Experimental Templates
 
-The current project includes five customizable conditions. Each condition has its own route and completion-code pattern.
+The current project includes five customizable templates. Each template has its own route and completion-code pattern.
 
-| Index | Condition                 | URL  | Completion code pattern | Core manipulation                                                  | Research Purpose                                                                                                                                                                                                                                                                                                                                                                  |
-| ----- | ------------------------- | ---- | ----------------------- | ------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1     | No LLM / control          | `/c` | `OLxxxxxC`              | Text editor only, no LLM access.                                   | It allows examining your dependent variable (DV) without having access to an LLM Assistant, and can serve as a control condition to all others.                                                                                                                                                                                                                                   |
-| 2     | Always Visible LLM        | `/u` | `AVLxxxxxU`             | Text editor and assistant visible throughout the task.             | It allows examining your DV when LLM assistance is highly available and continuously salient.                                                                                                                                                                                                                                                                                     |
-| 3     | Toggleable LLM            | `/o` | `TLxxxxxO`              | Text editor plus assistant that can be shown/collapsed.            | It allows examining your DV when participants have control over the visibility of the LLM assistant window. Thus, making this condition especially useful when studying help-seeking decisions.                                                                                                                                                                                   |
-| 4     | Participant-Initiated LLM | `/b` | `PIxxxxxB`              | Assistant opens only after the participant chooses to activate it. | It allows examining your DV when participants initiate the LLM assistant window rather than being proactively offered, placing greater emphasis on intentional help seeking. Thus, this condition may be especially useful when the goal is to examine the threshold for consulting the LLM assistant and the circumstances under which participants decide they need assistance. |
-| 5     | Only Chat                 | `/a` | `OCxxxxxA`              | Chat-only interaction without a separate text editor.              | It allows examining your DV when participants produce their writing only by interacting with the LLM assistant, without an option to independently write in a text editor. Thus, this condition may be especially useful when the LLM is not merely a support tool but the primary medium through which text is produced.                                                         |
+| Index | Template                  | URL  | Completion code pattern | Core manipulation                                                  | Research Purpose                                                                                                                                                                                                                                                                                                                                                                 |
+| ----- | ------------------------- | ---- | ----------------------- | ------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1     | No LLM / control          | `/c` | `OLxxxxxC`              | Text editor only, no LLM access.                                   | It allows examining your dependent variable (DV) without having access to an LLM Assistant, and can serve as a control template to all others.                                                                                                                                                                                                                                   |
+| 2     | Always Visible LLM        | `/u` | `AVLxxxxxU`             | Text editor and assistant visible throughout the task.             | It allows examining your DV when LLM assistance is highly available and continuously salient.                                                                                                                                                                                                                                                                                    |
+| 3     | Toggleable LLM            | `/o` | `TLxxxxxO`              | Text editor plus assistant that can be shown/collapsed.            | It allows examining your DV when participants have control over the visibility of the LLM assistant window. Thus, making this template especially useful when studying help-seeking decisions.                                                                                                                                                                                   |
+| 4     | Participant-Initiated LLM | `/b` | `PIxxxxxB`              | Assistant opens only after the participant chooses to activate it. | It allows examining your DV when participants initiate the LLM assistant window rather than being proactively offered, placing greater emphasis on intentional help seeking. Thus, this template may be especially useful when the goal is to examine the threshold for consulting the LLM assistant and the circumstances under which participants decide they need assistance. |
+| 5     | Only Chat                 | `/a` | `OCxxxxxA`              | Chat-only interaction without a separate text editor.              | It allows examining your DV when participants produce their writing only by interacting with the LLM assistant, without an option to independently write in a text editor. Thus, this template may be especially useful when the LLM is not merely a support tool but the primary medium through which text is produced.                                                         |
 
 ### 1. No LLM / Control
 
 Below is a screenshot of how this mode looks to participants.
 
-![No LLM condition](images/c_No_LLM.png)
+![No LLM](images/c_No_LLM.png)
 
-Use this condition when you need a baseline for writing without LLM assistance. It supports questions about how outcomes differ when participants complete the task independently.
+Use this template when you need a baseline for writing without LLM assistance. It supports questions about how outcomes differ when participants complete the task independently.
 
 ### 2. Always Visible LLM
 
 Below is a screenshot of how this mode looks to participants.
 
-![Always Visible LLM condition](images/u_Always_Visible_LLM.png)
+![Always Visible LLM](images/u_Always_Visible_LLM.png)
 
-Use this condition when the LLM should be highly available and continuously salient. It supports questions about reliance, cognitive offloading, writing quality, and behavior when assistance is always present.
+Use this template when the LLM should be highly available and continuously salient. It supports questions about reliance, cognitive offloading, writing quality, and behavior when assistance is always present.
 
 ### 3. Toggleable LLM
 
-This condition is useful when you want to study how participants manage access to assistance over time.
+This template is useful when you want to study how participants manage access to assistance over time.
 
 Below are screenshots of how this mode looks before and after the assistant is visible.
 
@@ -99,30 +99,30 @@ It supports questions about help-seeking, avoidance, attention, and whether part
 
 Below is a screenshot of how this mode looks to participants.
 
-![Participant-Initiated LLM condition](images/b_Participant_Initiated_LLM.png)
+![Participant-Initiated LLM](images/b_Participant_Initiated_LLM.png)
 
-Use this condition when you want the participant to make an explicit decision to request LLM assistance. It is especially useful for studying thresholds for help-seeking and intentional LLM use.
+Use this template when you want the participant to make an explicit decision to request LLM assistance. It is especially useful for studying thresholds for help-seeking and intentional LLM use.
 
 ### 5. Only Chat
 
 Below is a screenshot of how this mode looks to participants.
 
-![Only Chat condition](images/a_Only_Chat.png)
+![Only Chat](images/a_Only_Chat.png)
 
-Use this condition when the LLM is the primary production medium rather than a support tool. It supports questions about prompting, delegation, authorship, and text generation through conversational interaction.
+Use this template when the LLM is the primary production medium rather than a support tool. It supports questions about prompting, delegation, authorship, and text generation through conversational interaction.
 
-> Note: In all conditions, participants who try to submit before they meet the adjustable word count threshold and minimum time spent in the writing task (default thresholds are 50 words and 3 minutes) will receive a customizable pop-up message.
+> Note: In all templates, participants who try to submit before they meet the adjustable word count threshold and minimum time spent in the writing task (default thresholds are 50 words and 3 minutes) will receive a customizable pop-up message.
 >
-> Moreover, in all conditions, after participants submit their responses, they are directed to a thank-you page (`thankyou.js` file, located in `src/pages` folder) that instructs participants on how to continue the study. Finally, in all conditions that include an LLM Assistant window, the window includes messages displayed to participants that can be customized or deleted. These messages can be customized to instruct or encourage participants to interact with the LLM Assistant.
+> Moreover, in all templates, after participants submit their responses, they are directed to a thank-you page (`thankyou.js` file, located in `src/pages` folder) that instructs participants on how to continue the study. Finally, in all templates that include an LLM Assistant window, the window includes messages displayed to participants that can be customized or deleted. These messages can be customized to instruct or encourage participants to interact with the LLM Assistant.
 
 ### 6. **Creating new conditions**:
 
-- **_Purpose_**: In addition to selecting the experimental conditions, several features within each of the conditions can be customized, and thus, allow the comparison of the condition and its duplicated version to compare certain features. Creating new conditions allows testing differences between several features of the same original condition, such as the option to copy and paste, LLM types, background information given to the LLM Assistant, etc.
+- **_Purpose_**: In addition to selecting the experimental templates, several features within each of the templates can be customized, and thus, allow the comparison of the template and its duplicated version to compare certain features. Creating new templates allows testing differences between several features of the same original template, such as the option to copy and paste, LLM types, background information given to the LLM Assistant, etc.
 - **_How to duplicate_**:
   1. Create a new JavaScript file (.js file) by pressing the 'new file' button, the file name needs to start with a capital letter.
-  2. Copy-paste the original condition's content into the new one.
-  3. Change the name of the condition by going to the last line 'export default NAME' and changing all the appearances of the name to fit your new condition (press `Ctrl+F` to find all the appearances of the condition's name), the name needs to start with a capital letter.
-  4. Create a specific path to the new condition, access the `Routes.js` file, which is located in the `src/pages` folder. In the `Routes.js` file, add an import line `import NAME from "./JS_FILE_NAME";`, and a Route path, as instructed in the file's comments.
+  2. Copy-paste the original template's content into the new one.
+  3. Change the name of the template by going to the last line 'export default NAME' and changing all the appearances of the name to fit your new template (press `Ctrl+F` to find all the appearances of the template's name), the name needs to start with a capital letter.
+  4. Create a specific path to the new template, access the `Routes.js` file, which is located in the `src/pages` folder. In the `Routes.js` file, add an import line `import NAME from "./JS_FILE_NAME";`, and a Route path, as instructed in the file's comments.
 
 ## Researcher Dashboard
 
@@ -335,15 +335,15 @@ Create `backend/.env` file (name the file `.env` and put it in the `backend` fol
 
 - **_backend/server.js_**: This file calls ChatGPT/Claude/Gemini securely (API keys stay private). Here, you can change model names and max tokens here.
 
-  > You may change the components of each LLM's API: The default is max_tokens = 1000, and the following models: gpt-4o (ChatGPT), 2.5-flash (Gemini), 4 sonnet (Claude), and llama-3.3-70b-versatile (Groq). You may adjust these to your liking in each experimental condition.
+  > You may change the components of each LLM's API: The default is max_tokens = 1000, and the following models: gpt-4o (ChatGPT), 2.5-flash (Gemini), 4 sonnet (Claude), and llama-3.3-70b-versatile (Groq). You may adjust these to your liking in each experimental template.
 
   > You can find more information about each LLM on their official API website, and choose the model that best fits your needs.
 
-## Customizing your Experimental Conditions
+## Customizing your Experimental Templates
 
 > **Time estimation for this step: 60 mins+**
 
-After downloading all the required applications, having your own copy of the code locally, and setting up the LLM API keys, the second step is to prepare the experimental conditions you want to use in your experiments. This includes preparing and customizing the experimental conditions according to your purposes.
+After downloading all the required applications, having your own copy of the code locally, and setting up the LLM API keys, the second step is to prepare the experimental conditions you want to use in your experiments. This includes preparing and customizing the experimental templates according to your purposes.
 
 For relevant change suggestions only, search **`CONFIG YOU WILL EDIT`** (press `Ctrl+F`) to find out about all appearances of the required or recommended adjustments in the experiemntal file.
 
@@ -355,19 +355,19 @@ Finally, after the participants submit their responses, they are redirected to a
 
 Common changes:
 
-| What you want to change           | Where to look                                       |
-| --------------------------------- | --------------------------------------------------- |
-| Participant instructions          | condition pages in `src/pages/`                     |
-| Completion-code prefixes/suffixes | `getRandomString()` in each condition page          |
-| LLM provider/model                | `LLMProvider` and `LLMModel` in LLM condition pages |
-| Assistant background prompt       | `backgroundAIMessage` in LLM condition pages        |
-| Initial assistant messages        | `initialMessages` passed into `AI_API`              |
-| Minimum word/time rules           | condition pages in `src/pages/`                     |
-| Paste behavior                    | `pasteFlag` and `QuillTextEditor.js`                |
-| Routes/URLs                       | `src/pages/Routes.js`                               |
-| Thank-you message                 | `src/pages/ThankYou.js`                             |
-| Dashboard behavior                | `src/pages/admin/`                                  |
-| Design/Style                      | `App.css`                                           |
+| What you want to change           | Where to look                                      |
+| --------------------------------- | -------------------------------------------------- |
+| Participant instructions          | template pages in `src/pages/`                     |
+| Completion-code prefixes/suffixes | `getRandomString()` in each template page          |
+| LLM provider/model                | `LLMProvider` and `LLMModel` in LLM template pages |
+| Assistant background prompt       | `backgroundAIMessage` in LLM template pages        |
+| Initial assistant messages        | `initialMessages` passed into `AI_API`             |
+| Minimum word/time rules           | template pages in `src/pages/`                     |
+| Paste behavior                    | `pasteFlag` and `QuillTextEditor.js`               |
+| Routes/URLs                       | `src/pages/Routes.js`                              |
+| Thank-you message                 | `src/pages/ThankYou.js`                            |
+| Dashboard behavior                | `src/pages/admin/`                                 |
+| Design/Style                      | `App.css`                                          |
 
 See [Customization guide](docs/customization.md) for a more detailed walkthrough.
 
@@ -405,7 +405,7 @@ The app usually opens at:
 http://localhost:3000
 ```
 
-Try condition routes such as:
+Try template routes such as:
 
 ```text
 http://localhost:3000/c
@@ -439,16 +439,16 @@ Now that you tested your conditions, it's time to deploy it!
 
 ## What Data Is Collected
 
-Each submitted session is saved as a `.txt` file containing JSON. The exact fields depend on the condition.
+Each submitted session is saved as a `.txt` file containing JSON. The exact fields depend on the template.
 
-| Field                     | Meaning                                                                                     | Conditions                           |
+| Field                     | Meaning                                                                                     | Templates                            |
 | ------------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------ |
 | `id`                      | Completion/session code. Also used as the saved file name.                                  | All                                  |
-| `LLMProvider`             | Provider selected in the condition page, for example `chatgpt`.                             | LLM conditions                       |
-| `LLMModel`                | Model selected in the condition page, for example `gpt-4o`.                                 | LLM conditions                       |
-| `backgroundLLMMessage`    | Background instruction/context sent to the assistant.                                       | LLM conditions                       |
-| `messages`                | Timestamped participant and assistant messages.                                             | LLM conditions                       |
-| `editor`                  | Timestamped text-editor snapshots. The last snapshot is the final submitted editor content. | Editor conditions                    |
+| `LLMProvider`             | Provider selected in the template page, for example `chatgpt`.                              | LLM templates                        |
+| `LLMModel`                | Model selected in the template page, for example `gpt-4o`.                                  | LLM templates                        |
+| `backgroundLLMMessage`    | Background instruction/context sent to the assistant.                                       | LLM templates                        |
+| `messages`                | Timestamped participant and assistant messages.                                             | LLM templates                        |
+| `editor`                  | Timestamped text-editor snapshots. The last snapshot is the final submitted editor content. | Editor templates                     |
 | `chatEvents`              | Assistant open/expand/collapse events.                                                      | Toggleable and Participant-Initiated |
 | `ButtonPressed`           | Time at which participant initiated assistant access.                                       | Participant-Initiated                |
 | `NumOfSubmitClicks`       | Number of submit attempts.                                                                  | All                                  |
@@ -479,7 +479,7 @@ See [Data and analysis](docs/data-and-analysis.md), example data, and analysis o
 
 ```text
 AI_Assistant_Website/
-  src/pages/                 experiment conditions and admin dashboard
+  src/pages/                 experiment templates and admin dashboard
   src/components/            text editor and LLM chat components
   backend/server.js          local Express backend
   lambda/index.mjs           AWS Lambda backend
@@ -498,7 +498,7 @@ AI_Assistant_Website/
 | CORS error                                        | Confirm your frontend origin is allowed by the backend/Lambda and API Gateway configuration.                    |
 | Logs are not saved                                | Confirm `REACT_APP_BucketS3` or `BUCKET_NAME` is set and the backend has storage permissions.                   |
 | LLM replies fail                                  | Confirm the selected provider key is configured and the provider/model name is valid.                           |
-| Condition is not recognized in dashboard          | Confirm the completion code pattern matches the expected prefix/suffix table above.                             |
+| Template is not recognized in dashboard           | Confirm the completion code pattern matches the expected prefix/suffix table above.                             |
 
 ## License and Credits
 

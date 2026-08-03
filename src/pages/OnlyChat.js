@@ -38,6 +38,12 @@ const OnlyChat = () => {
   const [totalNavigatedAwayMs, setTotalNavigatedAwayMs] = useState(0);
   const [navigatedAwayExplained, setNavigatedAwayExplained] = useState([]);
 
+  // CONFIG YOU WILL EDIT:
+  // When true, participants see a warning after leaving and returning to the study page.
+  const includeWarning = true;
+  const warningMessage = "ADD HERE YOUR WARNING MESSAGE.";
+  const [showNavigationWarning, setShowNavigationWarning] = useState(false);
+
   // ----------------------------
   // MODALS + SUBMIT STATE
   // ----------------------------
@@ -115,6 +121,10 @@ const OnlyChat = () => {
         atMs: getTimeMs(),
         reason,
       };
+
+      if (includeWarning) {
+        setShowNavigationWarning(true);
+      }
     };
 
     const markReturned = () => {
@@ -336,6 +346,22 @@ const OnlyChat = () => {
           </div>
         </div>
       </div>
+
+      {includeWarning && showNavigationWarning && (
+        <div className="navigation-warning-overlay">
+          <div className="navigation-warning-content">
+            <div>{warningMessage}</div>
+
+            <button
+              type="button"
+              className="navigation-warning-button"
+              onClick={() => setShowNavigationWarning(false)}
+            >
+              I understand
+            </button>
+          </div>
+        </div>
+      )}
 
       <div id="submit-and-open">
         <div id="submit-button-exp">

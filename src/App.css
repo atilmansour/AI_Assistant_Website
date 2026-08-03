@@ -639,3 +639,32 @@ button:hover {
   flex: 1;
   overflow-y: auto;
 }
+
+
+.navigation-warning-overlay {
+  position: fixed;
+  inset: 0;
+  background-color: #b00020;
+  color: white;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px;
+  text-align: center;
+}
+
+.navigation-warning-content {
+  max-width: 760px;
+  font-size: 28px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.navigation-warning-button {
+  margin-top: 30px;
+  padding: 12px 24px;
+  font-size: 18px;
+  font-weight: 700;
+  cursor: pointer;
+}
