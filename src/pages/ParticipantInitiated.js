@@ -22,11 +22,11 @@ import "../App.css";
 const ParticipantInitiated = () => {
   // CONFIG YOU WILL EDIT:
   // Choose provider: "chatgpt" | "claude" | "gemini" | "groq"
-  const LLMProvider = "claude";
+  const LLMProvider = "groq";
   // CONFIG YOU WILL EDIT:
   //You can specify here the model you want according to the provider, the default models are:
   // "gpt-4o" | "claude-sonnet-4-6" | "gemini-2.5-flash" | "groq/compound"
-  const LLMModel = "claude-sonnet-4-6";
+  const LLMModel = "groq/compound";
 
   //CONFIG YOU WILL EDIT:
   //Here, you can give the LLM Assistant background informaiton about the task,

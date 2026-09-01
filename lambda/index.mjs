@@ -15,7 +15,7 @@ const DEFAULT_MODELS = {
   chatgpt: "gpt-4o",
   claude: "claude-sonnet-5",
   gemini: "gemini-2.5-flash",
-  groq: "openai/gpt-oss-20b",
+  groq: "groq/compound",
 };
 
 const DEFAULT_MAX_TOKENS = 1000;
