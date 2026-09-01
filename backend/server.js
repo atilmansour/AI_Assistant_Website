@@ -491,7 +491,6 @@ app.post("/api/ai", async (req, res) => {
           },
         },
       );
-
       return res.json({
         text: extractClaudeText(r.data),
         provider,
