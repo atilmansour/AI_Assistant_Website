@@ -19,7 +19,7 @@ const OnlyChat = () => {
   const LLMProvider = "claude";
   // CONFIG YOU WILL EDIT:
   //You can specify here the model you want according to the provider, the default models are:
-  // "gpt-4o" | "claude-sonnet-4-20250514" | "gemini-2.5-flash" | "llama-3.3-70b-versatile"
+  // "gpt-4o" | "claude-sonnet-4-6" | "gemini-2.5-flash" | "groq/compound"
   const LLMModel = "claude-sonnet-4-6";
 
   //CONFIG YOU WILL EDIT:
