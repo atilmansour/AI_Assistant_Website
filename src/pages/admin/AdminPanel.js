@@ -279,12 +279,25 @@ function normalizeSession(session) {
     messages,
     editorProgress,
   });
-  const participantMessageCount = messages.filter(isParticipantMessage).length;
-  const aiMessageCount = messages.filter(isAIMessage).length;
+  const participantMessageCount = messages.length
+    ? messages.filter(isParticipantMessage).length
+    : Number(session?.participant_message_count ?? session?.total_rounds ?? 0);
+  const aiMessageCount = messages.length
+    ? messages.filter(isAIMessage).length
+    : Number(
+        session?.ai_message_count ??
+          Math.max(
+            0,
+            Number(session?.message_count ?? 0) - participantMessageCount,
+          ),
+      );
   const wordCountOverTime = getWordCountOverTime(editorProgress);
-  const finalWordCount = editorProgress.length
+  const finalWordCount = finalSubmission
     ? countWords(finalSubmission)
-    : "-";
+    : (session?.final_word_count ?? "-");
+  const textEditorSnapshotCount =
+    editorProgress.length || Number(session?.text_editor_snapshots ?? 0);
+  const messageCount = messages.length || Number(session?.message_count ?? 0);
 
   return {
     ...session,
@@ -294,8 +307,8 @@ function normalizeSession(session) {
     rounds_of_interaction:
       session?.total_rounds ??
       messages.filter((message) => message?.sender === "user").length,
-    text_editor_snapshots: editorProgress.length,
-    message_count: messages.length,
+    text_editor_snapshots: textEditorSnapshotCount,
+    message_count: messageCount,
     participant_message_count: participantMessageCount,
     ai_message_count: aiMessageCount,
     final_word_count: finalWordCount,
@@ -424,6 +437,24 @@ function exportJSON(sessions, scope) {
   );
 }
 
+async function backendFullExport(format) {
+  const res = await fetch(`${API_BASE}/api/admin/export?format=${format}`, {
+    headers: authHeader(),
+  });
+
+  if (res.status === 401) {
+    sessionStorage.removeItem("adminToken");
+    window.location.href = "/admin/login";
+    return;
+  }
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || "Export failed");
+  if (!data.url) throw new Error("Export URL missing");
+
+  window.location.href = data.url;
+}
+
 const AdminPanel = () => {
   const [sessions, setSessions] = useState([]);
   const [selected, setSelected] = useState(null);
@@ -520,6 +551,49 @@ const AdminPanel = () => {
     };
   }, [sessions]);
 
+  const loadSessionDetail = useCallback(async (session) => {
+    setSelected({ ...session, loadingRaw: true });
+    setDetailTab("messages");
+
+    try {
+      const params = new URLSearchParams();
+      if (session.key) params.set("key", session.key);
+      else params.set("session_id", session.session_id);
+
+      const res = await fetch(`${API_BASE}/api/admin/session?${params}`, {
+        headers: authHeader(),
+      });
+
+      if (res.status === 401) {
+        sessionStorage.removeItem("adminToken");
+        window.location.href = "/admin/login";
+        return;
+      }
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Failed to load raw logs");
+
+      const detailed = normalizeSession(data.session || session);
+      setSelected(detailed);
+    } catch (err) {
+      setSelected({ ...session, detail_error: err.message });
+    }
+  }, []);
+
+  const handleExport = async (format) => {
+    try {
+      if (exportScope === "full") {
+        await backendFullExport(format);
+        return;
+      }
+
+      if (format === "csv") exportCSV(filtered, "table");
+      else exportJSON(filtered, "table");
+    } catch (err) {
+      alert("Export failed: " + err.message);
+    }
+  };
+
   const deleteSession = async (session) => {
     if (
       !window.confirm(
@@ -573,16 +647,10 @@ const AdminPanel = () => {
             <option value="table">Export table only</option>
             <option value="full">Export full session data</option>
           </select>
-          <button
-            onClick={() => exportCSV(filtered, exportScope)}
-            style={s.headerButton}
-          >
+          <button onClick={() => handleExport("csv")} style={s.headerButton}>
             CSV
           </button>
-          <button
-            onClick={() => exportJSON(filtered, exportScope)}
-            style={s.headerButton}
-          >
+          <button onClick={() => handleExport("json")} style={s.headerButton}>
             JSON
           </button>
           <button
@@ -670,10 +738,7 @@ const AdminPanel = () => {
             {filtered.map((session) => (
               <tr
                 key={session.key || session.session_id}
-                onClick={() => {
-                  setSelected(session);
-                  setDetailTab("messages");
-                }}
+                onClick={() => loadSessionDetail(session)}
                 style={s.tr}
               >
                 {TABLE_COLUMNS.map((column) => (
@@ -820,6 +885,14 @@ const SessionModal = ({ session, detailTab, setDetailTab, onClose }) => {
             </button>
           ))}
         </div>
+
+        {session.loadingRaw && (
+          <div style={s.inlineStatus}>Loading raw session logs...</div>
+        )}
+
+        {session.detail_error && (
+          <div style={s.inlineError}>Error: {session.detail_error}</div>
+        )}
 
         {detailTab === "messages" && (
           <div style={s.scrollArea}>
@@ -1110,6 +1183,20 @@ const s = {
     background: "#ffebee",
     color: "#c62828",
     borderRadius: 4,
+  },
+  inlineStatus: {
+    padding: "0.55rem 1rem",
+    background: "#edf5ff",
+    color: "#0f3d75",
+    borderBottom: "1px solid #d7e8ff",
+    fontSize: "0.82rem",
+  },
+  inlineError: {
+    padding: "0.55rem 1rem",
+    background: "#ffebee",
+    color: "#c62828",
+    borderBottom: "1px solid #ffcdd2",
+    fontSize: "0.82rem",
   },
   loadingBanner: { textAlign: "center", padding: "1rem", color: "#777" },
   tableWrap: {
