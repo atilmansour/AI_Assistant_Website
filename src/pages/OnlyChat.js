@@ -16,11 +16,11 @@ import "../App.css";
 const OnlyChat = () => {
   // CONFIG YOU WILL EDIT:
   // Choose provider: "chatgpt" | "claude" | "gemini" | "Groq"
-  const LLMProvider = "claude";
+  const LLMProvider = "gemini";
   // CONFIG YOU WILL EDIT:
   //You can specify here the model you want according to the provider, the default models are:
   // "gpt-4o" | "claude-sonnet-4-20250514" | "gemini-2.5-flash" | "llama-3.3-70b-versatile"
-  const LLMModel = "claude-haiku-4-5-20251001";
+  const LLMModel = "gemini-2.5-flash";
 
   //CONFIG YOU WILL EDIT:
   //Here, you can give the LLM Assistant background informaiton about the task,
