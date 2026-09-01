@@ -455,6 +455,45 @@ async function backendFullExport(format) {
   window.location.href = data.url;
 }
 
+function hasRawSessionData(session) {
+  return Boolean(
+    session?.raw_payload_json ||
+    session?.logs?.id ||
+    session?.full_messages_json ||
+    session?.editor_progress_json ||
+    safeArray(session?.messages).length ||
+    safeArray(session?.text_editor_progress).length,
+  );
+}
+
+async function fetchSessionDetail(session) {
+  if (hasRawSessionData(session)) return normalizeSession(session);
+
+  const params = new URLSearchParams();
+  if (session.key) params.set("key", session.key);
+  else params.set("session_id", session.session_id);
+
+  const res = await fetch(`${API_BASE}/api/admin/session?${params}`, {
+    headers: authHeader(),
+  });
+
+  if (res.status === 401) {
+    sessionStorage.removeItem("adminToken");
+    window.location.href = "/admin/login";
+    return null;
+  }
+
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) throw new Error(data.error || "Failed to load raw logs");
+
+  const returnedSession = data.session || data.log || data.logs || data;
+  return normalizeSession({
+    ...session,
+    ...returnedSession,
+    key: returnedSession.key || session.key,
+  });
+}
+
 const AdminPanel = () => {
   const [sessions, setSessions] = useState([]);
   const [selected, setSelected] = useState(null);
@@ -552,7 +591,13 @@ const AdminPanel = () => {
   }, [sessions]);
 
   const loadSessionDetail = useCallback(async (session) => {
-    setSelected({ ...session, loadingRaw: true });
+    if (hasRawSessionData(session)) {
+      setSelected(normalizeSession(session));
+      setDetailTab("messages");
+      return;
+    }
+
+    setSelected(normalizeSession({ ...session, loadingRaw: true }));
     setDetailTab("messages");
 
     try {
@@ -573,17 +618,48 @@ const AdminPanel = () => {
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "Failed to load raw logs");
 
-      const detailed = normalizeSession(data.session || session);
+      const returnedSession = data.session || data.log || data.logs || data;
+      const hasRawData =
+        returnedSession?.raw_payload_json ||
+        returnedSession?.logs ||
+        returnedSession?.full_messages_json ||
+        returnedSession?.editor_progress_json;
+
+      if (!hasRawData) {
+        throw new Error(
+          "The backend did not return raw session data. Make sure the deployed Lambda includes /api/admin/session.",
+        );
+      }
+
+      const detailed = normalizeSession({
+        ...session,
+        ...returnedSession,
+        key: returnedSession.key || session.key,
+      });
       setSelected(detailed);
     } catch (err) {
-      setSelected({ ...session, detail_error: err.message });
+      setSelected(normalizeSession({ ...session, detail_error: err.message }));
     }
   }, []);
 
   const handleExport = async (format) => {
     try {
       if (exportScope === "full") {
-        await backendFullExport(format);
+        try {
+          await backendFullExport(format);
+          return;
+        } catch (backendError) {
+          const detailedSessions = (
+            await Promise.all(filtered.map(fetchSessionDetail))
+          ).filter(Boolean);
+
+          if (!detailedSessions.length) {
+            throw backendError;
+          }
+
+          if (format === "csv") exportCSV(detailedSessions, "full");
+          else exportJSON(detailedSessions, "full");
+        }
         return;
       }
 

@@ -173,6 +173,63 @@ function extractOpenAIText(data) {
   return String(content ?? "").trim();
 }
 
+function htmlToPlainText(value) {
+  return String(value ?? "")
+    .replace(/<br\s*\/?>/gi, " ")
+    .replace(/<\/p\s*>/gi, "\n")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function countWords(value) {
+  const matches = htmlToPlainText(value).match(/\b[\w']+\b/g);
+  return matches ? matches.length : 0;
+}
+
+function getMessageSender(message) {
+  return String(message?.sender || "")
+    .toLowerCase()
+    .replace(/\s+/g, "");
+}
+
+function isParticipantMessage(message) {
+  return getMessageSender(message) === "user";
+}
+
+function isAIMessage(message) {
+  return ["llmassistant", "assistant", "ai", "model"].includes(
+    getMessageSender(message),
+  );
+}
+
+function getSessionDurationMs(logs, messages, editor, chatEvents) {
+  const timestamps = [];
+  const addTimestamp = (value) => {
+    const number = Number(value);
+    if (Number.isFinite(number) && number >= 0) timestamps.push(number);
+  };
+
+  editor.forEach((snapshot) => addTimestamp(snapshot?.t_ms));
+  messages.forEach((message) => addTimestamp(message?.timestamp));
+  chatEvents.forEach((event) => addTimestamp(event?.t_ms));
+  (Array.isArray(logs?.TimeStampOfSubmitClicks)
+    ? logs.TimeStampOfSubmitClicks
+    : []
+  ).forEach(addTimestamp);
+  addTimestamp(logs?.ButtonPressed);
+  (Array.isArray(logs?.navigatedAwayExplained)
+    ? logs.navigatedAwayExplained
+    : []
+  ).forEach((event) => {
+    addTimestamp(event?.atMs);
+    addTimestamp(event?.returnedAtMs);
+  });
+
+  return timestamps.length ? Math.max(...timestamps) : null;
+}
+
 async function bodyToString(body) {
   if (!body) return "";
   if (Buffer.isBuffer(body)) return body.toString("utf-8");
@@ -234,18 +291,34 @@ function summarizeLog(logs, objectMeta = {}) {
   const messages = Array.isArray(logs?.messages) ? logs.messages : [];
   const editor = Array.isArray(logs?.editor) ? logs.editor : [];
   const chatEvents = Array.isArray(logs?.chatEvents) ? logs.chatEvents : [];
+  const finalSolution = editor.length
+    ? editor[editor.length - 1]?.text || ""
+    : "";
+  const participantMessageCount = messages.filter(isParticipantMessage).length;
+  const aiMessageCount = messages.filter(isAIMessage).length;
+  const sessionDurationMs = getSessionDurationMs(
+    logs,
+    messages,
+    editor,
+    chatEvents,
+  );
 
   return {
     key: objectMeta.Key || `${id}.txt`,
     session_id: id,
     condition: deriveConditionFromId(id),
     participant_id: "",
-    total_rounds: messages.filter((msg) => msg?.sender === "user").length,
+    total_rounds: participantMessageCount,
+    rounds_of_interaction: participantMessageCount,
     submit_click_count: logs?.NumOfSubmitClicks ?? "",
     created_at: objectMeta.LastModified?.toISOString?.() || "",
     size: objectMeta.Size || 0,
-    final_solution: editor.length ? editor[editor.length - 1]?.text || "" : "",
+    final_solution: finalSolution,
+    final_word_count: finalSolution ? countWords(finalSolution) : "-",
+    session_duration_ms: sessionDurationMs,
     message_count: messages.length,
+    participant_message_count: participantMessageCount,
+    ai_message_count: aiMessageCount,
     text_editor_snapshots: editor.length,
     chat_event_count: chatEvents.length,
     has_raw_payload_json: true,
