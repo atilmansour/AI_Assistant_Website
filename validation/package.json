@@ -1,0 +1,13 @@
+{
+  "name": "platform-technical-validation",
+  "version": "1.0.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "install-browsers": "playwright install",
+    "validate": "node technical-validation.js"
+  },
+  "dependencies": {
+    "playwright": "^1.46.0"
+  }
+}
