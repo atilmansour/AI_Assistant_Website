@@ -26,40 +26,38 @@ This lets researchers match platform logs with external survey data.
 
 ## Condition Mapping
 
-| Code pattern | Condition |
-| --- | --- |
-| `OLxxxxxC` | No LLM / control |
-| `AVLxxxxxU` | Always Visible LLM |
-| `TLxxxxxO` | Toggleable LLM |
-| `PIxxxxxB` | Participant-Initiated LLM |
-| `OCxxxxxA` | Only Chat |
+| Code pattern | Condition                 |
+| ------------ | ------------------------- |
+| `OLxxxxxC`   | No LLM / control          |
+| `AVLxxxxxU`  | Always Visible LLM        |
+| `TLxxxxxO`   | Toggleable LLM            |
+| `PIxxxxxB`   | Participant-Initiated LLM |
+| `OCxxxxxA`   | Only Chat                 |
 
 ## Main Log Fields
 
-| Field | Plain-language meaning |
-| --- | --- |
-| `id` | Unique session/completion code. |
-| `LLMProvider` | Which provider the condition used, such as ChatGPT, Gemini, Claude, or Groq. |
-| `LLMModel` | Which model name was selected. |
-| `backgroundLLMMessage` | Hidden background context/instructions sent to the assistant. |
-| `messages` | Participant and assistant chat messages with timestamps. |
-| `editor` | Text-editor snapshots with timestamps. |
-| `chatEvents` | Events such as assistant open, expand, or collapse. |
-| `ButtonPressed` | Timestamp for participant-initiated assistant activation. |
-| `NumOfSubmitClicks` | Number of times the participant tried to submit. |
-| `TimeStampOfSubmitClicks` | Timestamps for submit attempts. |
-| `navigatedAway` | Number of times the participant left and returned to the page. |
-| `totalNavigatedAwayMs` | Total time away from the page. |
-| `navigatedAwayExplained` | Detailed leave/return episodes. |
+| Field                     | Plain-language meaning                                                       |
+| ------------------------- | ---------------------------------------------------------------------------- |
+| `id`                      | Unique session/completion code.                                              |
+| `LLMProvider`             | Which provider the condition used, such as ChatGPT, Gemini, Claude, or Groq. |
+| `LLMModel`                | Which model name was selected.                                               |
+| `backgroundLLMMessage`    | Hidden background context/instructions sent to the assistant.                |
+| `messages`                | Participant and assistant chat messages with timestamps.                     |
+| `editor`                  | Text-editor snapshots with timestamps.                                       |
+| `chatEvents`              | Events such as assistant open, expand, or collapse.                          |
+| `ButtonPressed`           | Timestamp for participant-initiated assistant activation.                    |
+| `NumOfSubmitClicks`       | Number of times the participant tried to submit.                             |
+| `TimeStampOfSubmitClicks` | Timestamps for submit attempts.                                              |
+| `navigatedAway`           | Number of times the participant left and returned to the page.               |
+| `totalNavigatedAwayMs`    | Total time away from the page.                                               |
+| `navigatedAwayExplained`  | Detailed leave/return episodes.                                              |
 
 ## Editor Snapshots
 
 The text editor saves snapshots in:
 
 ```json
-[
-  { "t_ms": 8709, "text": "<p>I am writing</p>" }
-]
+[{ "t_ms": 8709, "text": "<p>I am writing</p>" }]
 ```
 
 The text is HTML because the editor is a rich-text editor.
@@ -67,7 +65,7 @@ The text is HTML because the editor is a rich-text editor.
 The final submitted editor content is normally:
 
 ```js
-editor[editor.length - 1].text
+editor[editor.length - 1].text;
 ```
 
 > [!NOTE]
@@ -94,19 +92,19 @@ Chat messages are saved in:
 
 Useful derived metrics:
 
-| Metric | How it is derived |
-| --- | --- |
-| Participant messages | Count `messages` where `sender === "user"`. |
-| AI messages | Count `messages` where `sender === "LLMAssistant"`. |
-| Rounds of interaction | Currently derived from participant message count. |
+| Metric                | How it is derived                                   |
+| --------------------- | --------------------------------------------------- |
+| Participant messages  | Count `messages` where `sender === "user"`.         |
+| AI messages           | Count `messages` where `sender === "LLMAssistant"`. |
+| Rounds of interaction | Currently derived from participant message count.   |
 
 ## Dashboard Exports
 
 The dashboard supports two export scopes:
 
-| Export option | What it includes |
-| --- | --- |
-| Table only | Only fields currently visible in the main dashboard table. |
+| Export option     | What it includes                                                                                                |
+| ----------------- | --------------------------------------------------------------------------------------------------------------- |
+| Table only        | Only fields currently visible in the main dashboard table.                                                      |
 | Full session data | Full available session data, including raw logs, messages, editor progress, configuration, and derived metrics. |
 
 Exports are available as:
@@ -118,19 +116,21 @@ Exports are available as:
 
 The `CodeAnalysisData/` folder contains Python scripts for post-study processing.
 
-| Script | What it helps analyze |
-| --- | --- |
-| `getPlainTexts.py` | Extracts final submitted text from each log file. |
-| `getMessagesInCSV.py` | Extracts chat messages into CSV format. |
-| `writingPatterns.py` | Estimates words added per minute, pauses, and writing bursts. |
-| `consultationPatterns.py` | Measures when and how often participants consult the LLM. |
-| `behaviorPostConsultation.py` | Compares writing before and after LLM consultations. |
-| `literalLLMLanguageIncorporation.py` | Estimates direct reuse of LLM-generated words/phrases. |
-| `IndirectLLMLanguageIncorporation.py` | Estimates semantic similarity between final text and LLM responses. |
+| Script                                | What it helps analyze                                                                                                                        |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `getPlainTexts.py`                    | Extracts final submitted text from each log file.                                                                                            |
+| `getMessagesInCSV.py`                 | Extracts chat messages into CSV format.                                                                                                      |
+| `writingPatterns.py`                  | Estimates words added per minute, pauses, and writing bursts.                                                                                |
+| `consultationPatterns.py`             | Measures when and how often participants consult the LLM.                                                                                    |
+| `behaviorPostConsultation.py`         | Compares writing before and after LLM consultations.                                                                                         |
+| `literalLLMLanguageIncorporation.py`  | Estimates direct reuse of LLM-generated words/phrases.                                                                                       |
+| `IndirectLLMLanguageIncorporation.py` | Estimates semantic similarity between final text and LLM responses.                                                                          |
+| `countLLMUserMsgs.py`                 | Count user messages, LLM messages, simple user-LLM exchange rounds, and continued consultation rounds.                                       |
+| `externalLLMDetect.py`                | Detect likely externally pasted long text by identifying large text insertions that do not substantially overlap with in-task LLM responses. |
 
 ## Example Data
 
-The `exampleDataFiles/` folder contains example log files and derived files that can help you understand the data format before running your own study.
+The `exampleDataFiles/` folder contains example log files and derived files that can help you understand the data format before running your own study. It also contains the data from the empirical demonstration, which was run on an older version of the platform.
 
 > [!CAUTION]
 > If you replace example files with real participant data, confirm that the data is anonymized and approved for repository storage before committing it.

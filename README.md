@@ -463,15 +463,17 @@ For a more detailed researcher-facing explanation, see [Data and analysis](docs/
 
 The `CodeAnalysisData/` folder contains Python scripts for extracting and analyzing saved study logs.
 
-| Script                                | Purpose                                                            |
-| ------------------------------------- | ------------------------------------------------------------------ |
-| `getPlainTexts.py`                    | Extract final plain-text submissions from log files.               |
-| `getMessagesInCSV.py`                 | Extract chat messages to CSV.                                      |
-| `writingPatterns.py`                  | Analyze writing bursts, pauses, and words added over time.         |
-| `consultationPatterns.py`             | Analyze timing and distribution of LLM consultations.              |
-| `behaviorPostConsultation.py`         | Compare writing behavior before and after consultation events.     |
-| `literalLLMLanguageIncorporation.py`  | Estimate direct reuse of LLM-generated language.                   |
-| `IndirectLLMLanguageIncorporation.py` | Estimate semantic similarity between final text and LLM responses. |
+| Script                                | Purpose                                                                                                                                      |
+| ------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- |
+| `getPlainTexts.py`                    | Extract final plain-text submissions from log files.                                                                                         |
+| `getMessagesInCSV.py`                 | Extract chat messages to CSV.                                                                                                                |
+| `writingPatterns.py`                  | Analyze writing bursts, pauses, and words added over time.                                                                                   |
+| `consultationPatterns.py`             | Analyze timing and distribution of LLM consultations.                                                                                        |
+| `behaviorPostConsultation.py`         | Compare writing behavior before and after consultation events.                                                                               |
+| `literalLLMLanguageIncorporation.py`  | Estimate direct reuse of LLM-generated language.                                                                                             |
+| `IndirectLLMLanguageIncorporation.py` | Estimate semantic similarity between final text and LLM responses.                                                                           |
+| `countLLMUserMsgs.py`                 | Count user messages, LLM messages, simple user-LLM exchange rounds, and continued consultation rounds.                                       |
+| `externalLLMDetect.py`                | Detect likely externally pasted long text by identifying large text insertions that do not substantially overlap with in-task LLM responses. |
 
 See [Data and analysis](docs/data-and-analysis.md), example data, and analysis output for more details.
 
