@@ -50,7 +50,7 @@ DATA_FORMAT = "FULL_CSV"
 
 # CONFIG YOU WILL EDIT
 # Folder used when DATA_FORMAT = "TXTFILES".
-TXT_DATA_DIR = PROJECT_DIR / "exampleDataFiles"
+TXT_DATA_DIR = PROJECT_DIR / "exampleDataFiles" / "texts"
 
 # CONFIG YOU WILL EDIT
 # File used when DATA_FORMAT = "FULL_JSON".
@@ -63,7 +63,7 @@ FULL_CSV_PATH = PROJECT_DIR / "exampleDataFiles" / "sessions_full.csv"
 # CONFIG YOU WILL EDIT
 # Folder where the clean plain-text files will be saved.
 # Recommendation: keep this different from the raw data folder to avoid overwriting files.
-OUTPUT_FOLDER = PROJECT_DIR / "exampleDataFiles" / "cleanTexts"
+OUTPUT_FOLDER = PROJECT_DIR / "exampleDataFiles" / "txtclean"
 
 # CONFIG YOU WILL EDIT
 # CSV file where all cleaned texts will also be saved together.
@@ -468,7 +468,7 @@ def add_text_column_from_txt(
     csv_file: str | Path,
     cleaned_text_dir: str | Path,
     output_csv: str | Path,
-    code_col: str = "code",
+    code_col: str = "codeT1", #CONFIG YOU WILL EDIT: change this to the column name in your CSV that contains the participant/session code 
     text_col: str = "textT1",
 ) -> None:
     """
@@ -510,6 +510,6 @@ if __name__ == "__main__":
     # Optional: If you have a CSV with a participant/code column and want to add
     # the cleaned texts into it, uncomment and edit the lines below.
     #
-    # CSV_FILE = r"C:\path\to\data.csv"
-    # OUT_CSV = r"C:\path\to\data_with_text.csv"
-    # add_text_column_from_txt(CSV_FILE, OUTPUT_FOLDER, OUT_CSV, code_col="code", text_col="textT1")
+    #CSV_FILE = Path(r":data.csv")
+    #OUT_CSV = Path(r"data_with_text.csv")
+    #add_text_column_from_txt(CSV_FILE, OUTPUT_FOLDER, OUT_CSV, code_col="code", text_col="textT1")
